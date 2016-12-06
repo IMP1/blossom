@@ -1,15 +1,17 @@
 # Blossom
 
 Blossom is a Programming Languages for graphs.
-Heavily influenced by [GP2](https://github.com/UoYCS-plasma/GP2), being developed at the University of York, Blossom shares many of the same features.
+Heavily influenced by [GP2](https://www.cs.york.ac.uk/plasma/wiki/index.php?title=GP_(Graph_Programs)) ([Github](https://github.com/UoYCS-plasma/GP2)), being developed at the University of York, Blossom shares many of the same features.
 
 ## Blossom Syntax
+
+### Graphs
 
 Blossom does not have classes, or arrays, or structs. Instead it has *graphs*. Graphs are made up of *nodes* and *edges*. Both nodes and edges can have labels, which are lists. These lists can contain integers (no signifier), strings (wrapped in quotation marks), colours (prefixed with a hash sign). A label may also contain the keyword 'empty', meaning the list must have no value in. To only match the first item in the label list, you can specify that it can be followed by other values you don't care about with the `*`. `(5, *)` will match a list beginning with 5. The `*` also can match nothing, so the list might also possibly just contain 5. Likewise, `(*, 5)` will match a list ending with a 5, and `(*, 5, *)` will match a list that contains a 5 at any point.
 
 ```blossom
 // Graph Example:
-graph g = [
+graph g [
     // node-id [(node-label [, ...])]
     1 ('top side', 
     2 (#red, 'left island'),
@@ -25,8 +27,9 @@ graph g = [
     2 <-> 4 (2),
     3 <-> 4 (1), // the last comma is optional, but is totally allowed.
 ]
-
 ```
+
+### Rules
 
 Graphs are manipulated by *rules*, which are the most basic operators of Blossom. A rule has an *initial subgraph*, and a *resultant subgrah*. These are both graphs. Applying a rule to a graph will search within that graph for a match of the rule's initial subgraph, and will attempt to transform it into the resultant subgraph. If no match is found, or the resultant subgraph is invalid, then the rule application has failed.
 
@@ -35,13 +38,30 @@ Nodes in subgraphs of rules as well as having constant values in their label lis
 ```blossom
 // Rule Example:
 
-rule setup_tags = <int: x, k> [ 1 (x), 2 (empty) | 1 -> 2 (k) ] => [  1 (x), 2 (x + k) | 1 -> 2 (k) ];
-rule reduce     = <int: x, y, k> [ 1 (x), 2 (y) | 1 -> 2 (k) ] => [ 1 (x), 2 (x + k) | 1 -> 2 (k) ] where (x + k < y);
-
+rule setup_tags <int: x, k> [ 1 (x), 2 (empty) | 1 -> 2 (k) ] => [  1 (x), 2 (x + k) | 1 -> 2 (k) ];
+rule reduce 
+    <int: x, y, k> 
+    [ 
+        1 (x), 
+        2 (y) 
+    | 
+        1 -> 2 (k) 
+    ]
+    =>
+    [ 
+        1 (x), 
+        2 (x + k) 
+    | 
+        1 -> 2 (k) 
+    ] 
+    where (x + k < y);
 ```
 
-A *procedure* is comprised of rules. It can be sequential rule after rule, it can be a choice of rules, it can be an if-statement, or a try-statement.
-Blossom is non-deterministic. 
+### Programmes
+
+A *procedure* is comprised of rules. It can be sequential rule after rule, it can be a choice of rules, it can be an if-statement, or a try-statement. A programme is made up of one or more procedures.
+
+Blossom is non-deterministic, which affects its feature-set.
 
 Choosing arbitrarily between procedure is simple: `{r1, r2}`. If r1 cannot be applied, and r2 can, then r2 definitely will (and vice versa). But if they are both applicable, then one is chosen non-deterministically (in theory).
 
@@ -54,9 +74,17 @@ Try statements are the same. The difference is the result of the condition. With
 ```blossom
 // Programme Example:
 
-rule setup_tags = <int: x, k> [ 1 (x), 2 (empty) | 1 -> 2 (k) ] => [ 1 (x), 2 (x + k) | 1 -> 2 (k) ];
-rule reduce     = <int: x, y, k> [ 1 (x), 2 (y) | 1 -> 2 (k) ] => [ 1 (x), 2 (x + k) | 1 -> 2 (k) ] where (x + k < y);
+rule setup_tags
+    <int: x, k>
+    [ 1 (x), 2 (empty) | 1 -> 2 (k) ] => [ 1 (x), 2 (x + k) | 1 -> 2 (k) ];
+rule reduce
+    <int: x, y, k>
+    [ 1 (x), 2 (y) | 1 -> 2 (k) ] => [ 1 (x), 2 (x + k) | 1 -> 2 (k) ]
+    where (x + k < y);
 
 setup_tags! reduce!
-
 ```
+
+## Running Blossom
+
+Programmes can be thought of as functions, that take a single input of a graph. As such, both the programme and a *host graph* need to be given to actually execute a programme.
