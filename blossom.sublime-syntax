@@ -16,7 +16,7 @@ contexts:
   # Rules #
   #-------#
   builtin_functions:
-    - match: '\b(?:in|out)\b'
+    - match: '\b(?:in|out|edge|uedge)\b'
       scope: support.function.blossom
 
   condition:
