@@ -1,0 +1,151 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+# See http://www.sublimetext.com/docs/3/scope_naming.html
+file_extensions:
+  - blsm
+scope: source.blossom
+variables:
+  type:       '(?:int|string|colour|any)'
+  hexchar:    '[0-9A-F]'
+  identifier: '[A-Za-z_][A-Za-z_0-9]*'
+  arrow:      '?:(->|<->)'
+contexts:
+
+  #-------#
+  # Rules #
+  #-------#
+  builtin_functions:
+    - match: '\b(?:in|out)\b'
+      scope: support.function.blossom
+
+  condition:
+    - match: '\bwhere\b'
+      scope: keyword.control.blossom
+    - match: '\b(?:and|or|not)\b'
+      scope: keyword.operator.word.blossom
+
+  rule_signiture:
+    - match: '\b{{type}}\b'
+      scope: storage.type.blossom
+    - match: '\b{{identifier}}\b'
+      scope: variable.parameter.blossom
+    - match: '>'
+      pop: true
+
+  rule:
+    - meta_scope: meta.function.blossom
+    - meta_scope: debug.meta.rule
+    - match: '<'
+      push: rule_signiture
+    - include: graphs
+    - match: '=>'
+      scope: punctuation.accessor.blossom
+    - include: condition
+    - include: builtin_functions
+    - match: ';'
+      scope: punctuation.terminator.blossom
+      pop: true
+
+  rules:
+    - match: '\b(rule)\s*({{identifier}})'
+      captures:
+        1: keyword.control.blossom
+        2: entity.name.function.blossom
+      push: rule
+
+  #--------#
+  # Graphs #
+  #--------#
+  label:
+    - meta_scope: meta.group.blossom
+    - meta_scope: debug.meta.label
+    - match: '(empty)(\))'
+      captures:
+        1: constant.other.blossom
+        2: punctuation.section.group.end.blossom
+      pop: true
+    - match: '\)'
+      scope: punctuation.section.group.end.blossom
+      pop: true
+    - match: '\d+'
+      scope: constant.numeric.blossom
+    - match: '".*?(?<!\\)"'
+      scope: string.quoted.double.blossom
+    - match: '#\w+'
+      scope: constant.other.blossom
+    - match: '\*'
+      scope: variable.language.blossom
+    - match: '\b{{identifier}}\b'
+      scope: variable.other.blossom
+
+  edge_list:
+    - match: '(\d+)\s*({{arrow}})\s*(\d+)'
+      captures: 
+        1: entity.name.label.blossom
+        2: entity.name.label.blossom, punctuation.accessor.blossom
+        3: entity.name.label.blossom
+    - match: '\('
+      scope: punctuation.section.group.begin.blossom
+      push: label
+
+  node_list:
+    - match: '\d+'
+      scope: entity.name.label.blossom
+    - match: '\('
+      scope: punctuation.section.group.begin.blossom
+      push: label
+
+  graph:
+    - meta_scope: meta.type.blossom
+    - meta_scope: debug.meta.graph
+    - match: '\['
+      scope: punctuation.section.block.begin.blossom
+    - match: '\|'
+      scope: punctuation.separator.blossom
+    - include: edge_list
+    - include: node_list
+    - match: '\]'
+      scope: punctuation.section.block.end.blossom
+      pop: true
+
+  graphs:
+    - match: '(?=\[)'
+      push: graph
+
+  #------------#
+  # Procedures #
+  #------------#
+  procedure:
+    - match: '\bend\b'
+      scope: keyword.control.blossom
+      pop: true
+    - match: '\b(?:if|with|try)\b'
+      scope: keyword.control.conditional.blossom
+
+  procedures:
+    - match: '(proc)\s*({{identifier}})'
+      captures:
+        1: keyword.control.blossom
+        2: entity.name.function.blossom
+      push: procedure
+
+  #----------#
+  # Comments #
+  #----------#
+  line_comment:
+    - meta_scope: comment.line.blossom
+    - match: $
+      pop: true
+
+  comments: 
+    - match: '//'
+      scope: punctuation.definition.comment.blossom
+      push: line_comment
+
+  main:
+    - include: comments
+    - include: graphs
+    - include: rules
+    - include: procedures
+    
