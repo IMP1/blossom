@@ -3,7 +3,7 @@
 // blossom connected_points "[1 (12)]" -dot | dot -Tpng -o output.png
 // blossom connected_points "[1 (144)]" -dot | dot -Tpng -o output.png
 // blossom connected_points "[1 (1728)]" -dot | dot -Tpng -o output.png
-// blossom 
+// blossom connected_points -i "filename" -dot | dot -Tpng -o output.png
 
 rule add_node <int n>
               [1 (n) | ]
