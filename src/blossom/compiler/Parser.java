@@ -5,24 +5,36 @@ import java.util.regex.Pattern;
 
 public abstract class Parser {
 
-	String text;
-	int position;
+	protected String text;
+	protected int position;
+	protected boolean finished;
 	
 	public Parser(String text) {
 		this.text = text;
 		this.position = 0;
+		this.finished = false;
+		if (text.isEmpty()) {
+			this.finished = true;
+		}
+	}
+
+	public boolean isFinished() {
+		return finished;
 	}
 	
-	abstract void parse();
-	
 	protected void consumeWhitespace() {
-		while (Character.isWhitespace(text.charAt(position))) {
+		while (!eof() && Character.isWhitespace(text.charAt(position))) {
 			position ++;
 		}
 	}
 	
 	protected boolean beginsWith(String string) {
 		return text.substring(position).startsWith(string);
+	}
+	
+	protected boolean beginsWith(Pattern pattern) {
+		Matcher matcher = pattern.matcher(text.substring(position));
+		return (matcher.find() && matcher.start() == 0);
 	}
 	
 	protected String consume(String string) {
