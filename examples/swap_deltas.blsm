@@ -1,4 +1,8 @@
 // http://codegolf.stackexchange.com/questions/102139/reverse-deltas-of-an-array
+// blossom swap_deltas "[1 (18), 2 (19), 3 (17), 4 (20), 5 (16) | 1->2, 2->3, 3->4, 4->5 ]"
+// blossom swap_deltas "[1 (1), 2 (2), 3 (3), 4 (4), 5 (5) | 1->2, 2->3, 3->4, 4->5 ]"
+// blossom swap_deltas "[1 (6) | ]"
+
 
 rule calculate_deltas <int x, y>
                       [ 1 (x), 2 (y) | 1 -> 2 (empty) ]
