@@ -1,0 +1,26 @@
+// http://codegolf.stackexchange.com/questions/36621/shortest-code-to-randomly-place-points-and-connect-them
+// blossom connected_points "[1 (1)]" -dot | dot -Tpng -o output.png
+// blossom connected_points "[1 (12)]" -dot | dot -Tpng -o output.png
+// blossom connected_points "[1 (144)]" -dot | dot -Tpng -o output.png
+// blossom connected_points "[1 (1728)]" -dot | dot -Tpng -o output.png
+// blossom 
+
+rule add_node <int n>
+              [1 (n) | ]
+           => [1 (n-1), 2 (0) | ]
+              where n > 0;
+
+rule add_edges [1, 2 | ]
+               [1, 2 | 1->2 ]
+               where not uedge(1, 2);
+
+add_node! add_edges!
+
+
+// Golfed
+// Characters: 93
+rule a<int n>[1(n)|]=>[1(n-1),2(0)|]where n>0;rule b[1,2|][1,2|1->2]where not uedge(1,2);a!b!
+// This mainly serves to illustrate where whitespace is optional.
+
+
+rule a<int n>[1(n)|]=>[1(n-1),2(0)|]where n>0;rule b[1,2|][1,2|1->2]where not uedge(1,2);a!b!
