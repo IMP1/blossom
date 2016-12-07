@@ -75,7 +75,7 @@ contexts:
     - match: '#\w+'
       scope: constant.other.blossom
     - match: '\*'
-      scope: variable.language.blossom
+      scope: constant.other.blossom
     - match: '\b{{identifier}}\b'
       scope: variable.other.blossom
 
@@ -117,6 +117,8 @@ contexts:
   # Procedures #
   #------------#
   procedure:
+    - meta_scope: meta.function.blossom
+    - meta_scope: debug.meta.procedure
     - match: '\bend\b'
       scope: keyword.control.blossom
       pop: true
