@@ -11,16 +11,16 @@ rule add_node <int n>
               where n > 0;
 
 rule add_edges [1, 2 | ]
-               [1, 2 | 1->2 ]
+            => [1, 2 | 1->2 ]
                where not uedge(1, 2);
 
 add_node! add_edges!
 
 
 // Golfed
-// Characters: 93
-rule a<int n>[1(n)|]=>[1(n-1),2(0)|]where n>0;rule b[1,2|][1,2|1->2]where not uedge(1,2);a!b!
+// Characters: 89
+rule a<int n>[1(n)]=>[1(n-1),2]where n>0;rule b[1,2]=>[1,2|1->2]where not uedge(1,2);a!b!
 // This mainly serves to illustrate where whitespace is optional.
-
-
-rule a<int n>[1(n)|]=>[1(n-1),2(0)|]where n>0;rule b[1,2|][1,2|1->2]where not uedge(1,2);a!b!
+// If no label is specified in the initial graph of a rule, then it will match any label. To specify an empty label, use the `empty` keyword.
+// If no label is specified in the result graph of a rule, then it will retain its label from the initial graph, or have an empty label if it not found in the intial graph.
+// Note: for edges, which are always destroyed and recreated, omitting a label will not retain the label from the initial graph, as it will be a new edge.

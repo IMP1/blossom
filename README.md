@@ -29,11 +29,18 @@ graph g [
 ]
 ```
 
+The '|' can be omitted if the graph contains no edges, and whitespace is not important.
+
 ### Rules
 
 Graphs are manipulated by *rules*, which are the most basic operators of Blossom. A rule has an *initial subgraph*, and a *resultant subgrah*. These are both graphs. Applying a rule to a graph will search within that graph for a match of the rule's initial subgraph, and will attempt to transform it into the resultant subgraph. If no match is found, or the resultant subgraph is invalid, then the rule application has failed.
 
-Nodes in subgraphs of rules as well as having constant values in their label lists, can also variables. These have a type (`int`, `string`, `colour`, `any`), which are specified in the rule's signiture. Rules can also be suffixed with a condition, using the `where` modifier.
+Nodes in subgraphs of rules as well as having constant values in their label lists, can also variables. These have a type (`int`, `string`, `colour`, `any`), which are specified in the rule's signiture. 
+
+Rules can also be suffixed with a condition, using the `where` modifier. These conditions can use the inbuilt functions `in(node_id) -> int`, `out(node_id) -> int`, `edge?(source_id, target_id) -> bool`, `uedge(node_1_id, node_2_id)`; and can be combined with the logical operators `and`, `or`, and `not`.
+
+If no label is specified in the initial graph of a rule, then it will match any label. To specify an empty label, use the `empty` keyword. 
+If no label is specified in the result graph of a rule, then it will retain its label from the initial graph, or have an empty label if it is not found in the intial graph. Note that edges are always destroyed and recreated, and so omitting a label in the result graph will not retain the label from the initial graph, as it will be a new edge. To retain it, use a `list` variable.
 
 ```blossom
 // Rule Example:
@@ -88,3 +95,21 @@ setup_tags! reduce!
 ## Running Blossom
 
 Programmes can be thought of as functions, that take a single input of a graph. As such, both the programme and a *host graph* need to be given to actually execute a programme.
+
+**Input**:
+By default blossom checks for any command line arguments that are a graph, and then checks whether any graph arguments have been piped to it. If you pass the -i flag, you can specify a file to be read containing a graph.
+
+`blossom connected_points -i "initial_graph"`
+
+`blossom connected_points "[ 1, 2, 3 | 1->2, 2->3, 3->1 ]"`
+
+`"[ 1, 2, 3 | 1->2, 2->3, 3->1 ]" | blossom connected_points`
+
+**Output**:
+By default, blossom outputs its output to the standard output. You can instead specify a file as the destination with the -o flag.
+
+`blossom connected_points -o "resultant_graph"`
+
+By default, blossom outputs a graph as text (or the special-case graph `invalid`). The text outputted is in the format blossom uses to represent graphs. You can pass certain flags to change the output format. For example, to output in the dot/graphviz output, you can pass the -dot flag.
+
+`blossom connected_points -i "some_filename" -dot`
