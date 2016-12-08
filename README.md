@@ -66,17 +66,19 @@ rule reduce
 
 ### Programmes
 
-A *procedure* is comprised of rules. It can be sequential rule after rule, it can be a choice of rules, it can be an if-statement, or a try-statement. A programme is made up of one or more procedures.
+A *procedure* is made up of rules. It can be a single rule, or sequential rule after rule, or a choice of rules. It can be an if-statement, or a with-statement, or a try-statement. A programme is made up of one or more procedures.
 
 Blossom is non-deterministic, which affects its feature-set.
 
-Choosing arbitrarily between procedure is simple: `{r1, r2}`. If r1 cannot be applied, and r2 can, then r2 definitely will (and vice versa). But if they are both applicable, then one is chosen non-deterministically (in theory).
+Choosing arbitrarily between procedure is simple: `{r1, r2}`. Either r1 or r2 is chosen non-deterministically (in theory). 
 
 Looping a procedure is based on a as-many-times-as-possible loop: `r1!`. This will apply r1 for as many times as it can be applied.
 
-If statements apply a procedure if the "condition" procedure terminates with a valid graph, and can have an optional else procedure: `(if r1, r2)` `(if r1, r2, r3)`
+To optionally apply a rule, there is the 'try' statement. `try(r1)` will attempt to apply r1, but if r1 fails the try will revert back to the graph before, and return that, counting as a successful application of the try statement.
 
-Try statements are the same. The difference is the result of the condition. With an if statement, the changes to the graph made by the "condition" procedure are not kept, whereas they are with a try statement: `(try r1, r2)` `(try r1, r2, r3)`
+If statements apply a procedure if the "condition" procedure terminates with a valid graph, and can have an optional else procedure: `if (r1, r2)` `if (r1, r2, r3)`
+
+'With' statements are the same. The difference is the result of the condition. With an if statement, the changes to the graph made by the "condition" procedure are not kept before going on to either the 'then' or 'else' procedure., whereas with a 'with' statement the 'then' procedure uses the result of the condition procedure: `with (r1, r2)` `with (r1, r2, r3)`
 
 ```blossom
 // Programme Example:
@@ -91,6 +93,34 @@ rule reduce
 
 setup_tags! reduce!
 ```
+
+<!-- 
+### Syntactic Features
+
+**Rules**:
+
+ * <type var1, var2; type var3, var4; ...> : variable list for a rule
+ * [ nodes | edges ] : graph
+ * where ... : rule condition
+ * and/or/not : logical operators for rule conditions
+ * in/out/edge/uedge/... : built-in functions for rule conditions
+
+** Graphs**:
+
+ * [ nodes | edges ] : graph
+
+** Programmes**:
+
+ * r1; : rule/proc application
+ * r1! : rule/proc looping
+ * {r1, r2} : non-deterministic choice
+ * try(r1) : optional application
+ * if(r1, r2[, r3]) : conditional applications with rollback of condition
+ * with(r1, r2[, r3]) : conditional applications without rollback of condition
+ * rule <rule_definition> : rule definition
+ * proc <proc_definition> end : procedure definition
+    
+-->
 
 ## Running Blossom
 
