@@ -119,11 +119,11 @@ public class GraphParser extends Parser {
         } else if (beginsWith("#")) {
             return parseColour();
         } else if (beginsWith(Pattern.compile("\\d"))) {
-            return parseColour();
+            return parseInt();
         } else if (acceptsVariables) {
             return parseVariable();
         } else {
-            throw new RuntimeException();
+        	throw new InvalidSyntaxException("Invalid variable literal");
         }
     }
     

@@ -1,6 +1,7 @@
 package blossom.lang;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Graph {
 
@@ -38,7 +39,7 @@ public class Graph {
         addEdge(e);
     }
 
-    public Node getNode(nodeId) {
+    public Node getNode(int nodeId) {
         return nodes.get(nodeId);
     }
 

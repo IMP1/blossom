@@ -6,7 +6,7 @@ public class Procedure {
 
     public static final String DEFINITION_KEYWORD = "proc";
 
-    // instructions
+    private ArrayList<Instruction> instructions;
     
     public Procedure() {
 

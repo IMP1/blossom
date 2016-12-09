@@ -52,7 +52,7 @@ public abstract class Parser {
         {
             int end = matcher.end();
             String result = text.substring(position, position + end);
-            position += result.length;
+            position += result.length();
             return result; 
         }
         return "";
@@ -64,7 +64,7 @@ public abstract class Parser {
             int end = matcher.end();
             String matchedString = text.substring(position, position + end);
             String[] result = new String[0]; // TODO: put groups into a string array.
-            position += matchedString.length;
+            position += matchedString.length();
             return result;
         }
         return new String[0];        
@@ -72,6 +72,20 @@ public abstract class Parser {
     
     protected boolean eof() {
         return position == text.length();
+    }
+    
+    public class InvalidSyntaxException extends RuntimeException {
+    	
+		private static final long serialVersionUID = -2487073824658980486L;
+
+		public InvalidSyntaxException() {
+    		
+    	}
+    	
+    	public InvalidSyntaxException(String message) {
+    		
+    	}
+    	
     }
     
 }

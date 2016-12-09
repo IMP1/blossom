@@ -1,10 +1,19 @@
 package blossom.compiler;
 
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+
+import blossom.lang.Graph;
+import blossom.lang.Procedure;
+import blossom.lang.Programme;
+import blossom.lang.Rule;
+import blossom.lang.Rule.Variable;
+
 public class ProgramParser extends Parser {
 
     private static final Pattern IDENTIFIER = Pattern.compile("[a-zA-Z_]\\w*");
     private static final Pattern TYPE = Pattern.compile("(?:int|string|colour|any)");
-    private static final String  VARIABLE_LIST_REGEX = String.Format("(%s)\\s*(%s\\s*(?:,\\s*%s)*)(?=;|>)", TYPE, IDENTIFIER, IDENTIFIER);
+    private static final String  VARIABLE_LIST_REGEX = String.format("(%s)\\s*(%s\\s*(?:,\\s*%s)*)(?=;|>)", TYPE, IDENTIFIER, IDENTIFIER);
     private static final Pattern VARIABLE_LIST = Pattern.compile(VARIABLE_LIST_REGEX);
 
     private Programme programme;
@@ -48,7 +57,7 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         String condition = null;
         if (beginsWith(Rule.CONDITION_KEYWORD)) {
-            condition = null // TODO
+            condition = null; // TODO
         }
         consume(";");
 
@@ -79,8 +88,8 @@ public class ProgramParser extends Parser {
         
     }
 
-    private void parseGraph() {
-        
+    private Graph parseGraph() {
+        return null; // TODO
     }
 
 }

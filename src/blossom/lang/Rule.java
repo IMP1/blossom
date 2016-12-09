@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Rule {
 
-    public class Variable {
+    public static class Variable {
 
         public enum Type {
             INT, STRING, COLOUR, ANY
@@ -14,7 +14,7 @@ public class Rule {
         public final String name;
 
         public Variable(String type, String name) {
-            this(Type.valueof(type.toUpperCase(), name));
+            this(Type.valueOf(type.toUpperCase()), name);
         }
 
         public Variable(Type type, String name) {
@@ -37,7 +37,7 @@ public class Rule {
         this(initialGraph, resultGraph, null);
     }
 
-    public Rule(Graph initialGraph, Graph resultGraphArrayList<Variable> variables, ) {
+    public Rule(Graph initialGraph, Graph resultGraph, ArrayList<Variable> variables) {
         this(initialGraph, resultGraph, variables, null);
     }
 

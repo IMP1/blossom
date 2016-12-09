@@ -1,5 +1,7 @@
 package blossom.compiler;
 
+import java.io.InputStreamReader;
+
 import blossom.lang.Graph;
 
 public class Compiler {
@@ -8,7 +10,7 @@ public class Compiler {
         System.out.println("");
     }
 
-    public static void main(String... args) {
+    public static void main(String... args) throws Exception {
         test();
 
         // Allow for Piped-in Arguments
@@ -17,7 +19,7 @@ public class Compiler {
             char[] buffer = new char [256];
             int amountRead = 0;
             while (streamReader.ready() && amountRead > -1) {
-                int amountRead = streamReader.read(buffer, 0, buffer.length);
+                amountRead = streamReader.read(buffer, 0, buffer.length);
                 if (amountRead > -1) {
                     pipelineArgs.append(buffer, 0, amountRead);
                 }

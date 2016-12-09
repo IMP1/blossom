@@ -7,7 +7,7 @@ public class Programme {
 
     private HashMap<String, Rule> rules;
     private HashMap<String, Procedure> procedures;
-    private ArrayList<Istruction> instructions;
+    private ArrayList<Instruction> instructions;
     
     public Programme() {
 

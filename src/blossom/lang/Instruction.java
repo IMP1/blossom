@@ -1,7 +1,5 @@
 package blossom.lang;
 
-import java.util.ArrayList;
-
 public class Instruction {
 
     public Instruction() {
@@ -9,7 +7,7 @@ public class Instruction {
     }
 
     public Graph execute(Graph g) {
-
+    	return null;
     }
     
 }
