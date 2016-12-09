@@ -51,10 +51,22 @@ public abstract class Parser {
         {
             int end = matcher.end();
             String result = text.substring(position, position + end);
-            position += result.length();
+            position += result.length;
             return result; 
         }
         return "";
+    }
+
+    protected String[] consumeAll(Pattern pattern) {
+        Matcher matcher = pattern.matcher(text.substring(position));
+        if (matcher.find() && matcher.start() == 0) {
+            int end = matcher.end();
+            String matchedString = text.substring(position, position + end);
+            String[] result = new String[0]; // TODO: put groups into a string array.
+            position += matchedString.length;
+            return result;
+        }
+        return new String[0];        
     }
     
     protected boolean eof() {
