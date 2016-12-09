@@ -1,6 +1,8 @@
 package blossom.compiler;
 
 public class ProgramParser extends Parser {
+
+    private static final Pattern IDENTIFIER = Pattern.compile("[a-zA-Z_]\\w*");
     
     private Programme programme;
 
@@ -25,6 +27,17 @@ public class ProgramParser extends Parser {
     }
 
     private void parseRule() {
+        consume(Rule.DEFINITION_KEYWORD);
+        consumeWhitespace();
+        String ruleName = consume(IDENTIFIER);
+        consumeWhitespace();
+        if (beginsWith("<")) {
+            ArrayList<Variable> variables = parseRuleVariables();
+            consumeWhitespace();
+        }
+    }
+
+    private ArrayList<Variable> parseRuleVariables() {
 
     }
 
