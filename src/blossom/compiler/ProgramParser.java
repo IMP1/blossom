@@ -3,7 +3,8 @@ package blossom.compiler;
 public class ProgramParser extends Parser {
 
     private static final Pattern IDENTIFIER = Pattern.compile("[a-zA-Z_]\\w*");
-    
+    private static final Pattern TYPE = Pattern.compile("(?:int|string|colour|any)");
+
     private Programme programme;
 
     public ProgramParser(String programCode) {
@@ -38,7 +39,10 @@ public class ProgramParser extends Parser {
     }
 
     private ArrayList<Variable> parseRuleVariables() {
-
+        consume("<");
+        while (!eof() && !beginsWith(">")) {
+            String[] variables = consumeAll(Pattern.compile("(int|string|colour|any)\\s*()(?=>|;)"));
+        }
     }
 
     private void parseProcedure() {
