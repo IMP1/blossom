@@ -25,7 +25,6 @@ public class GraphParser extends Parser {
     public Graph parse() {
         consumeWhitespace();
         if (eof()) {
-            finished = true;
             return graph;
         }
         consume("[");
