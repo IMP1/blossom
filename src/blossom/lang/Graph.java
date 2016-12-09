@@ -3,6 +3,8 @@ package blossom.lang;
 import java.util.ArrayList;
 
 public class Graph {
+
+    public static final Graph INVALID = null;
     
     private HashMap<Integer, Node> nodes;
     private ArrayList<Edge> edges;
