@@ -144,7 +144,7 @@ public class GraphParser extends Parser {
     }
     
     private void consumeOptionalComma() {
-        consume(Pattern.compile(",?"));
+        if (beginsWith(",")) consume(",");
     }
     
 }

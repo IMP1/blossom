@@ -13,9 +13,20 @@ public class Rule {
         public final Type type;
         public final String name;
 
+        public Variable(String type, String name) {
+            this(Type.valueof(type.toUpperCase(), name));
+        }
+
+        public Variable(Type type, String name) {
+            this.type = type;
+            this.name = name;
+        }
+
     }
 
     public static final String DEFINITION_KEYWORD = "rule";
+    public static final String CONDITION_KEYWORD = "where";
+    public static final String APPLICATION_OPERATOR = "=>";
 
     public final ArrayList<Variable> variables;
     public final Graph initialGraph;
@@ -23,14 +34,14 @@ public class Rule {
     public final String condition;
     
     public Rule(Graph initialGraph, Graph resultGraph) {
-        this(null, initialGraph, resultGraph);
+        this(initialGraph, resultGraph, null);
     }
 
-    public Rule(ArrayList<Variable> variables, Graph initialGraph, Graph resultGraph) {
-        this(variables, initialGraph, resultGraph, null);
+    public Rule(Graph initialGraph, Graph resultGraphArrayList<Variable> variables, ) {
+        this(initialGraph, resultGraph, variables, null);
     }
 
-    public Rule(ArrayList<Variable> variables, Graph initialGraph, Graph resultGraph, String condition) {
+    public Rule(Graph initialGraph, Graph resultGraph, ArrayList<Variable> variables, String condition) {
         this.variables = variables;
         this.initialGraph = initialGraph;
         this.resultGraph = resultGraph;

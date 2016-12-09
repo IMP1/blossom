@@ -38,6 +38,7 @@ public abstract class Parser {
     }
     
     protected String consume(String string) {
+        if (eof()) System.err.printf("Reached the end of the file expecting '%s'.\n", string);
         if (beginsWith(string)) {
             position += string.length();
             return string;
