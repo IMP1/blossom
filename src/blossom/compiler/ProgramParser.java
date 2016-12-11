@@ -89,7 +89,15 @@ public class ProgramParser extends Parser {
     }
 
     private Graph parseGraph() {
-        return null; // TODO
+    	StringBuilder graphText = new StringBuilder();
+    	while (!eof() && !beginsWith("]")) {
+    		graphText.append(consume(Pattern.compile(".*?(?=\"|\\])")));
+    		if (beginsWith("\"")) {
+    			graphText.append(consume(Pattern.compile("\".*?(?<!\\\\)\"")));
+    		}
+    	}
+    	GraphParser gp = new GraphParser(graphText.toString(), true);
+    	return gp.parse();
     }
 
 }
