@@ -81,7 +81,16 @@ public class ProgramParser extends Parser {
     }
 
     private void parseProcedure() {
-        
+        consume(Procedure.DEFINITION_KEYWORD);
+        consumeWhitespace();
+        String procName = consume(IDENTIFIER);
+        consumeWhitespace();
+        Procedure procedure = new Procedure();
+        while (!eof() && !beginsWith(Procedure.END_KEYWORD)) {
+        	// TODO; add instructions to procedure.
+        }
+        consume(Procedure.END_KEYWORD);
+        programme.addProcedure(procName, procedure);
     }
 
     private void parseInstruction() {
