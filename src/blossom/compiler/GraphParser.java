@@ -2,24 +2,31 @@ package blossom.compiler;
 
 import blossom.lang.Graph;
 import blossom.lang.Node;
+import blossom.lang.LabelItem;
+import blossom.lang.LabelVariable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import blossom.lang.Edge;
 
 public class GraphParser extends Parser {
-    
+
+    private static final Pattern LITERAL_INT    = Pattern.compile("-?\\d+");
+    private static final Pattern LITERAL_STRING = Pattern.compile("\".+?(<!\\\\)\"");
+    private static final Pattern LITERAL_COLOUR = Pattern.compile("#\\w+?");
+
     private Graph graph;
     private ArrayList<Node> nodes;
     private ArrayList<Edge> edges;
     
-    private boolean acceptsVariables;
+    private HashMap<String, LableItem.Type> variables
     
-    public GraphParser(String graphCode, boolean acceptsVariables) {
+    public GraphParser(String graphCode, HashMap<String, LableItem.Type> variables) {
         super(graphCode);
         graph = new Graph();
-        this.acceptsVariables = acceptsVariables;
+        this.variables = variables;
     }
 
     public Graph parse() {
@@ -63,7 +70,7 @@ public class GraphParser extends Parser {
         int id = Integer.parseInt(idString);
         consumeWhitespace();
         if (beginsWith("(")) {
-            ArrayList<String> label = parseList();
+            ArrayList<LabelItem> label = parseList();
             return new Node(id, label);
         }
         return new Node(id);
@@ -84,14 +91,14 @@ public class GraphParser extends Parser {
         int targetId = Integer.parseInt(consume(Pattern.compile("\\d+")));
         consumeWhitespace();
         if (beginsWith("(")) {
-            ArrayList<String> label = parseList();
+            ArrayList<LabelItem> label = parseList();
             return new Edge(nodes.get(sourceId), nodes.get(targetId), label);
         }
         return new Edge(nodes.get(sourceId), nodes.get(targetId));
     }
     
-    private ArrayList<String> parseList() {
-        ArrayList<String> list = new ArrayList<String>();
+    private ArrayList<LabelItem> parseList() {
+        ArrayList<LabelItem> list = new ArrayList<LabelItem>();
         consume("(");
         
         if (!eof() || beginsWith(")")) return list;
@@ -113,34 +120,35 @@ public class GraphParser extends Parser {
         return list;
     }
     
-    private String parseListItem() {
+    private LabelItem parseListItem() {
         if (beginsWith("\"")) {
-            return parseString();
+            return new LabelItem(Label.Type.STRING, parseString());
         } else if (beginsWith("#")) {
-            return parseColour();
+            return new LabelItem(Label.Type.COLOUR, parseColour());
         } else if (beginsWith(Pattern.compile("\\d"))) {
-            return parseInt();
-        } else if (acceptsVariables) {
-            return parseVariable();
+            return new LabelItem(Label.Type.INTEGER, parseInt());
+        } else if (variables != null) {
+            String variableName = parseVariable();
+            return new LabelVariable(variables.get(variableName), variableName);
         } else {
         	throw new InvalidSyntaxException("Invalid variable literal");
         }
     }
     
     private String parseInt() {
-        return consume(Pattern.compile("\\d+"));
+        return consume(LITERAL_INT);
     }
     
     private String parseString() {
-        return consume(Pattern.compile("\".+?(<!\\\\)\""));
+        return consume(LITERAL_STRING);
     }
     
     private String parseColour() {
-        return consume(Pattern.compile("#\\w+?"));
+        return consume(LITERAL_COLOUR);
     }
     
     private String parseVariable() {
-        return ""; // TODO: parse Variables.
+        return consume(ProgramParser.IDENTIFIER);
     }
     
     private void consumeOptionalComma() {
