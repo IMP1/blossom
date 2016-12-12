@@ -11,10 +11,13 @@ import blossom.lang.Rule.Variable;
 
 public class ProgramParser extends Parser {
 
-    private static final Pattern IDENTIFIER = Pattern.compile("[a-zA-Z_]\\w*");
+    private static final String  IDENTIFIER_REGEX = "[a-zA-Z_]\\w*\\??";
+    public static final  Pattern IDENTIFIER = Pattern.compile(IDENTIFIER_REGEX);
     private static final Pattern TYPE = Pattern.compile("(?:int|string|colour|any)");
     private static final String  VARIABLE_LIST_REGEX = String.format("(%s)\\s*(%s\\s*(?:,\\s*%s)*)(?=;|>)", TYPE, IDENTIFIER, IDENTIFIER);
     private static final Pattern VARIABLE_LIST = Pattern.compile(VARIABLE_LIST_REGEX);
+    private static final String  INSTRUCTION_REGEX = String.format("(%s)(;|!)?", IDENTIFIER, );
+    private static final Pattern INSTRUCTION = Pattern.compile(INSTRUCTION_REGEX);
 
     private Programme programme;
 
@@ -95,7 +98,15 @@ public class ProgramParser extends Parser {
     }
 
     private void parseInstruction() {
-        
+        // single_rule_or_proc_call
+        // x;
+        // x!
+        // {x, y}
+        // try(x)
+        // if (x, y)
+        // if (x, y, z)
+        // with (x, y)
+        // with (x, y, z)
     }
 
     private Graph parseGraph() {
