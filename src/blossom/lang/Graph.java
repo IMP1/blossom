@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 public class Graph {
 
+    public static final String DEFINITION_KEYWORD = "graph";
+
     public static final Graph INVALID = null;
     
     private HashMap<Integer, Node> nodes;
