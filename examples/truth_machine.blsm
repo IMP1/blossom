@@ -8,5 +8,5 @@ rule zero? [ 1 (0) ]
 if (zero?, print(0), print(1)!);
 
 // Golfed
-// Characters: 46
-rule a[1(0)]=>[1(0)];if(a,print(0),print(1)!);
+// Characters: 45
+rule a[1(0)]=>[1(0)];if(a,print(0),print(1)!)
