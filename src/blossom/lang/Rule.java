@@ -47,5 +47,15 @@ public class Rule {
         this.resultGraph = resultGraph;
         this.condition = condition;
     }
+
+    public Graph apply(Graph hostGraph) {
+        Matcher m = new Matcher(hostGraph, initialGraph);
+        if (!m.find()) {
+            return Graph.INVALID;
+        }
+        HashMap<Integer, Integer> nodeMapping = findMatch(hostGraph);
+
+        return hostGraph; // TODO: remove placeholder no-op.
+    }
     
 }
