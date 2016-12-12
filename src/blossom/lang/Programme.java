@@ -25,8 +25,8 @@ public class Programme {
         instructions.add(newInstruction);
     }
 
-    public void run() {
+    public Graph run(Graph hostGraph) {
         // TODO
     }
-    
+
 }
