@@ -8,16 +8,20 @@ scope: source.blossom
 variables:
   type:       '(?:int|string|colour|any)'
   hexchar:    '[0-9A-F]'
-  identifier: '[A-Za-z_][A-Za-z_0-9]*'
+  identifier: '[A-Za-z_][A-Za-z_0-9]*[\?]?'
   arrow:      '?:(->|<->)'
 contexts:
 
   #-------#
   # Rules #
   #-------#
-  builtin_functions:
+  builtin_conditions:
     - match: '\b(?:in|out|edge|uedge)\b'
       scope: support.function.blossom
+
+  builtin_instructions:
+    - match: '\b(?:print)\b'
+      scope: support.function.blossom    
 
   condition:
     - match: '\bwhere\b'
@@ -42,7 +46,7 @@ contexts:
     - match: '=>'
       scope: punctuation.accessor.blossom
     - include: condition
-    - include: builtin_functions
+    - include: builtin_conditions
     - match: ';'
       scope: punctuation.terminator.blossom
       pop: true
@@ -122,7 +126,7 @@ contexts:
     - match: '\bend\b'
       scope: keyword.control.blossom
       pop: true
-    - match: '\b(?:if|with|try)\b'
+    - match: '\b(?:if|with)\b'
       scope: keyword.control.conditional.blossom
 
   procedures:
@@ -131,6 +135,14 @@ contexts:
         1: keyword.control.blossom
         2: entity.name.function.blossom
       push: procedure
+
+  #--------------#
+  # Instructions #
+  #--------------#
+  instructions:
+    - meta_scope: meta.program.blossom
+    - match: '\b(?:if|with)\b'
+      scope: keyword.control.conditional.blossom
 
   #----------#
   # Comments #
@@ -150,4 +162,6 @@ contexts:
     - include: graphs
     - include: rules
     - include: procedures
+    - include: instructions
+    - include: builtin_instructions
     
