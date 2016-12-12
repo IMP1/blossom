@@ -31,7 +31,8 @@ public class ProgramParser extends Parser {
                 parseRule();
             } else if (beginsWith(Procedure.DEFINITION_KEYWORD)) {
                 parseProcedure();
-            // TODO: add graph definitions?
+            } else if (beginsWith(Graph.DEFINITION_KEYWORD)) {
+                parseNamedGraph();
             } else {
                 parseInstruction();
             }
@@ -107,6 +108,14 @@ public class ProgramParser extends Parser {
     	}
     	GraphParser gp = new GraphParser(graphText.toString(), true);
     	return gp.parse();
+    }
+
+    private void parseNamedGraph() {
+        consume(Graph.DEFINITION_KEYWORD);
+        consumeWhitespace();
+        String graphName = consume(IDENTIFIER);
+        consumeWhitespace();
+        Graph graph = parseGraph();
     }
 
 }
