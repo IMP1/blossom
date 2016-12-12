@@ -29,3 +29,12 @@ rule clean_up <int x>
            => [ 1 (x)      | ];
 
 calculate_deltas! swap_order; apply_deltas! cleanup;
+
+// Golfed
+// Characters: 316 (not counting newlines as they're not necessary)
+rule a<int x,y>[1(x),2(y)|1->2(empty)]=>[1(x),2(y)|1->2(y-x)];
+rule b<int x,y>[1(x),2(y)]=>[1(y),2(x)]where out(2)=0 and in(1)=0;
+rule c<int x,y,k>[1(x),2(y,"!")|1->2(k)]=>[1(x,"!"),2(y,"!")|2->1(k)];
+rule d<int x,y,k>[1(x,"!"),2(y,"!")|1->2(k)]=>[1(x),2(x+k,"!")|1->2(k)];
+rule e<int x>[1(x,"!")]=>[1(x)];
+a!try(b);c!d!e
