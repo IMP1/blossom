@@ -5,15 +5,15 @@ import java.util.ArrayList;
 public class Node {
 
     public final int id;
-    private ArrayList<String> label;
+    private ArrayList<LabelItem> label;
     
-    public Node(int id, ArrayList<String> label) {
+    public Node(int id, ArrayList<LabelItem> label) {
         this.id = id;
         this.label = label;
     }
     
     public Node(int id) {
-        this(id, new ArrayList<String>());
+        this(id, new ArrayList<LabelItem>());
     }
     
 }

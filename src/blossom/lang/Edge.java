@@ -6,16 +6,16 @@ public class Edge {
 
     public final Node source;
     public final Node target;
-    private ArrayList<String> label;
+    private ArrayList<LabelItem> label;
     
-    public Edge(Node source, Node target, ArrayList<String> label) {
+    public Edge(Node source, Node target, ArrayList<LabelItem> label) {
         this.source = source;
         this.target = target;
         this.label = label;
     }
     
     public Edge(Node source, Node target) {
-        this(source, target, new ArrayList<String>());
+        this(source, target, new ArrayList<LabelItem>());
     }
     
 }
