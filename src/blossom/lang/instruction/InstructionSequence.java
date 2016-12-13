@@ -1,5 +1,9 @@
 package blossom.lang.instruction;
 
+import java.util.ArrayList;
+
+import blossom.lang.Graph;
+
 public class InstructionSequence extends Instruction {
 
     public final ArrayList<Instruction> instructions;

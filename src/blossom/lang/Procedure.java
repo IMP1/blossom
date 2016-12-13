@@ -1,6 +1,7 @@
 package blossom.lang;
 
-import java.util.ArrayList;
+import blossom.lang.instruction.Instruction;
+import blossom.lang.instruction.InstructionSequence;
 
 public class Procedure {
 

@@ -1,5 +1,7 @@
 package blossom.lang.instruction;
 
+import blossom.lang.Graph;
+
 public class WithInstruction extends Instruction {
 
     public final Instruction condition;

@@ -1,6 +1,9 @@
 package blossom.lang;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import blossom.lang.Rule.Variable;
 
 public class Matcher {
 
@@ -20,11 +23,15 @@ public class Matcher {
     }
 
     public boolean find() {
-        return false;
+        return false; // TODO: do
+    }
+    
+    public HashMap<Integer, Integer> nextMatch() {
+    	return null; // TODO: do.
     }
 
     private boolean nodesMatch(Node n1, Node n2) {
-
+    	return false; // TODO: do
     }
 
 }

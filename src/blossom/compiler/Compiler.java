@@ -34,7 +34,7 @@ public class Compiler {
     
     public static void test() {
         String graphText = "[ 1 (#red), 2 (4) | 1->2 ]";
-        Graph g = new GraphParser(graphText, false).parse();
+        Graph g = new GraphParser(graphText, null).parse();
         System.out.println(g);
     }
 

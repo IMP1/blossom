@@ -1,10 +1,12 @@
 package blossom.compiler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import blossom.lang.*;
-import blossom.lang.instuction.*;
+import blossom.lang.instruction.*;
+import blossom.lang.instruction.Instruction.Multiplicity;
 import blossom.lang.Rule.Variable;
 
 public class ProgramParser extends Parser {
@@ -52,11 +54,11 @@ public class ProgramParser extends Parser {
             variables = parseRuleVariables();
             consumeWhitespace();
         }
-        Graph initialGraph = parseGraph();
+        Graph initialGraph = parseGraph(variables);
         consumeWhitespace();
         consume(Rule.APPLICATION_OPERATOR);
         consumeWhitespace();
-        Graph resultGraph = parseGraph();
+        Graph resultGraph = parseGraph(variables);
         consumeWhitespace();
         String condition = null;
         if (beginsWith(Rule.CONDITION_KEYWORD)) {
@@ -114,7 +116,7 @@ public class ProgramParser extends Parser {
             } else if (rules.containsKey(name)) {
                 Multiplicity m = parseMultiplicity();
                 Instruction i = new RuleInstruction(rules.get(name), m);
-                programme.addInstruction();
+                programme.addInstruction(i);
             } else if (procedures.containsKey(name)) {
 
             } else {
@@ -192,7 +194,7 @@ public class ProgramParser extends Parser {
         }
     }
 
-    private Graph parseGraph() {
+    private Graph parseGraph(ArrayList<Variable> variables) {
         StringBuilder graphText = new StringBuilder();
         while (!eof() && !beginsWith("]")) {
             graphText.append(consume(Pattern.compile(".*?(?=\"|\\])")));
@@ -200,7 +202,11 @@ public class ProgramParser extends Parser {
                 graphText.append(consume(Pattern.compile("\".*?(?<!\\\\)\"")));
             }
         }
-        GraphParser gp = new GraphParser(graphText.toString(), true);
+        HashMap<String, LabelItem.Type> variableTypes = new HashMap<String, LabelItem.Type>();
+        for (Variable v : variables) {
+        	variableTypes.put(v.name, v.type);
+        }
+        GraphParser gp = new GraphParser(graphText.toString(), variableTypes);
         return gp.parse();
     }
 
@@ -209,7 +215,7 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         String graphName = consume(IDENTIFIER);
         consumeWhitespace();
-        Graph graph = parseGraph();
+        Graph graph = parseGraph(null);
     }
 
     private void consumeOptionalComma() {

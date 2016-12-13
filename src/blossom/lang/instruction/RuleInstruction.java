@@ -1,5 +1,8 @@
 package blossom.lang.instruction;
 
+import blossom.lang.Graph;
+import blossom.lang.Rule;
+
 public class RuleInstruction extends Instruction {
 
     public final Rule rule;

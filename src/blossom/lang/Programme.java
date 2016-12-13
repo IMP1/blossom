@@ -3,6 +3,8 @@ package blossom.lang;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import blossom.lang.instruction.Instruction;
+
 public class Programme {
 
     private HashMap<String, Rule> rules;

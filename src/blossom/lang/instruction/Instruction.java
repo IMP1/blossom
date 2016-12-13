@@ -1,6 +1,6 @@
 package blossom.lang.instruction;
 
-import java.util.ArrayList;
+import blossom.lang.Graph;
 
 public abstract class Instruction {
 
@@ -21,20 +21,23 @@ public abstract class Instruction {
     }
 
     public Graph execute(final Graph g) {
+    	Graph result;
         switch (multiplicity) {
         case OPTIONAL:
-            Graph result = apply(g);
+            result = apply(g);
             return result == Graph.INVALID ? g : result;
         case ONCE:
             return apply(g);
         case WHILE_POSSIBLE:
-            Graph result = g;
+            result = g;
             Graph currentGraph = apply(g);
             while (currentGraph != Graph.INVALID) {
                 result = currentGraph;
                 currentGraph = apply(currentGraph);
             }
             return result;
+        default:
+        	return Graph.INVALID;
         }
     }
 

@@ -21,9 +21,9 @@ public class GraphParser extends Parser {
     private ArrayList<Node> nodes;
     private ArrayList<Edge> edges;
     
-    private HashMap<String, LableItem.Type> variables
+    private HashMap<String, LabelItem.Type> variables;
     
-    public GraphParser(String graphCode, HashMap<String, LableItem.Type> variables) {
+    public GraphParser(String graphCode, HashMap<String, LabelItem.Type> variables) {
         super(graphCode);
         graph = new Graph();
         this.variables = variables;
@@ -122,11 +122,11 @@ public class GraphParser extends Parser {
     
     private LabelItem parseListItem() {
         if (beginsWith("\"")) {
-            return new LabelItem(Label.Type.STRING, parseString());
+            return new LabelItem(LabelItem.Type.STRING, parseString());
         } else if (beginsWith("#")) {
-            return new LabelItem(Label.Type.COLOUR, parseColour());
+            return new LabelItem(LabelItem.Type.COLOUR, parseColour());
         } else if (beginsWith(Pattern.compile("\\d"))) {
-            return new LabelItem(Label.Type.INTEGER, parseInt());
+            return new LabelItem(LabelItem.Type.INTEGER, parseInt());
         } else if (variables != null) {
             String variableName = parseVariable();
             return new LabelVariable(variables.get(variableName), variableName);

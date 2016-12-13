@@ -1,14 +1,13 @@
 package blossom.lang;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import blossom.lang.LabelItem.Type;
 
 public class Rule {
 
     public static class Variable {
-
-        public enum Type {
-            INT, STRING, COLOUR, ANY
-        }
 
         public final Type type;
         public final String name;
@@ -49,11 +48,12 @@ public class Rule {
     }
 
     public Graph apply(Graph hostGraph) {
-        Matcher m = new Matcher(hostGraph, initialGraph);
+        Matcher m = new Matcher(hostGraph, this);
         if (!m.find()) {
             return Graph.INVALID;
         }
-        for (HashMap<Integer, Integer> nodeMapping : m.nextMatch()) {
+        HashMap<Integer, Integer> nodeMapping;
+        while ((nodeMapping = m.nextMatch()) != null) {
             return hostGraph; // TODO: remove placeholder no-op.
         }
         return Graph.INVALID;
