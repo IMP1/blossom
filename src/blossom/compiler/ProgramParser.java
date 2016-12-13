@@ -14,7 +14,7 @@ public class ProgramParser extends Parser {
     private static final Pattern TYPE = Pattern.compile("(?:int|string|colour|any)");
     private static final String  VARIABLE_LIST_REGEX = String.format("(%s)\\s*(%s\\s*(?:,\\s*%s)*)(?=;|>)", TYPE, IDENTIFIER, IDENTIFIER);
     private static final Pattern VARIABLE_LIST = Pattern.compile(VARIABLE_LIST_REGEX);
-    private static final String  INSTRUCTION_REGEX = String.format("(%s)(;|!)?", IDENTIFIER, );
+    private static final String  INSTRUCTION_REGEX = String.format("(%s)(;|!)?", IDENTIFIER);
     private static final Pattern INSTRUCTION = Pattern.compile(INSTRUCTION_REGEX);
 
     private Programme programme;
