@@ -14,10 +14,11 @@ public class ProgramParser extends Parser {
     private static final Pattern TYPE = Pattern.compile("(?:int|string|colour|any)");
     private static final String  VARIABLE_LIST_REGEX = String.format("(%s)\\s*(%s\\s*(?:,\\s*%s)*)(?=;|>)", TYPE, IDENTIFIER, IDENTIFIER);
     private static final Pattern VARIABLE_LIST = Pattern.compile(VARIABLE_LIST_REGEX);
-    private static final String  INSTRUCTION_REGEX = String.format("(%s)(;|!)?", IDENTIFIER);
-    private static final Pattern INSTRUCTION = Pattern.compile(INSTRUCTION_REGEX);
+    private static final Pattern BUILTIN_PROC = Pattern.compile("(?:print)");
 
     private Programme programme;
+    private HashMap<String, Rule> rules;
+    private HashMap<String, Procedure> procedures;
 
     public ProgramParser(String programCode) {
         super(programCode);
@@ -35,7 +36,7 @@ public class ProgramParser extends Parser {
             } else if (beginsWith(Graph.DEFINITION_KEYWORD)) {
                 parseNamedGraph();
             } else {
-                parseInstructions();
+                parseInstruction();
             }
         }
         return programme;
@@ -95,7 +96,7 @@ public class ProgramParser extends Parser {
         programme.addProcedure(procName, procedure);
     }
 
-    private void parseInstructions() {
+    private void parseInstruction() {
         if (beginsWith(Instruction.IF_KEYWORD)) {
             parseIfInstruction();
         } else if (beginsWith(Instruction.WITH_KEYWORD)) {
@@ -104,7 +105,21 @@ public class ProgramParser extends Parser {
             parseTryInstruction();
         } else if (beginsWith("{")) {
             parseInstructionGroup();
+        } else if (beginsWith(BUILTIN_PROC)) {
+            // parseBuiltin();
         } else if (beginsWith(IDENTIFIER)) {
+            String name = consume(IDENTIFIER);
+            if (rules.containsKey(name) && procedures.containsKey(name)) {
+                // ERROR: should never happen: abiguous instruction (both rule and procedure).
+            } else if (rules.containsKey(name)) {
+                Multiplicity m = parseMultiplicity();
+                Instruction i = new RuleInstruction(rules.get(name), m);
+                programme.addInstruction();
+            } else if (procedures.containsKey(name)) {
+
+            } else {
+
+            }
             parseInstructionSequence();
         }
 
@@ -144,7 +159,7 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         consume("(");
         consumeWhitespace();
-        parseInstructions();
+        parseInstruction();
         consumeWhitespace();
         consume(")");
     }
@@ -152,12 +167,12 @@ public class ProgramParser extends Parser {
     private void parseInstructionGroup() {
         consume("{");
         consumeWhitespace();
-        parseInstructions();
+        parseInstruction();
         consumeWhitespace();
         while (!eof() && !beginsWith("}")) {
             consume(",");
             consumeWhitespace();
-            parseInstructions();
+            parseInstruction();
             consumeWhitespace();
         }
         consumeOptionalComma();
@@ -165,6 +180,16 @@ public class ProgramParser extends Parser {
 
     private void parseInstructionSequence() {
         String name = consume(IDENTIFIER);
+    }
+
+    private Multiplicity parseMultiplicity() {
+        if (beginsWith("!")) {
+            consume("!");
+            return Multiplicity.WHILE_POSSIBLE;
+        } else {
+            if (beginsWith(";")) consume(";");
+            return Multiplicity.ONCE;
+        }
     }
 
     private Graph parseGraph() {
