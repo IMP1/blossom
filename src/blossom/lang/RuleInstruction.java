@@ -1,8 +1,8 @@
 package blossom.lang;
 
-public class ProcedureInstruction extends Instruction {
+public class RuleInstruction extends Instruction {
 
-    public ProcedureInstruction() {
+    public RuleInstruction() {
         
     }
 
