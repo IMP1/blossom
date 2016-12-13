@@ -10,7 +10,11 @@ public class Procedure {
     private InstructionSequence instructions;
     
     public Procedure() {
+        instructions = new InstructionSequence(Instruction.Multiplicity.ONCE);
+    }
 
+    public void addInstruction(Instruction i) {
+        instructions.addInstruction(i);
     }
 
     public Graph apply(Graph g) {
