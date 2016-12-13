@@ -53,9 +53,10 @@ public class Rule {
         if (!m.find()) {
             return Graph.INVALID;
         }
-        HashMap<Integer, Integer> nodeMapping = findMatch(hostGraph);
-
-        return hostGraph; // TODO: remove placeholder no-op.
+        for (HashMap<Integer, Integer> nodeMapping : m.nextMatch()) {
+            return hostGraph; // TODO: remove placeholder no-op.
+        }
+        return Graph.INVALID;
     }
     
 }
