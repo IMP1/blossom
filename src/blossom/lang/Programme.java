@@ -26,7 +26,11 @@ public class Programme {
     }
 
     public Graph run(Graph hostGraph) {
-        // TODO
+        Graph currentGraph = hostGraph;
+        for (Instruction instruction : instructions) {
+            currentGraph = instruction.execute(currentGraph);
+        }
+        return currentGraph;
     }
 
 }
