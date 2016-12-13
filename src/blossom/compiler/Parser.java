@@ -28,16 +28,16 @@ public abstract class Parser {
         }
     }
     
-    protected boolean beginsWith(String string) {
+    protected boolean beginsWith(final String string) {
         return text.substring(position).startsWith(string);
     }
     
-    protected boolean beginsWith(Pattern pattern) {
+    protected boolean beginsWith(final Pattern pattern) {
         Matcher matcher = pattern.matcher(text.substring(position));
         return (matcher.find() && matcher.start() == 0);
     }
     
-    protected String consume(String string) {
+    protected String consume(final String string) {
         if (eof()) System.err.printf("Reached the end of the file expecting '%s'.\n", string);
         if (beginsWith(string)) {
             position += string.length();
@@ -46,7 +46,7 @@ public abstract class Parser {
         return "";
     }
     
-    protected String consume(Pattern pattern) {
+    protected String consume(final Pattern pattern) {
         Matcher matcher = pattern.matcher(text.substring(position));
         if (matcher.find() && matcher.start() == 0)
         {
@@ -58,7 +58,7 @@ public abstract class Parser {
         return "";
     }
 
-    protected String[] consumeAll(Pattern pattern) {
+    protected String[] consumeAll(final Pattern pattern) {
         Matcher matcher = pattern.matcher(text.substring(position));
         if (matcher.find() && matcher.start() == 0) {
             int end = matcher.end();
@@ -75,17 +75,17 @@ public abstract class Parser {
     }
     
     public class InvalidSyntaxException extends RuntimeException {
-    	
-		private static final long serialVersionUID = -2487073824658980486L;
+        
+        private static final long serialVersionUID = -2487073824658980486L;
 
-		public InvalidSyntaxException() {
-    		
-    	}
-    	
-    	public InvalidSyntaxException(String message) {
-    		
-    	}
-    	
+        public InvalidSyntaxException() {
+            super();
+        }
+        
+        public InvalidSyntaxException(String message) {
+            super(message);
+        }
+        
     }
     
 }
