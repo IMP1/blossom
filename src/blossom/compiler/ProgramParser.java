@@ -98,6 +98,30 @@ public class ProgramParser extends Parser {
     }
 
     private void parseInstruction() {
+        if (beginsWith(Instruction.IF_KEYWORD)) {
+            parseIfInstruction();
+        } else if (beginsWith(Instruction.WITH_KEYWORD)) {
+            parseWithInstruction();
+        } else if (beginsWith(Instruction.TRY_KEYWORD)) {
+            parseTryInstruction();
+        } else if (beginsWith("{")) {
+            parseInstructionGroup();
+        } else if (beginsWith(IDENTIFIER)) {
+            parseInstructionSequence();
+        }
+
+        // <instruction> ::= <proc_call> 
+        //                 | <instruction>! 
+        //                 | <instruction>;
+        //                 | {<instruction_group>}
+        //                 | try(<instruction>) 
+        //                 | if(<instruction>, <instruction>)
+        //                 | if(<instruction>, <instruction>, <instruction>)
+        //                 | with(<instruction>, <instruction>)
+        //                 | with(<instruction>, <instruction>, <instruction>)
+        // <instruction_group> ::= <instruction> | <instruction>, <instruction_group>
+        // <proc_call> ::= <rule_name> | <proc_name>
+
         // single_rule_or_proc_call
         // x;
         // x!
@@ -107,6 +131,42 @@ public class ProgramParser extends Parser {
         // if (x, y, z)
         // with (x, y)
         // with (x, y, z)
+    }
+
+    private void parseIfInstruction() {
+
+    }
+
+    private void parseWithInstruction() {
+
+    }
+
+    private void parseTryInstruction() {
+        consume(Instruction.TRY_KEYWORD);
+        consumeWhitespace();
+        consume("(");
+        consumeWhitespace();
+        parseInstruction();
+        consumeWhitespace();
+        consume(")");
+    }
+
+    private void parseInstructionGroup() {
+        consume("{");
+        consumeWhitespace();
+        parseInstruction();
+        consumeWhitespace();
+        while (!eof() && !beginsWith("}")) {
+            consume(",");
+            consumeWhitespace();
+            parseInstruction();
+            consumeWhitespace();
+        }
+        consumeOptionalComma();
+    }
+
+    private void parseInstructionSequence() {
+        String name = consume(IDENTIFIER);
     }
 
     private Graph parseGraph() {
@@ -127,6 +187,10 @@ public class ProgramParser extends Parser {
         String graphName = consume(IDENTIFIER);
         consumeWhitespace();
         Graph graph = parseGraph();
+    }
+
+    private void consumeOptionalComma() {
+        if (beginsWith(",")) consume(",");
     }
 
 }
