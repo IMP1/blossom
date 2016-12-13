@@ -3,10 +3,8 @@ package blossom.compiler;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-import blossom.lang.Graph;
-import blossom.lang.Procedure;
-import blossom.lang.Programme;
-import blossom.lang.Rule;
+import blossom.lang.*;
+import blossom.lang.instuction.*;
 import blossom.lang.Rule.Variable;
 
 public class ProgramParser extends Parser {
@@ -37,7 +35,7 @@ public class ProgramParser extends Parser {
             } else if (beginsWith(Graph.DEFINITION_KEYWORD)) {
                 parseNamedGraph();
             } else {
-                parseInstruction();
+                parseInstructions();
             }
         }
         return programme;
@@ -91,13 +89,13 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         Procedure procedure = new Procedure();
         while (!eof() && !beginsWith(Procedure.END_KEYWORD)) {
-        	// TODO; add instructions to procedure.
+            // TODO; add instructions to procedure.
         }
         consume(Procedure.END_KEYWORD);
         programme.addProcedure(procName, procedure);
     }
 
-    private void parseInstruction() {
+    private void parseInstructions() {
         if (beginsWith(Instruction.IF_KEYWORD)) {
             parseIfInstruction();
         } else if (beginsWith(Instruction.WITH_KEYWORD)) {
@@ -146,7 +144,7 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         consume("(");
         consumeWhitespace();
-        parseInstruction();
+        parseInstructions();
         consumeWhitespace();
         consume(")");
     }
@@ -154,12 +152,12 @@ public class ProgramParser extends Parser {
     private void parseInstructionGroup() {
         consume("{");
         consumeWhitespace();
-        parseInstruction();
+        parseInstructions();
         consumeWhitespace();
         while (!eof() && !beginsWith("}")) {
             consume(",");
             consumeWhitespace();
-            parseInstruction();
+            parseInstructions();
             consumeWhitespace();
         }
         consumeOptionalComma();
@@ -170,15 +168,15 @@ public class ProgramParser extends Parser {
     }
 
     private Graph parseGraph() {
-    	StringBuilder graphText = new StringBuilder();
-    	while (!eof() && !beginsWith("]")) {
-    		graphText.append(consume(Pattern.compile(".*?(?=\"|\\])")));
-    		if (beginsWith("\"")) {
-    			graphText.append(consume(Pattern.compile("\".*?(?<!\\\\)\"")));
-    		}
-    	}
-    	GraphParser gp = new GraphParser(graphText.toString(), true);
-    	return gp.parse();
+        StringBuilder graphText = new StringBuilder();
+        while (!eof() && !beginsWith("]")) {
+            graphText.append(consume(Pattern.compile(".*?(?=\"|\\])")));
+            if (beginsWith("\"")) {
+                graphText.append(consume(Pattern.compile("\".*?(?<!\\\\)\"")));
+            }
+        }
+        GraphParser gp = new GraphParser(graphText.toString(), true);
+        return gp.parse();
     }
 
     private void parseNamedGraph() {
