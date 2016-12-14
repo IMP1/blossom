@@ -5,13 +5,18 @@ import java.util.regex.Pattern;
 
 public abstract class Parser {
 
+    public static final Pattern NEWLINE      = Pattern.compile("\\r?\\n");
+    public static final Pattern REST_OF_LINE = Pattern.compile(".*?\\r?\\n");
+
     protected String text;
     protected int position;
+    protected int line;
     protected boolean finished;
     
     public Parser(String text) {
         this.text = text;
         this.position = 0;
+        this.line = 1;
         this.finished = false;
         if (text.isEmpty()) {
             this.finished = true;
@@ -24,7 +29,13 @@ public abstract class Parser {
     
     protected void consumeWhitespace() {
         while (!eof() && Character.isWhitespace(text.charAt(position))) {
-            position ++;
+            if (beginsWith(NEWLINE)) {
+                String eol = consume(NEWLINE);
+                line ++;
+                position += eol.length();
+            } else {
+                position ++;
+            }
         }
     }
     
@@ -72,6 +83,10 @@ public abstract class Parser {
     
     protected boolean eof() {
         return position == text.length();
+    }
+
+    private void consumeRestOfLine() {
+        consume(REST_OF_LINE);
     }
     
     public class InvalidSyntaxException extends RuntimeException {

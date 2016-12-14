@@ -35,7 +35,9 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         while (!eof()) {
             consumeWhitespace();
-            if (beginsWith(Rule.DEFINITION_KEYWORD)) {
+            if (beginsWith("//")) {}
+                consumeComment();
+            } else if (beginsWith(Rule.DEFINITION_KEYWORD)) {
                 parseRule();
             } else if (beginsWith(Graph.DEFINITION_KEYWORD)) {
                 parseNamedGraph();
@@ -257,6 +259,11 @@ public class ProgramParser extends Parser {
             if (beginsWith(";")) consume(";");
             return Multiplicity.ONCE;
         }
+    }
+
+    private void consumeComment() {
+        consume("//");
+        consumeRestOfLine();
     }
 
     private void consumeOptionalComma() {
