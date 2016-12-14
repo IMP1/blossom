@@ -11,8 +11,6 @@ public class Compiler {
     }
 
     public static void main(String... args) throws Exception {
-        test();
-
         // Allow for Piped-in Arguments
         try (InputStreamReader streamReader = new InputStreamReader(System.in)) {
             StringBuilder pipelineArgs = new StringBuilder();
@@ -30,12 +28,6 @@ public class Compiler {
         // TODO: Handle both args and pipelineArgs
         // ...
         
-    }
-    
-    public static void test() {
-        String graphText = "[ 1 (#red), 2 (4) | 1->2 ]";
-        Graph g = new GraphParser(graphText, null).parse();
-        System.out.println(g);
     }
 
 }
