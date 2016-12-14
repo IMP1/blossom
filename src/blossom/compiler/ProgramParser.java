@@ -19,7 +19,7 @@ public class ProgramParser extends Parser {
 
     private static final HashMap<String, Runnable> BUILTIN_OPERATIONS = new HashMap<String, Runnable>();
     static {
-        BUILTIN_OPERATIONS.put("print", (x) -> BuiltInOperation.print(x));
+        BUILTIN_OPERATIONS.put("print", (x) -> BuiltInOperation.print(x)); // TODO: add other procs, and see if this works.
     }
 
     private Programme programme;
