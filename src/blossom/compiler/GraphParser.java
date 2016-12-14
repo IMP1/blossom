@@ -16,11 +16,11 @@ public class GraphParser extends Parser {
 
     private static final Pattern LITERAL_INT    = Pattern.compile("-?\\d+");
     private static final Pattern LITERAL_STRING = Pattern.compile("\".+?(<!\\\\)\"");
-    private static final Pattern LITERAL_COLOUR = Pattern.compile("#\\w+?");
+    private static final Pattern LITERAL_COLOUR = Pattern.compile("#\\w+");
+    
+    private static final Pattern ARROW          = Pattern.compile("<?\\->");
 
     private Graph graph;
-    private ArrayList<Node> nodes;
-    private ArrayList<Edge> edges;
     
     private HashMap<String, LabelItem.Type> variables;
 
@@ -31,7 +31,7 @@ public class GraphParser extends Parser {
     public GraphParser(String graphCode, ArrayList<Variable> variableList) {
         super(graphCode);
         graph = new Graph();
-
+        
         variables = new HashMap<String, LabelItem.Type>();
         if (variableList != null) {
             for (Variable v : variableList) {
@@ -60,13 +60,14 @@ public class GraphParser extends Parser {
         Node n;
         n = parseNode();
         graph.addNode(n);
+        consumeWhitespace();
         
         while (!eof() && !beginsWith("|")) {
-            consumeWhitespace();
             consume(",");
             consumeWhitespace();
             n = parseNode();
             graph.addNode(n);
+            consumeWhitespace();
         }
         
         consumeWhitespace();
@@ -77,7 +78,6 @@ public class GraphParser extends Parser {
     private Node parseNode() {
         consumeWhitespace();
         String idString = consume(Pattern.compile("\\d+"));
-        System.out.printf("'%s'\n", idString);
         int id = Integer.parseInt(idString);
         consumeWhitespace();
         if (beginsWith("(")) {
@@ -88,31 +88,53 @@ public class GraphParser extends Parser {
     }
 
     private void parseEdges() {
+    	consumeWhitespace();
+        if (eof() || beginsWith("|")) return;
+        
+        Edge e;
+        e = parseEdge();
+        graph.addEdge(e);
+        consumeWhitespace();
+        
         while (!eof() && !beginsWith("]")) {
-            Edge e = parseEdge();
+            consume(",");
+            consumeWhitespace();
+            e = parseEdge();
             graph.addEdge(e);
+            consumeWhitespace();
         }
+        
+        consumeWhitespace();
+        consumeOptionalComma();
+        consumeWhitespace();
     }
     
     private Edge parseEdge() {
+    	consumeWhitespace();
         int sourceId = Integer.parseInt(consume(Pattern.compile("\\d+")));
         consumeWhitespace();
-        String direction = consume(Pattern.compile("[<->|->]"));
+        String direction = consume(ARROW); // TODO: add two edges when it's bidirectional
         consumeWhitespace();
         int targetId = Integer.parseInt(consume(Pattern.compile("\\d+")));
         consumeWhitespace();
         if (beginsWith("(")) {
             ArrayList<LabelItem> label = parseList();
-            return new Edge(nodes.get(sourceId), nodes.get(targetId), label);
+            if (direction == "<->") {
+            	graph.addEdge(new Edge(graph.getNode(targetId), graph.getNode(sourceId), label));
+            }
+            return new Edge(graph.getNode(sourceId), graph.getNode(targetId), label);
         }
-        return new Edge(nodes.get(sourceId), nodes.get(targetId));
+        if (direction == "<->") {
+        	graph.addEdge(new Edge(graph.getNode(targetId), graph.getNode(sourceId)));
+        }
+        return new Edge(graph.getNode(sourceId), graph.getNode(targetId));
     }
     
     private ArrayList<LabelItem> parseList() {
         ArrayList<LabelItem> list = new ArrayList<LabelItem>();
         consume("(");
         
-        if (!eof() || beginsWith(")")) return list;
+        if (eof() || beginsWith(")")) return list;
         list.add(parseListItem());
         
         while (!eof() && !beginsWith(")")) {
