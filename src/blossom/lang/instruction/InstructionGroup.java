@@ -9,8 +9,12 @@ public class InstructionGroup extends Instruction {
     public final ArrayList<Instruction> instructions;
 
     public InstructionGroup(Multiplicity multiplicity) {
+        this(new ArrayList<Instruction>(), multiplicity);
+    }
+
+    public InstructionGroup(ArrayList<Instruction> instructions, Multiplicity multiplicity) {
         super(multiplicity);
-        instructions = new ArrayList<Instruction>();
+        this.instructions = instructions;
     }
 
     public void addInstruction(Instruction i) {
