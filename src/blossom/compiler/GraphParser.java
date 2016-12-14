@@ -22,6 +22,10 @@ public class GraphParser extends Parser {
     private ArrayList<Edge> edges;
     
     private HashMap<String, LabelItem.Type> variables;
+
+    public GraphParser(String graphCode) {
+        this(graphCode, null);
+    }
     
     public GraphParser(String graphCode, ArrayList<Variable> variableList) {
         super(graphCode);
