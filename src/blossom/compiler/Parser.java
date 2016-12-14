@@ -30,9 +30,8 @@ public abstract class Parser {
     protected void consumeWhitespace() {
         while (!eof() && Character.isWhitespace(text.charAt(position))) {
             if (beginsWith(NEWLINE)) {
-                String eol = consume(NEWLINE);
+                consume(NEWLINE);
                 line ++;
-                position += eol.length();
             } else {
                 position ++;
             }
@@ -54,7 +53,8 @@ public abstract class Parser {
             position += string.length();
             return string;
         }
-        return "";
+        String message = String.format("Attempted to read string '%s', got '%s'.", string, text.substring(position));
+        throw new InvalidSyntaxException(message);
     }
     
     protected String consume(final Pattern pattern) {
@@ -66,7 +66,8 @@ public abstract class Parser {
             position += result.length();
             return result; 
         }
-        return "";
+        String message = String.format("Attempted to read pattern '%s', got '%s'.", pattern.toString(), text.substring(position));
+        throw new InvalidSyntaxException(message);
     }
 
     protected String[] consumeAll(final Pattern pattern) {
@@ -98,7 +99,9 @@ public abstract class Parser {
         }
         
         public InvalidSyntaxException(String message) {
-            super(message);
+            super(message 
+            	+ "\n"
+            	+ text.substring(Math.max(0, position - 10), Math.min(position + 10, text.length())) + "\n          ^");
         }
         
     }
