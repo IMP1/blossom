@@ -42,6 +42,7 @@ public class Programme {
         Graph currentGraph = hostGraph;
         for (Instruction instruction : instructions) {
             currentGraph = instruction.execute(currentGraph);
+            if (currentGraph == Graph.INVALID) return Graph.INVALID;
         }
         return currentGraph;
     }
