@@ -23,7 +23,9 @@ public class ProgramParser extends Parser {
 
     public ProgramParser(String programCode) {
         super(programCode);
-        programme = new Programme();
+        programme  = new Programme();
+        rules      = new HashMap<String, Rule>();
+        procedures = new HashMap<String, Procedure>();
     }
 
     public Programme parse() {
@@ -64,13 +66,19 @@ public class ProgramParser extends Parser {
         String condition = null;
         if (beginsWith(Rule.CONDITION_KEYWORD)) {
             condition = null; // TODO: add rule conditions
+            consume(Pattern.compile(".*?(?=;)"));
         }
         consume(";");
 
         Rule rule = new Rule(initialGraph, resultGraph, variables, condition);
-        programme.addRule(ruleName, rule);
+        addRule(ruleName, rule);
     }
 
+    private void addRule(String name, Rule rule) {
+    	programme.addRule(name, rule);
+        rules.put(name, rule);
+    }
+    
     private ArrayList<Variable> parseRuleVariables() {
         ArrayList<Variable> result = new ArrayList<Variable>();
         consume("<");
@@ -89,11 +97,12 @@ public class ProgramParser extends Parser {
     private Graph parseGraph(ArrayList<Variable> variables) {
         StringBuilder graphText = new StringBuilder();
         while (!eof() && !beginsWith("]")) {
-            graphText.append(consume(Pattern.compile(".*?(?=\"|\\])")));
+            graphText.append(consume(Pattern.compile(".*(?=\"|\\])")));
             if (beginsWith("\"")) {
-                graphText.append(consume(Pattern.compile("\".*?(?<!\\\\)\"")));
+                graphText.append(consume(Pattern.compile("\".*(?<!\\\\)\"")));
             }
         }
+        graphText.append(consume("]"));
         GraphParser gp = new GraphParser(graphText.toString(), variables);
         return gp.parse();
     }
@@ -118,16 +127,23 @@ public class ProgramParser extends Parser {
             // TODO; add instructions to procedure.
         }
         consume(Procedure.END_KEYWORD);
-        programme.addProcedure(procName, procedure);
+        addProcedure(procName, procedure);
     }
 
+	private void addProcedure(String name, Procedure proc) {
+		programme.addProcedure(name, proc);
+		procedures.put(name, proc);
+	}
+    
     private void parseInstructionCall() {
         Instruction i = parseInstruction();
         programme.addInstruction(i);
     }
 
     private Instruction parseInstruction() {
-        if (beginsWith(Instruction.IF_KEYWORD)) {
+    	if (beginsWith("//")) {
+    		consumeRestOfLine();
+    	} else if (beginsWith(Instruction.IF_KEYWORD)) {
             return parseIfInstruction();
         } else if (beginsWith(Instruction.WITH_KEYWORD)) {
             return parseWithInstruction();
