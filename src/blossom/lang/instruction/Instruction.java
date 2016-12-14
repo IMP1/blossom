@@ -42,5 +42,19 @@ public abstract class Instruction {
     }
 
     protected abstract Graph apply(final Graph g);
+
+    private static class NoOpInstruction extends Instruction {
+
+        private NoOpInstruction() {
+            super(Multiplicity.ONCE);
+        }
+
+        public Graph apply(final Graph g) {
+            return g;
+        }
+        
+    }
+
+    public static final Instruction NOOP = new NoOpInstruction();
     
 }
