@@ -2,6 +2,7 @@ package blossom.compiler;
 
 import blossom.lang.Graph;
 import blossom.lang.Node;
+import blossom.lang.Rule.Variable;
 import blossom.lang.LabelItem;
 import blossom.lang.LabelVariable;
 

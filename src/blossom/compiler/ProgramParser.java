@@ -17,11 +17,6 @@ public class ProgramParser extends Parser {
     private static final String  VARIABLE_LIST_REGEX = String.format("(%s)\\s*(%s\\s*(?:,\\s*%s)*)(?=;|>)", TYPE, IDENTIFIER, IDENTIFIER);
     private static final Pattern VARIABLE_LIST = Pattern.compile(VARIABLE_LIST_REGEX);
 
-    private static final HashMap<String, Runnable> BUILTIN_OPERATIONS = new HashMap<String, Runnable>();
-    static {
-        BUILTIN_OPERATIONS.put("print", (x) -> BuiltInOperation.print(x)); // TODO: add other procs, and see if this works.
-    }
-
     private Programme programme;
     private HashMap<String, Rule> rules;
     private HashMap<String, Procedure> procedures;
@@ -35,7 +30,7 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         while (!eof()) {
             consumeWhitespace();
-            if (beginsWith("//")) {}
+            if (beginsWith("//")) {
                 consumeComment();
             } else if (beginsWith(Rule.DEFINITION_KEYWORD)) {
                 parseRule();
@@ -149,8 +144,6 @@ public class ProgramParser extends Parser {
                 return new RuleInstruction(rules.get(name), m);
             } else if (procedures.containsKey(name)) {
                 return procedures.get(name).instructions;
-            } else if (BUILTIN_OPERATIONS.containsKey(name)) {
-                // TODO: parse arguments and pass them to the runnable.
             }
         }
         return Instruction.NOOP;

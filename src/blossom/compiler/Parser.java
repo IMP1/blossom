@@ -85,7 +85,7 @@ public abstract class Parser {
         return position == text.length();
     }
 
-    private void consumeRestOfLine() {
+    protected void consumeRestOfLine() {
         consume(REST_OF_LINE);
     }
     
