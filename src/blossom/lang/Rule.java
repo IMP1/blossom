@@ -1,7 +1,6 @@
 package blossom.lang;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import blossom.lang.LabelItem.Type;
 
@@ -48,15 +47,24 @@ public class Rule {
     }
 
     public Graph apply(Graph hostGraph) {
-        Matcher m = new Matcher(hostGraph, this);
-        if (!m.find()) {
-            return Graph.INVALID;
-        }
-        HashMap<Integer, Integer> nodeMapping;
-        while ((nodeMapping = m.nextMatch()) != null) {
-            return hostGraph; // TODO: remove placeholder no-op.
-        }
-        return Graph.INVALID;
+    	System.out.printf("Applying Rule...\n");
+    	return hostGraph;
+    	
+//        Matcher m = new Matcher(hostGraph, this);
+//        if (!m.find()) {
+//            return Graph.INVALID;
+//        }
+//        HashMap<Integer, Integer> nodeMapping;
+//        while ((nodeMapping = m.nextMatch()) != null) {
+//            return hostGraph; // TODO: remove placeholder no-op.
+//        }
+//        return Graph.INVALID;
+    }
+    
+    @Override
+    public String toString() {
+    	return String.format("%s => %s", initialGraph.toStringCondensed(), 
+    			                         resultGraph.toStringCondensed());
     }
     
 }
