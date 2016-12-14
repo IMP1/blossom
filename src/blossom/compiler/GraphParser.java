@@ -23,10 +23,16 @@ public class GraphParser extends Parser {
     
     private HashMap<String, LabelItem.Type> variables;
     
-    public GraphParser(String graphCode, HashMap<String, LabelItem.Type> variables) {
+    public GraphParser(String graphCode, ArrayList<Variable> variableList) {
         super(graphCode);
         graph = new Graph();
-        this.variables = variables;
+
+        variables = new HashMap<String, LabelItem.Type>();
+        if (variableList != null) {
+            for (Variable v : variableList) {
+                variables.put(v.name, v.type);
+            }
+        }
     }
 
     public Graph parse() {

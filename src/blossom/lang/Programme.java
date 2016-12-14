@@ -7,19 +7,30 @@ import blossom.lang.instruction.Instruction;
 
 public class Programme {
 
-    private HashMap<String, Rule> rules;
+    private HashMap<String, Rule>      rules;
+    private HashMap<String, Graph>     graphs;
     private HashMap<String, Procedure> procedures;
-    private ArrayList<Instruction> instructions;
+    private ArrayList<Instruction>     instructions;
     
     public Programme() {
+        rules        = new HashMap<>();
+        graphs       = new HashMap<>();
+        procedures   = new HashMap<>();
+        instructions = new ArrayList<>();
+    }
 
+    public void addGraph(String name, Graph graph) {
+        // TODO: add check for overwriting.
+        graphs.put(name, graph);
     }
 
     public void addRule(String name, Rule rule) {
+        // TODO: add check for overwriting.
         rules.put(name, rule);
     }
 
     public void addProcedure(String name, Procedure procedure) {
+        // TODO: add check for overwriting.
         procedures.put(name, procedure);
     }
 

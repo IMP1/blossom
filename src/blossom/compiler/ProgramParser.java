@@ -37,10 +37,10 @@ public class ProgramParser extends Parser {
             consumeWhitespace();
             if (beginsWith(Rule.DEFINITION_KEYWORD)) {
                 parseRule();
-            } else if (beginsWith(Procedure.DEFINITION_KEYWORD)) {
-                parseProcedure();
             } else if (beginsWith(Graph.DEFINITION_KEYWORD)) {
                 parseNamedGraph();
+            } else if (beginsWith(Procedure.DEFINITION_KEYWORD)) {
+                parseProcedure();
             } else {
                 parseInstructionCall();
             }
@@ -87,6 +87,27 @@ public class ProgramParser extends Parser {
         }
         consume(">");
         return result;
+    }
+
+    private Graph parseGraph(ArrayList<Variable> variables) {
+        StringBuilder graphText = new StringBuilder();
+        while (!eof() && !beginsWith("]")) {
+            graphText.append(consume(Pattern.compile(".*?(?=\"|\\])")));
+            if (beginsWith("\"")) {
+                graphText.append(consume(Pattern.compile("\".*?(?<!\\\\)\"")));
+            }
+        }
+        GraphParser gp = new GraphParser(graphText.toString(), variables);
+        return gp.parse();
+    }
+
+    private void parseNamedGraph() {
+        consume(Graph.DEFINITION_KEYWORD);
+        consumeWhitespace();
+        String graphName = consume(IDENTIFIER);
+        consumeWhitespace();
+        Graph graph = parseGraph(null);
+        programme.addGraph(graphName, graph);
     }
 
     private void parseProcedure() {
@@ -235,30 +256,6 @@ public class ProgramParser extends Parser {
             if (beginsWith(";")) consume(";");
             return Multiplicity.ONCE;
         }
-    }
-
-    private Graph parseGraph(ArrayList<Variable> variables) {
-        StringBuilder graphText = new StringBuilder();
-        while (!eof() && !beginsWith("]")) {
-            graphText.append(consume(Pattern.compile(".*?(?=\"|\\])")));
-            if (beginsWith("\"")) {
-                graphText.append(consume(Pattern.compile("\".*?(?<!\\\\)\"")));
-            }
-        }
-        HashMap<String, LabelItem.Type> variableTypes = new HashMap<String, LabelItem.Type>();
-        for (Variable v : variables) {
-        	variableTypes.put(v.name, v.type);
-        }
-        GraphParser gp = new GraphParser(graphText.toString(), variableTypes);
-        return gp.parse();
-    }
-
-    private void parseNamedGraph() {
-        consume(Graph.DEFINITION_KEYWORD);
-        consumeWhitespace();
-        String graphName = consume(IDENTIFIER);
-        consumeWhitespace();
-        Graph graph = parseGraph(null);
     }
 
     private void consumeOptionalComma() {
