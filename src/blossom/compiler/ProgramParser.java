@@ -102,6 +102,7 @@ public class ProgramParser extends Parser {
     }
 
     private void parseNamedGraph() {
+        // TODO: allow for variables
         consume(Graph.DEFINITION_KEYWORD);
         consumeWhitespace();
         String graphName = consume(IDENTIFIER);
@@ -153,7 +154,7 @@ public class ProgramParser extends Parser {
         return Instruction.NOOP;
     }
 
-    private void parseIfInstruction() {
+    private IfInstruction parseIfInstruction() {
         consume(Instruction.IF_KEYWORD);
         consumeWhitespace();
         consume("(");
@@ -175,7 +176,7 @@ public class ProgramParser extends Parser {
         }
     }
 
-    private void parseWithInstruction() {
+    private WithInstruction parseWithInstruction() {
         consume(Instruction.WITH_KEYWORD);
         consumeWhitespace();
         consume("(");
@@ -197,7 +198,7 @@ public class ProgramParser extends Parser {
         }
     }
 
-    private Instruction parseTryInstruction() {
+    private TryInstruction parseTryInstruction() {
         consume(Instruction.TRY_KEYWORD);
         consumeWhitespace();
         consume("(");
@@ -208,7 +209,7 @@ public class ProgramParser extends Parser {
         return new TryInstruction(i);
     }
 
-    private Instruction parseInstructionGroup() {
+    private InstructionGroup parseInstructionGroup() {
         consume("{");
         consumeWhitespace();
         ArrayList<Instruction> i = parseInstructionList();
@@ -218,21 +219,7 @@ public class ProgramParser extends Parser {
         return new InstructionGroup(i, m);
     }
 
-    private ArrayList<Instruction> parseInstructionList() {
-        ArrayList<Instruction> i = new ArrayList<Instruction>();
-        i.add(parseInstruction());
-        consumeWhitespace();
-        while (!eof() && !beginsWith("}")) {
-            consume(",");
-            consumeWhitespace();
-            i.add(parseInstruction());
-            consumeWhitespace();
-        }
-        consumeOptionalComma();
-        return i;
-    }
-
-    private Instruction parseInstructionSequence() {
+    private InstructionSequence parseInstructionSequence() {
         ArrayList<Instruction> i = new ArrayList<Instruction>();
         consume("(");
         consumeWhitespace();
@@ -246,6 +233,20 @@ public class ProgramParser extends Parser {
         consume(")");
         Multiplicity m = parseMultiplicity();
         return new InstructionSequence(i, m);
+    }
+
+    private ArrayList<Instruction> parseInstructionList() {
+        ArrayList<Instruction> list = new ArrayList<Instruction>();
+        list.add(parseInstruction());
+        consumeWhitespace();
+        while (!eof() && !beginsWith("}")) {
+            consume(",");
+            consumeWhitespace();
+            list.add(parseInstruction());
+            consumeWhitespace();
+        }
+        consumeOptionalComma();
+        return list;
     }
 
     private Multiplicity parseMultiplicity() {
