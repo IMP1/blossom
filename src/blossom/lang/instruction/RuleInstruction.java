@@ -16,4 +16,9 @@ public class RuleInstruction extends Instruction {
         return rule.apply(g);
     }
     
+    @Override
+    public String toString() {
+    	return String.format("Instruction: Rule '%s'.", rule.toString());
+    }
+    
 }

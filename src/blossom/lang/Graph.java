@@ -72,4 +72,22 @@ public class Graph {
         return text.toString();
     }
     
+    public String toStringCondensed() {
+    	StringBuilder text = new StringBuilder();
+        text.append("[ ");
+        for (int n : nodes.keySet()) {
+            text.append(n);
+            text.append(", ");
+        }
+        text.append("| ");
+        for (Edge e : edges) {
+            text.append(e.source.id);
+            text.append("->");
+            text.append(e.target.id);
+            text.append(", ");
+        }
+        text.append("]");
+        return text.toString();
+    }
+    
 }

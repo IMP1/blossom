@@ -46,5 +46,14 @@ public class Programme {
         }
         return currentGraph;
     }
+    
+    @Override
+    public String toString() {
+    	StringBuilder s = new StringBuilder();
+    	for (Instruction i : instructions) {
+    		s.append(i).append("\n");
+    	}
+    	return s.toString();
+    }
 
 }
