@@ -16,7 +16,11 @@ public class ProgramParser extends Parser {
     private static final Pattern TYPE = Pattern.compile("(?:int|string|colour|any)");
     private static final String  VARIABLE_LIST_REGEX = String.format("(%s)\\s*(%s\\s*(?:,\\s*%s)*)(?=;|>)", TYPE, IDENTIFIER, IDENTIFIER);
     private static final Pattern VARIABLE_LIST = Pattern.compile(VARIABLE_LIST_REGEX);
-    private static final Pattern BUILTIN_PROC = Pattern.compile("(?:print)");
+
+    private static final HashMap<String, Runnable> BUILTIN_OPERATIONS = new HashMap<String, Runnable>();
+    static {
+        BUILTIN_OPERATIONS.put("print", (x) -> BuiltInOperation.print(x));
+    }
 
     private Programme programme;
     private HashMap<String, Rule> rules;
@@ -38,7 +42,7 @@ public class ProgramParser extends Parser {
             } else if (beginsWith(Graph.DEFINITION_KEYWORD)) {
                 parseNamedGraph();
             } else {
-                parseInstruction();
+                parseInstructionCall();
             }
         }
         return programme;
@@ -62,7 +66,7 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         String condition = null;
         if (beginsWith(Rule.CONDITION_KEYWORD)) {
-            condition = null; // TODO
+            condition = null; // TODO: add rule conditions
         }
         consume(";");
 
@@ -98,90 +102,129 @@ public class ProgramParser extends Parser {
         programme.addProcedure(procName, procedure);
     }
 
-    private void parseInstruction() {
+    private void parseInstructionCall() {
+        Instruction i = parseInstruction();
+        programme.addInstruction(i);
+    }
+
+    private Instruction parseInstruction() {
         if (beginsWith(Instruction.IF_KEYWORD)) {
-            parseIfInstruction();
+            return parseIfInstruction();
         } else if (beginsWith(Instruction.WITH_KEYWORD)) {
-            parseWithInstruction();
+            return parseWithInstruction();
         } else if (beginsWith(Instruction.TRY_KEYWORD)) {
-            parseTryInstruction();
+            return parseTryInstruction();
         } else if (beginsWith("{")) {
-            parseInstructionGroup();
-        } else if (beginsWith(BUILTIN_PROC)) {
-            // parseBuiltin();
+            return parseInstructionGroup();
         } else if (beginsWith(IDENTIFIER)) {
             String name = consume(IDENTIFIER);
+            Multiplicity m = parseMultiplicity();
             if (rules.containsKey(name) && procedures.containsKey(name)) {
-                // ERROR: should never happen: abiguous instruction (both rule and procedure).
+                // ERROR: should never happen: ambiguous instruction (both rule and procedure).
             } else if (rules.containsKey(name)) {
-                Multiplicity m = parseMultiplicity();
-                Instruction i = new RuleInstruction(rules.get(name), m);
-                programme.addInstruction(i);
+                return new RuleInstruction(rules.get(name), m);
             } else if (procedures.containsKey(name)) {
-
-            } else {
-
+                return procedures.get(name).instructions;
+            } else if (BUILTIN_OPERATIONS.containsKey(name)) {
+                // TODO: parse arguments and pass them to the runnable.
             }
-            parseInstructionSequence();
         }
-
-        // <instruction> ::= <proc_call> 
-        //                 | <instruction>! 
-        //                 | <instruction>;
-        //                 | {<instruction_group>}
-        //                 | try(<instruction>) 
-        //                 | if(<instruction>, <instruction>)
-        //                 | if(<instruction>, <instruction>, <instruction>)
-        //                 | with(<instruction>, <instruction>)
-        //                 | with(<instruction>, <instruction>, <instruction>)
-        // <instruction_group> ::= <instruction> | <instruction>, <instruction_group>
-        // <proc_call> ::= <rule_name> | <proc_name>
-
-        // single_rule_or_proc_call
-        // x;
-        // x!
-        // {x, y}
-        // try(x)
-        // if (x, y)
-        // if (x, y, z)
-        // with (x, y)
-        // with (x, y, z)
+        return Instruction.NOOP;
     }
 
     private void parseIfInstruction() {
-
+        consume(Instruction.IF_KEYWORD);
+        consumeWhitespace();
+        consume("(");
+        consumeWhitespace();
+        ArrayList<Instruction> statement = parseInstructionList();
+        consumeWhitespace();
+        consume(")");
+        Multiplicity m = parseMultiplicity();
+        if (statement.size() > 3 || statement.size() < 2) {
+            // ERROR: not allowed.
+        }
+        Instruction condition = statement.get(0);
+        Instruction thenInstruction = statement.get(1);
+        if (statement.size() == 3) {
+            Instruction elseInstruction = statement.get(2);
+            return new IfInstruction(condition, thenInstruction, elseInstruction, m);
+        } else {
+            return new IfInstruction(condition, thenInstruction, m);
+        }
     }
 
     private void parseWithInstruction() {
-
+        consume(Instruction.WITH_KEYWORD);
+        consumeWhitespace();
+        consume("(");
+        consumeWhitespace();
+        ArrayList<Instruction> statement = parseInstructionList();
+        consumeWhitespace();
+        consume(")");
+        Multiplicity m = parseMultiplicity();
+        if (statement.size() > 3 || statement.size() < 2) {
+            // ERROR: not allowed.
+        }
+        Instruction condition = statement.get(0);
+        Instruction thenInstruction = statement.get(1);
+        if (statement.size() == 3) {
+            Instruction elseInstruction = statement.get(2);
+            return new WithInstruction(condition, thenInstruction, elseInstruction, m);
+        } else {
+            return new WithInstruction(condition, thenInstruction, m);
+        }
     }
 
-    private void parseTryInstruction() {
+    private Instruction parseTryInstruction() {
         consume(Instruction.TRY_KEYWORD);
         consumeWhitespace();
         consume("(");
         consumeWhitespace();
-        parseInstruction();
+        Instruction i = parseInstruction();
         consumeWhitespace();
         consume(")");
+        return new TryInstruction(i);
     }
 
-    private void parseInstructionGroup() {
+    private Instruction parseInstructionGroup() {
         consume("{");
         consumeWhitespace();
-        parseInstruction();
+        ArrayList<Instruction> i = parseInstructionList();
+        consumeWhitespace();
+        consume("}");
+        Multiplicity m = parseMultiplicity();
+        return new InstructionGroup(i, m);
+    }
+
+    private ArrayList<Instruction> parseInstructionList() {
+        ArrayList<Instruction> i = new ArrayList<Instruction>();
+        i.add(parseInstruction());
         consumeWhitespace();
         while (!eof() && !beginsWith("}")) {
             consume(",");
             consumeWhitespace();
-            parseInstruction();
+            i.add(parseInstruction());
             consumeWhitespace();
         }
         consumeOptionalComma();
+        return i;
     }
 
-    private void parseInstructionSequence() {
-        String name = consume(IDENTIFIER);
+    private Instruction parseInstructionSequence() {
+        ArrayList<Instruction> i = new ArrayList<Instruction>();
+        consume("(");
+        consumeWhitespace();
+        i.add(parseInstruction());
+        consumeWhitespace();
+        while (!eof() && !beginsWith(")")) {
+            i.add(parseInstruction());
+            consumeWhitespace();
+        }
+        consumeOptionalComma();
+        consume(")");
+        Multiplicity m = parseMultiplicity();
+        return new InstructionSequence(i, m);
     }
 
     private Multiplicity parseMultiplicity() {

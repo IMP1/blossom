@@ -8,7 +8,7 @@ public class Procedure {
     public static final String DEFINITION_KEYWORD = "proc";
 	public static final String END_KEYWORD = "end";
 
-    private InstructionSequence instructions;
+    public final InstructionSequence instructions;
     
     public Procedure() {
         instructions = new InstructionSequence(Instruction.Multiplicity.ONCE);
