@@ -8,9 +8,13 @@ public class InstructionSequence extends Instruction {
 
     public final ArrayList<Instruction> instructions;
 
-    public InstructionSequence(Multiplicity multiplicity) {
+    public InstructionSequence(Multiplicity multiplicity) {    
+        this(new ArrayList<Instruction>(), multiplicity);
+    }
+
+    public InstructionSequence(ArrayList<Instruction> instructions, Multiplicity multiplicity) {
         super(multiplicity);
-        instructions = new ArrayList<Instruction>();
+        this.instructions = instructions;
     }
 
     public void addInstruction(Instruction i) {
