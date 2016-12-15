@@ -19,17 +19,20 @@ public class Main {
 
     private static void testProgramme() {
         String graphText = "[ 1, 2, 3 | 1->2, 2->3 ]";
-        Graph g = new GraphParser(graphText, null).parse();
+        GraphParser gp = new GraphParser(graphText, null);
+        Graph g = gp.parse();
         System.out.println("\n");
         System.out.printf("Graph: '%s'.\n", g.toString());
 
         String programmeText = loadCode("/home/huw/programming/java/blossom/examples/transativity.blsm");
-        Programme p = new ProgramParser(programmeText).parse();
+        ProgramParser pp = new ProgramParser(programmeText);
+        pp.verbose = true;
+        Programme p = pp.parse();
         System.out.println("\n");
         System.out.printf("Programme: '%s'.\n", p.toString());
 
-//        Graph result = p.run(g);
-//        System.out.println(result);
+        Graph result = p.run(g);
+        System.out.println(result);
     }
 
     private static void testCompiler() {
