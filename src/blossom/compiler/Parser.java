@@ -1,5 +1,6 @@
 package blossom.compiler;
 
+import java.io.PrintStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +14,7 @@ public abstract class Parser {
         private StringBuilder message = new StringBuilder();
 
         public void push(String text) {
-            message.clear();
+            message.setLength(0);
             for (int i = 0; i < padding * depth; i ++) {
                 message.append(" ");
             }
@@ -23,7 +24,7 @@ public abstract class Parser {
         }
 
         public void pop(String text) {
-            message.clear();
+            message.setLength(0);
             depth --;
             if (depth < 0) depth = 0;
             for (int i = 0; i < padding * depth; i ++) {
@@ -34,7 +35,7 @@ public abstract class Parser {
         }
 
         public void log(String text) {
-            message.clear();
+            message.setLength(0);
             for (int i = 0; i < padding * depth; i ++) {
                 message.append(" ");
             }
@@ -57,7 +58,7 @@ public abstract class Parser {
     protected int position;
     protected int line;
     protected boolean finished;
-    protected Loggger logger;
+    protected Logger logger;
     
     public Parser(String text) {
         this.text = text;
