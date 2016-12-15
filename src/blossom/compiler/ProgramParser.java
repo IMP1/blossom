@@ -161,6 +161,8 @@ public class ProgramParser extends Parser {
             return parseTryInstruction();
         } else if (beginsWith("{")) {
             return parseInstructionGroup();
+        } else if (beginsWith("(")) {
+            return parseInstructionSequence();
         } else if (beginsWith(IDENTIFIER)) {
             String name = consume(IDENTIFIER);
             Multiplicity m = parseMultiplicity();
