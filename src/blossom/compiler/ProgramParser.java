@@ -271,11 +271,12 @@ public class ProgramParser extends Parser {
     }
 
     private Multiplicity parseMultiplicity() {
+        if (VERBOSE) logger.log("Parsing Multiplicity...");
         if (beginsWith("!")) {
             consume("!");
             return Multiplicity.WHILE_POSSIBLE;
         } else {
-            if (beginsWith(";")) consume(";");
+            consumeOptional(";");
             return Multiplicity.ONCE;
         }
     }
