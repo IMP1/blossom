@@ -29,7 +29,7 @@ public class ProgramParser extends Parser {
     }
 
     public Programme parse() {
-        if (VERBOSE) logger.push("Parsing Programme...");
+        if (verbose) logger.push("Parsing Programme...");
         consumeWhitespace();
         while (!eof()) {
             consumeWhitespace();
@@ -45,12 +45,12 @@ public class ProgramParser extends Parser {
                 parseInstructionCall();
             }
         }
-        if (VERBOSE) logger.pop("Parsed Programme.");
+        if (verbose) logger.pop("Parsed Programme.");
         return programme;
     }
 
     private void parseRule() {
-        if (VERBOSE) logger.push("Parsing Rule...");
+        if (verbose) logger.push("Parsing Rule...");
         consume(Rule.DEFINITION_KEYWORD);
         consumeWhitespace();
         String ruleName = consume(IDENTIFIER);
@@ -75,7 +75,7 @@ public class ProgramParser extends Parser {
 
         Rule rule = new Rule(initialGraph, resultGraph, variables, condition);
         addRule(ruleName, rule);
-        if (VERBOSE) logger.pop("Parsed Rule.");
+        if (verbose) logger.pop("Parsed Rule.");
     }
 
     private void addRule(String name, Rule rule) {
@@ -112,7 +112,7 @@ public class ProgramParser extends Parser {
     }
 
     private void parseNamedGraph() {
-        if (VERBOSE) logger.push("Parsing Graph Declaration...");
+        if (verbose) logger.push("Parsing Graph Declaration...");
         // TODO: allow for variables
         consume(Graph.DEFINITION_KEYWORD);
         consumeWhitespace();
@@ -120,11 +120,11 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         Graph graph = parseGraph(null);
         programme.addGraph(graphName, graph);
-        if (VERBOSE) logger.pop("Parsed Graph Declaration.");
+        if (verbose) logger.pop("Parsed Graph Declaration.");
     }
 
     private void parseProcedure() {
-        if (VERBOSE) logger.push("Parsing Procedure...");
+        if (verbose) logger.push("Parsing Procedure...");
         consume(Procedure.DEFINITION_KEYWORD);
         consumeWhitespace();
         String procName = consume(IDENTIFIER);
@@ -135,7 +135,7 @@ public class ProgramParser extends Parser {
         }
         consume(Procedure.END_KEYWORD);
         addProcedure(procName, procedure);
-        if (VERBOSE) logger.pop("Parsed Procedure.");
+        if (verbose) logger.pop("Parsed Procedure.");
     }
 
 	private void addProcedure(String name, Procedure proc) {
@@ -144,10 +144,10 @@ public class ProgramParser extends Parser {
 	}
     
     private void parseInstructionCall() {
-        if (VERBOSE) logger.push("Parsing Instruction...");
+        if (verbose) logger.push("Parsing Instruction...");
         Instruction i = parseInstruction();
         programme.addInstruction(i);
-        if (VERBOSE) logger.pop("Parsed Instruction.");
+        if (verbose) logger.pop("Parsed Instruction.");
     }
 
     private Instruction parseInstruction() {
@@ -271,7 +271,7 @@ public class ProgramParser extends Parser {
     }
 
     private Multiplicity parseMultiplicity() {
-        if (VERBOSE) logger.log("Parsing Multiplicity...");
+        if (verbose) logger.log("Parsing Multiplicity...");
         if (beginsWith("!")) {
             consume("!");
             return Multiplicity.WHILE_POSSIBLE;
@@ -282,10 +282,10 @@ public class ProgramParser extends Parser {
     }
 
     private void consumeComment() {
-        if (VERBOSE) logger.push("Parsing Comment...");
+        if (verbose) logger.push("Parsing Comment...");
         consume("//");
         consumeRestOfLine();
-        if (VERBOSE) logger.pop("Parsed Comment.");
+        if (verbose) logger.pop("Parsed Comment.");
     }
 
 }

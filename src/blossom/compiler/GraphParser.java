@@ -41,7 +41,7 @@ public class GraphParser extends Parser {
     }
 
     public Graph parse() {
-        if (VERBOSE) logger.push("Parsing Graph...");
+        if (verbose) logger.push("Parsing Graph...");
         consumeWhitespace();
         if (eof()) {
             return graph;
@@ -53,12 +53,12 @@ public class GraphParser extends Parser {
             parseEdges();
         }
         consume("]");
-        if (VERBOSE) logger.pop("Parsed Graph.");
+        if (verbose) logger.pop("Parsed Graph.");
         return graph;
     }
     
     private void parseNodes() {     
-        if (VERBOSE) logger.push("Parsing Nodes...");
+        if (verbose) logger.push("Parsing Nodes...");
         consumeWhitespace();
         if (eof() || beginsWith("|")) return;
         
@@ -78,11 +78,11 @@ public class GraphParser extends Parser {
         consumeWhitespace();
         consumeOptional(",");
         consumeWhitespace();
-        if (VERBOSE) logger.pop("Parsed Nodes.");
+        if (verbose) logger.pop("Parsed Nodes.");
     }
     
     private Node parseNode() {
-        if (VERBOSE) logger.push("Parsing Node...");
+        if (verbose) logger.push("Parsing Node...");
         consumeWhitespace();
         String idString = consume(Pattern.compile("\\d+"));
         int id = Integer.parseInt(idString);
@@ -91,12 +91,12 @@ public class GraphParser extends Parser {
             ArrayList<LabelItem> label = parseList();
             return new Node(id, label);
         }
-        if (VERBOSE) logger.pop("Parsed Node.");
+        if (verbose) logger.pop("Parsed Node.");
         return new Node(id);
     }
 
     private void parseEdges() {
-        if (VERBOSE) logger.push("Parsing Edges...");
+        if (verbose) logger.push("Parsing Edges...");
         consumeWhitespace();
         if (eof() || beginsWith("|")) return;
         
@@ -116,11 +116,11 @@ public class GraphParser extends Parser {
         consumeWhitespace();
         consumeOptional(",");
         consumeWhitespace();
-        if (VERBOSE) logger.pop("Parsed Edges.");
+        if (verbose) logger.pop("Parsed Edges.");
     }
     
     private Edge parseEdge() {
-        if (VERBOSE) logger.push("Parsing Edge...");
+        if (verbose) logger.push("Parsing Edge...");
         consumeWhitespace();
         int sourceId = Integer.parseInt(consume(Pattern.compile("\\d+")));
         consumeWhitespace();
@@ -141,12 +141,12 @@ public class GraphParser extends Parser {
             graph.addEdge(new Edge(graph.getNode(targetId), graph.getNode(sourceId)));
         }
 
-        if (VERBOSE) logger.pop("Parsed Edge.");
+        if (verbose) logger.pop("Parsed Edge.");
         return new Edge(graph.getNode(sourceId), graph.getNode(targetId));
     }
     
     private ArrayList<LabelItem> parseList() {
-        if (VERBOSE) logger.push("Parsing List...");
+        if (verbose) logger.push("Parsing List...");
         ArrayList<LabelItem> list = new ArrayList<LabelItem>();
         consume("(");
         
@@ -159,7 +159,7 @@ public class GraphParser extends Parser {
             consumeWhitespace();
             
             list.add(parseListItem());
-            if (VERBOSE) logger.log("Added Item to List.");
+            if (verbose) logger.log("Added Item to List.");
         }
         
         consumeWhitespace();
@@ -167,7 +167,7 @@ public class GraphParser extends Parser {
         consumeWhitespace();
         consume(")");
 
-        if (VERBOSE) logger.pop("Parsed List.");
+        if (verbose) logger.pop("Parsed List.");
         return list;
     }
     

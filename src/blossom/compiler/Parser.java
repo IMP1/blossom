@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public abstract class Parser {
 
-    private class Logger {
+    protected class Logger {
 
         private int depth = 0;
         private PrintStream out = System.out;
@@ -58,7 +58,7 @@ public abstract class Parser {
     protected int position;
     protected int line;
     protected boolean finished;
-    protected Logger logger;
+    public Logger logger;
     
     public Parser(String text) {
         this.text = text;
