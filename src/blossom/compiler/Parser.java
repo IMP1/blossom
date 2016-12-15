@@ -5,6 +5,49 @@ import java.util.regex.Pattern;
 
 public abstract class Parser {
 
+    private class Logger {
+
+        private int depth = 0;
+        private PrintStream out = System.out;
+        private int padding = 4;
+        private StringBuilder message = new StringBuilder();
+
+        public void push(String text) {
+            message.clear();
+            for (int i = 0; i < padding * depth; i ++) {
+                message.append(" ");
+            }
+            message.append(text);
+            out.println(message.toString());
+            depth ++;
+        }
+
+        public void pop(String text) {
+            message.clear();
+            depth --;
+            if (depth < 0) depth = 0;
+            for (int i = 0; i < padding * depth; i ++) {
+                message.append(" ");
+            }
+            message.append(text);
+            out.println(message.toString());
+        }
+
+        public void log(String text) {
+            message.clear();
+            for (int i = 0; i < padding * depth; i ++) {
+                message.append(" ");
+            }
+            message.append(text);
+            out.println(message.toString());
+        }
+
+        public String last() {
+            return message.toString();
+        }
+
+    }
+
     public boolean verbose = false;
 
     public static final Pattern NEWLINE      = Pattern.compile("\\r?\\n");
@@ -14,12 +57,14 @@ public abstract class Parser {
     protected int position;
     protected int line;
     protected boolean finished;
+    protected Loggger logger;
     
     public Parser(String text) {
         this.text = text;
         this.position = 0;
         this.line = 1;
         this.finished = false;
+        this.logger = new Logger();
         if (text.isEmpty()) {
             this.finished = true;
         }
