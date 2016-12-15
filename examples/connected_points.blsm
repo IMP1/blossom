@@ -1,8 +1,10 @@
 // http://codegolf.stackexchange.com/questions/36621/shortest-code-to-randomly-place-points-and-connect-them
-// blossom connected_points "[1 (1)]" -dot | dot -Tpng -o output.png
-// blossom connected_points "[1 (12)]" -dot | dot -Tpng -o output.png
-// blossom connected_points "[1 (144)]" -dot | dot -Tpng -o output.png
-// blossom connected_points "[1 (1728)]" -dot | dot -Tpng -o output.png
+// "[1 (0)]" | blossom connected_points   -dot | dot -Tpng -o output.png
+// "[1 (1)]" | blossom connected_points   -dot | dot -Tpng -o output.png
+// "[1 (2)]" | blossom connected_points   -dot | dot -Tpng -o output.png
+// blossom connected_points "[1 (12)]"    -dot | dot -Tpng -o output.png
+// blossom connected_points "[1 (144)]"   -dot | dot -Tpng -o output.png
+// blossom connected_points "[1 (1728)]"  -dot | dot -Tpng -o output.png
 // blossom connected_points -i "filename" -dot | dot -Tpng -o output.png
 
 rule add_node <int n>
