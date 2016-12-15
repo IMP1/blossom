@@ -1,6 +1,7 @@
 package blossom.lang;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import blossom.lang.LabelItem.Type;
 
@@ -51,8 +52,6 @@ public class Rule {
     public Graph apply(Graph hostGraph) {
         System.out.printf("Applying Rule...\n");
 
-        return hostGraph; 
-
         // do some matching...
         //return hostGraph.remove( initialGraph.remove(interfaceGraph) )
         //                .add( resultGraph.remove(initialGraph) );
@@ -66,21 +65,35 @@ remove the items in L−K, preserve K, add the items in R−K, and relabel the u
  - From https://www.cs.york.ac.uk/plasma/publications/pdf/Plump.WRS.11.pdf
         */
         
-        // Matcher m = new Matcher(hostGraph, this);
-        // if (!m.find()) {
-        //     return Graph.INVALID;
-        // }
-        // HashMap<Integer, Integer> nodeMapping;
-        // while ((nodeMapping = m.nextMatch()) != null) {
-        //     return hostGraph; // TODO: remove placeholder no-op.
-        // }
-        // return Graph.INVALID;
+        Matcher m = new Matcher(hostGraph, this);
+        if (!m.find()) {
+            return Graph.INVALID;
+        }
+        HashMap<Integer, Integer> ruleToGraphNodeMapping;
+        while ((ruleToGraphNodeMapping = m.nextMatch()) != null) {
+            Graph L_minus_K = initialGraph.remove(interfaceGraph);
+            System.out.println(L_minus_K);
+            System.out.println(L_minus_K.map(ruleToGraphNodeMapping));
+            
+            Graph g = hostGraph.remove(L_minus_K.map(ruleToGraphNodeMapping));
+            System.out.println(g);
+            
+            Graph R_minus_K = resultGraph.remove(interfaceGraph);
+            System.out.println(R_minus_K);
+            System.out.println(R_minus_K.map(ruleToGraphNodeMapping));
+            
+            Graph h = g.add(R_minus_K.map(ruleToGraphNodeMapping));
+            System.out.println(h);
+            
+            return hostGraph; // TODO: remove placeholder no-op.
+        }
+        return Graph.INVALID;
     }
 
     private Graph createInterface() {
         Graph g = new Graph();
         for (Node n : initialGraph.nodes()) {
-            if (resultGraph.hasNode(n.id)) { // TODO: either check IDs, or make sure they're the same node in graph parsing.
+            if (resultGraph.hasNode(n.id)) {
                 g.addNode(new Node(n.id));
             }
         }
