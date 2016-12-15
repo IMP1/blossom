@@ -29,6 +29,7 @@ public class ProgramParser extends Parser {
     }
 
     public Programme parse() {
+        if (VERBOSE) System.out.println("Parsing Programme...");
         consumeWhitespace();
         while (!eof()) {
             consumeWhitespace();
@@ -48,6 +49,7 @@ public class ProgramParser extends Parser {
     }
 
     private void parseRule() {
+        if (VERBOSE) System.out.println("Parsing Rule...");
         consume(Rule.DEFINITION_KEYWORD);
         consumeWhitespace();
         String ruleName = consume(IDENTIFIER);
@@ -108,6 +110,7 @@ public class ProgramParser extends Parser {
     }
 
     private void parseNamedGraph() {
+        if (VERBOSE) System.out.println("Parsing Graph Declaration...");
         // TODO: allow for variables
         consume(Graph.DEFINITION_KEYWORD);
         consumeWhitespace();
@@ -118,6 +121,7 @@ public class ProgramParser extends Parser {
     }
 
     private void parseProcedure() {
+        if (VERBOSE) System.out.println("Parsing Procedure...");
         consume(Procedure.DEFINITION_KEYWORD);
         consumeWhitespace();
         String procName = consume(IDENTIFIER);
@@ -136,6 +140,7 @@ public class ProgramParser extends Parser {
 	}
     
     private void parseInstructionCall() {
+        if (VERBOSE) System.out.println("Parsing Instruction...");
         Instruction i = parseInstruction();
         programme.addInstruction(i);
     }
@@ -236,11 +241,11 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         i.add(parseInstruction());
         consumeWhitespace();
-        while (!eof() && !beginsWith(")")) {
+        while (!eof() && !beginsWith(Pattern.compile("(?:,\\s*)?)"))) {
             i.add(parseInstruction());
             consumeWhitespace();
         }
-        consumeOptionalComma();
+        consumeOptional(",");
         consume(")");
         Multiplicity m = parseMultiplicity();
         return new InstructionSequence(i, m);
@@ -250,13 +255,13 @@ public class ProgramParser extends Parser {
         ArrayList<Instruction> list = new ArrayList<Instruction>();
         list.add(parseInstruction());
         consumeWhitespace();
-        while (!eof() && !beginsWith("}")) {
+        while (!eof() && beginsWith(IDENTIFIER)) {
             consume(",");
             consumeWhitespace();
             list.add(parseInstruction());
             consumeWhitespace();
         }
-        consumeOptionalComma();
+        consumeOptional(",");
         return list;
     }
 
@@ -271,12 +276,9 @@ public class ProgramParser extends Parser {
     }
 
     private void consumeComment() {
+        if (VERBOSE) System.out.println("Parsing Comment...");
         consume("//");
         consumeRestOfLine();
-    }
-
-    private void consumeOptionalComma() {
-        if (beginsWith(",")) consume(",");
     }
 
 }

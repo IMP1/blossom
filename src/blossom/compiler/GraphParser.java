@@ -41,19 +41,24 @@ public class GraphParser extends Parser {
     }
 
     public Graph parse() {
+        if (VERBOSE) System.out.println("Parsing Graph...");
         consumeWhitespace();
         if (eof()) {
             return graph;
         }
         consume("[");
         parseNodes();
-        consume("|");
-        parseEdges();
+        if (beginsWith("|")) {
+            consume("|");
+            parseEdges();
+        }
         consume("]");
+        if (VERBOSE) System.out.println("Parsed Graph.");
         return graph;
     }
     
     private void parseNodes() {     
+        if (VERBOSE) System.out.println("Parsing Nodes...");
         consumeWhitespace();
         if (eof() || beginsWith("|")) return;
         
@@ -62,20 +67,21 @@ public class GraphParser extends Parser {
         graph.addNode(n);
         consumeWhitespace();
         
-        while (!eof() && !beginsWith("|")) {
+        while (!eof() && !beginsWith(Pattern.compile("(?:,\\s*)?\\|"))) {
             consume(",");
             consumeWhitespace();
             n = parseNode();
             graph.addNode(n);
             consumeWhitespace();
         }
-        
+
         consumeWhitespace();
-        consumeOptionalComma();
+        consumeOptional(",");
         consumeWhitespace();
     }
     
     private Node parseNode() {
+        if (VERBOSE) System.out.println("Parsing Node...");
         consumeWhitespace();
         String idString = consume(Pattern.compile("\\d+"));
         int id = Integer.parseInt(idString);
@@ -84,11 +90,13 @@ public class GraphParser extends Parser {
             ArrayList<LabelItem> label = parseList();
             return new Node(id, label);
         }
+        if (VERBOSE) System.out.println("Parsed Node.");
         return new Node(id);
     }
 
     private void parseEdges() {
-    	consumeWhitespace();
+        if (VERBOSE) System.out.println("Parsing Edges...");
+        consumeWhitespace();
         if (eof() || beginsWith("|")) return;
         
         Edge e;
@@ -96,7 +104,7 @@ public class GraphParser extends Parser {
         graph.addEdge(e);
         consumeWhitespace();
         
-        while (!eof() && !beginsWith("]")) {
+        while (!eof() && !beginsWith(Pattern.compile("(?:,\\s*)?\\]"))) {
             consume(",");
             consumeWhitespace();
             e = parseEdge();
@@ -105,51 +113,59 @@ public class GraphParser extends Parser {
         }
         
         consumeWhitespace();
-        consumeOptionalComma();
+        consumeOptional(",");
         consumeWhitespace();
     }
     
     private Edge parseEdge() {
-    	consumeWhitespace();
+        if (VERBOSE) System.out.println("Parsing Edge...");
+        consumeWhitespace();
         int sourceId = Integer.parseInt(consume(Pattern.compile("\\d+")));
         consumeWhitespace();
-        String direction = consume(ARROW); // TODO: add two edges when it's bidirectional
+        String direction = consume(ARROW);
         consumeWhitespace();
         int targetId = Integer.parseInt(consume(Pattern.compile("\\d+")));
         consumeWhitespace();
+
         if (beginsWith("(")) {
             ArrayList<LabelItem> label = parseList();
             if (direction == "<->") {
-            	graph.addEdge(new Edge(graph.getNode(targetId), graph.getNode(sourceId), label));
+                graph.addEdge(new Edge(graph.getNode(targetId), graph.getNode(sourceId), label));
             }
             return new Edge(graph.getNode(sourceId), graph.getNode(targetId), label);
         }
+
         if (direction == "<->") {
-        	graph.addEdge(new Edge(graph.getNode(targetId), graph.getNode(sourceId)));
+            graph.addEdge(new Edge(graph.getNode(targetId), graph.getNode(sourceId)));
         }
+
+        if (VERBOSE) System.out.println("Parsed Edge.");
         return new Edge(graph.getNode(sourceId), graph.getNode(targetId));
     }
     
     private ArrayList<LabelItem> parseList() {
+        if (VERBOSE) System.out.println("Parsing List...");
         ArrayList<LabelItem> list = new ArrayList<LabelItem>();
         consume("(");
         
         if (eof() || beginsWith(")")) return list;
         list.add(parseListItem());
         
-        while (!eof() && !beginsWith(")")) {
+        while (!eof() && !beginsWith(Pattern.compile("(?:,\\s*)?\\)"))) {
             consumeWhitespace();
             consume(",");
             consumeWhitespace();
             
             list.add(parseListItem());
+            if (VERBOSE) System.out.println("Added Item to List.");
         }
         
         consumeWhitespace();
-        consumeOptionalComma();
+        consumeOptional(",");
         consumeWhitespace();
-        
         consume(")");
+
+        if (VERBOSE) System.out.println("Parsed List.");
         return list;
     }
     
@@ -164,7 +180,7 @@ public class GraphParser extends Parser {
             String variableName = parseVariable();
             return new LabelVariable(variables.get(variableName), variableName);
         } else {
-        	throw new InvalidSyntaxException("Invalid variable literal");
+        	throw new InvalidSyntaxException("Invalid list literal");
         }
     }
     
@@ -183,9 +199,5 @@ public class GraphParser extends Parser {
     private String parseVariable() {
         return consume(ProgramParser.IDENTIFIER);
     }
-    
-    private void consumeOptionalComma() {
-        if (beginsWith(",")) consume(",");
-    }
-    
+
 }

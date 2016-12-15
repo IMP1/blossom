@@ -5,6 +5,8 @@ import java.util.regex.Pattern;
 
 public abstract class Parser {
 
+    public boolean verbose = false;
+
     public static final Pattern NEWLINE      = Pattern.compile("\\r?\\n");
     public static final Pattern REST_OF_LINE = Pattern.compile(".*?\\r?\\n");
 
@@ -80,6 +82,11 @@ public abstract class Parser {
             return result;
         }
         return new String[0];        
+    }
+
+    protected String consumeOptional(String string) {
+        if (beginsWith(string)) return consume(",");
+        return "";
     }
     
     protected boolean eof() {
