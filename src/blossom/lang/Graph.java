@@ -94,8 +94,31 @@ public class Graph {
         edges.remove(e);
         return this;
     }
-
     
+    public Graph map(HashMap<Integer, Integer> mapping) {
+        Graph newGraph = new Graph();
+        for (Node n : nodes()) {
+            int newId = n.id;
+            if (mapping.containsKey(n.id)) {
+                newId = mapping.get(n.id);
+            } else {
+                newId = -1;
+            }
+            newGraph.addNode(new Node(newId));
+        }
+        for (Edge e : edges()) {
+            int newSourceId = e.source.id;
+            int newTargetId = e.target.id;
+            if (mapping.containsKey(e.source.id)) {
+                newSourceId = mapping.get(e.source.id);
+            }
+            if (mapping.containsKey(e.target.id)) {
+                newSourceId = mapping.get(e.target.id);
+            }
+            newGraph.addEdge(newSourceId, newTargetId);
+        }
+        return newGraph;
+    }
 
     public Graph remove(Graph g) {
         Graph newGraph = new Graph();
@@ -110,7 +133,8 @@ public class Graph {
     public Graph add(Graph g) {
         Graph newGraph = new Graph();
         for (Node n : nodes()) {
-            newGraph.addNode(new Node(n.id));
+            int id = n.id < 0 ? nodes().length : n.id;
+            newGraph.addNode(new Node(id));
         }
         for (Edge e : edges()) {
             Node source = newGraph.getNode(e.source.id);
