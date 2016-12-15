@@ -95,6 +95,32 @@ public class Graph {
         return this;
     }
 
+    
+
+    public Graph remove(Graph g) {
+        Graph newGraph = new Graph();
+        for (Node n : nodes()) {
+            if (!g.hasNode(n.id)) {
+                newGraph.addNode(new Node(n.id));
+            }
+        }
+        return newGraph;
+    }
+
+    public Graph add(Graph g) {
+        Graph newGraph = new Graph();
+        for (Node n : nodes()) {
+            newGraph.addNode(new Node(n.id));
+        }
+        for (Edge e : edges()) {
+            Node source = newGraph.getNode(e.source.id);
+            Node target = newGraph.getNode(e.target.id);
+            newGraph.addEdge(new Edge(source, target));
+        }
+        return newGraph;
+    }
+
+    
     @Override
     public String toString() {
         StringBuilder text = new StringBuilder();

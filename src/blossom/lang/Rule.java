@@ -54,8 +54,8 @@ public class Rule {
         return hostGraph; 
 
         // do some matching...
-        // return hostGraph.remove( initialGraph.remove(interfaceGraph) )
-        //                 .add( resultGraph.remove(initialGraph) );
+        //return hostGraph.remove( initialGraph.remove(interfaceGraph) )
+        //                .add( resultGraph.remove(initialGraph) );
 
 
         /*
@@ -85,29 +85,6 @@ remove the items in L−K, preserve K, add the items in R−K, and relabel the u
             }
         }
         return g;
-    }
-
-    private Graph remove(Graph g) {
-        Graph newGraph = new Graph();
-        for (Node n : nodes()) {
-            if (!g.hasNode(n.id)) {
-                newGraph.addNode(new Node(n.id));
-            }
-        }
-        return newGraph;
-    }
-
-    private Graph add(Graph g) {
-        Graph newGraph = new Graph();
-        for (Node n : g.nodes()) {
-            newGraph.addNode(new Node(n.id));
-        }
-        for (Edge e : g.edges()) {
-            Node souce = newGraph.getNode(e.source.id);
-            Node target = newGraph.getNode(e.traget.id);
-            newGraph.addEdge(new Edge(source, target));
-        }
-        return newGraph;
     }
 
     @Override
