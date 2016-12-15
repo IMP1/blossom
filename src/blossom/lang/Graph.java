@@ -53,6 +53,44 @@ public class Graph {
         return edges.toArray(new Edge[edges.size()]);
     }
 
+    //------------------------------------------
+    // Graph Transformation Methods
+    //------------------------------------------
+
+    public Graph removeNode(int id) {
+        return removeNode(getNode(id));
+    }
+
+    public Graph removeNode(Node n) {
+        // Dangling Edges
+        if (Functions.in(this, n) > 0)  return INVALID;
+        if (Functions.out(this, n) > 0) return INVALID;
+        if (!nodes.containsKey(n.id))   return INVALID;
+        nodes.remove(n.id);
+        return this;
+    }
+
+    public Graph removeEdge(int sourceId, int targetId) {
+        return removeEdge(getNode(sourceId), getNode(targetId));
+    }
+
+    public Graph removeEdge(Node source, Node target) {
+        Edge edge = null;
+        for (Edge e : edges) {
+            if (e.source == source && e.target == target) {
+                edge = e;
+            }
+        }
+        if (edge == null) return INVALID;
+        edges.remove(edge);
+        return this;
+    }
+
+    public Graph removedEdge(Edge e) {
+        edges.remove(e);
+        return this;
+    }
+
     @Override
     public String toString() {
         StringBuilder text = new StringBuilder();
