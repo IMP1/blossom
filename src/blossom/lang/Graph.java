@@ -41,6 +41,10 @@ public class Graph {
         addEdge(e);
     }
 
+    public boolean hasNode(int nodeId) {
+        return nodes.containsKey(nodeId);
+    }
+
     public Node getNode(int nodeId) {
         return nodes.get(nodeId);
     }
