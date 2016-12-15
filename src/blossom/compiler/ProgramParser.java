@@ -32,7 +32,6 @@ public class ProgramParser extends Parser {
         if (verbose) logger.push("Parsing Programme...");
         consumeWhitespace();
         while (!eof()) {
-            consumeWhitespace();
             if (beginsWith("//")) {
                 consumeComment();
             } else if (beginsWith(Rule.DEFINITION_KEYWORD)) {
@@ -44,6 +43,7 @@ public class ProgramParser extends Parser {
             } else {
                 parseInstructionCall();
             }
+            consumeWhitespace();
         }
         if (verbose) logger.pop("Parsed Programme.");
         return programme;
