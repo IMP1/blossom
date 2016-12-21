@@ -12,6 +12,8 @@ public class Matcher {
     private Graph                     applicationGraph;
     private ArrayList<Variable>       variables;
 
+    private int skip = 0;
+    
     private HashMap<Integer, Integer> nodeMappings;
 
     public Matcher(Graph hostGraph, Rule rule) {
@@ -23,14 +25,23 @@ public class Matcher {
     }
 
     public boolean find() {
-        return false; // TODO: do
+        return nextMatch() != null;
     }
     
     public HashMap<Integer, Integer> nextMatch() {
+    	HashMap<Integer, Integer> match = new HashMap<Integer, Integer>();
+    	for (int i = 0; i < rule.initialGraph.nodes().length; i ++) {
+    		
+    	}
     	return null; // TODO: do.
     }
 
-    private boolean nodesMatch(Node n1, Node n2) {
+    private boolean nodesMatch(Node hostGraphNode, Node applicationGraphNode) {
+    	if (Functions.in(hostGraph, hostGraphNode.id) 
+		 != Functions.in(applicationGraph, applicationGraphNode.id)) return false;
+    	if (Functions.out(hostGraph, hostGraphNode.id) 
+		 != Functions.out(applicationGraph, applicationGraphNode.id)) return false;
+    	if (Functions.in(hostGraph, hostGraphNode.id) != Functions.in(applicationGraph, applicationGraphNode.id)) return false;
     	return false; // TODO: do
     }
 
