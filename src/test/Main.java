@@ -1,6 +1,7 @@
 package test;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class Main {
         System.out.println("\n");
         System.out.printf("Graph: '%s'.\n", g.toString());
 
-        String programmeText = loadCode("/home/huw/programming/java/blossom/examples/transativity.blsm");
+        String programmeText = loadCode("examples/transativity.blsm");
         ProgramParser pp = new ProgramParser(programmeText);
         pp.verbose = true;
         Programme p = pp.parse();
@@ -42,6 +43,7 @@ public class Main {
     }
 
     private static String loadCode(String filename) {
+    	System.out.println(new File(".").getAbsolutePath());
         StringBuilder code = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
