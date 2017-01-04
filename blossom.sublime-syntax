@@ -12,11 +12,27 @@ variables:
   arrow:      '?:(->|<->)'
 contexts:
 
+  #----------------------#
+  # Arithmetic Operators #
+  #----------------------#
+    # keyword.operator
+    # keyword.operator.assignment
+    # keyword.operator.arithmetic
+    # keyword.operator.bitwise
+    # keyword.operator.logical
+
+  conditional_operators:
+    - match: '(?:\=|!\=)'
+      scope: keyword.operator.logical
+  arithmetic_operators:
+    - match: '[\+\-\*\/\%]'
+      scope: keyword.operator.arithmetic
+
   #-------#
   # Rules #
   #-------#
   builtin_conditions:
-    - match: '\b(?:in|out|edge|uedge)\b'
+    - match: '\b(?:in|out|edge|adjacent|adj|incident)\b'
       scope: support.function.blossom
 
   builtin_instructions:
@@ -28,6 +44,8 @@ contexts:
       scope: keyword.control.blossom
     - match: '\b(?:and|or|not)\b'
       scope: keyword.operator.word.blossom
+    - include: conditional_operators
+    - include: arithmetic_operators
 
   rule_signiture:
     - match: '\b{{type}}\b'
@@ -82,6 +100,7 @@ contexts:
       scope: constant.other.blossom
     - match: '\b{{identifier}}\b'
       scope: variable.other.blossom
+    - include: arithmetic_operators
 
   edge_list:
     - match: '(\d+)\s*({{arrow}})\s*(\d+)'
@@ -126,7 +145,7 @@ contexts:
     - match: '\bend\b'
       scope: keyword.control.blossom
       pop: true
-    - match: '\b(?:if|with)\b'
+    - match: '\b(?:if|with|try)\b'
       scope: keyword.control.conditional.blossom
 
   procedures:
@@ -141,8 +160,19 @@ contexts:
   #--------------#
   instructions:
     - meta_scope: meta.program.blossom
-    - match: '\b(?:if|with)\b'
+    - match: '\b(?:if|with|try)\b'
       scope: keyword.control.conditional.blossom
+    - match: '\b(?:invalid|noop)\b'
+      scope: support.function.blossom
+    - match: '\d+'
+      scope: constant.numeric.blossom
+    - match: '".*?(?<!\\)"'
+      scope: string.quoted.double.blossom
+    - match: '#\w+'
+      scope: constant.other.blossom
+    - match: 'INVALID'
+      scope: constant.other.blossom
+
 
   #----------#
   # Comments #
