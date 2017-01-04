@@ -1,0 +1,13 @@
+// blossom alternating "[1(1), 2(5), 3(1), 4(5) | 1->2, 2->3, 3->4 ]"
+// blossom alternating "[1(1), 2(5), 3(2), 4(5) | 1->2, 2->3, 3->4 ]"
+
+rule not_alternating? <int x, y, z>
+                      [ 1 (x), 2 (y), 3 (z) | 1->2, 2->3 ]
+                   => [ 1 (x), 2 (y), 3 (z) | 1->2, 2->3 ]
+                      where x != z;
+
+if (not_alternating?, invalid);
+
+// Golfed
+// Characters: 67
+rule a<int x,y>[1(x),2,3(y)|1->2,2->3]=>[]where x!=z;if(a,invalid);
