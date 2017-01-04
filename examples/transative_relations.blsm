@@ -17,4 +17,4 @@ rule non_transative? <int x, y, z>
                   => [ 1 (x), 2 (y), 3 (z) | 1->2, 2->3 ]
                      where not edge(1, 3);
 
-join_equals_1! join_equals_2! if(non_transative?, invalid, noop);
+join_equals_1! join_equals_2! if(non_transative?, invalid);
