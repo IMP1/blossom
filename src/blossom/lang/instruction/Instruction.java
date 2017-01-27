@@ -56,5 +56,21 @@ public abstract class Instruction {
     }
 
     public static final Instruction NOOP = new NoOpInstruction();
+    public static final String NOOP_KEYWORD = "noop";
+    
+    private static class InvalidInstruction extends Instruction {
+        
+        private InvalidInstruction() {
+            super(Multiplicity.ONCE);
+        }
+        
+        public Graph apply(final Graph g) {
+            return Graph.INVALID;
+        }
+        
+    }
+    
+    public static final Instruction INVALID = new InvalidInstruction();
+    public static final String INVALID_KEYWORD = "invalid";
     
 }
