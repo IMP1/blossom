@@ -1,20 +1,18 @@
 package blossom.lang;
 
-public class LabelItem {
+public class LabelItem<T> {
     
     public enum Type {
         ANY,
         INTEGER,
         STRING,
-        COLOUR,
+        BOOLEAN,
     }
 
-    public final Type    type;
-    public final String  value;
+    public T value;
 
-    public LabelItem(Type type, String value) {
-        this.type       = type;
-        this.value      = value;
+    public LabelItem(T value) {
+        this.value = value;
     }
 
 }

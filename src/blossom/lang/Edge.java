@@ -1,21 +1,19 @@
 package blossom.lang;
 
-import java.util.ArrayList;
-
 public class Edge {
 
     public final Node source;
     public final Node target;
-    private ArrayList<LabelItem> label;
+    private Label label;
     
-    public Edge(Node source, Node target, ArrayList<LabelItem> label) {
+    public Edge(Node source, Node target, Label label) {
         this.source = source;
         this.target = target;
-        this.label = label;
+        this.label  = label;
     }
     
     public Edge(Node source, Node target) {
-        this(source, target, new ArrayList<LabelItem>());
+        this(source, target, null);
     }
     
 }

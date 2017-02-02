@@ -1,19 +1,21 @@
 package blossom.lang;
 
-import java.util.ArrayList;
-
 public class Node {
 
     public final int id;
-    private ArrayList<LabelItem> label;
+    private Label label;
     
-    public Node(int id, ArrayList<LabelItem> label) {
+    public Node(int id, Label label) {
         this.id = id;
         this.label = label;
     }
     
     public Node(int id) {
-        this(id, new ArrayList<LabelItem>());
+        this(id, null);
+    }
+    
+    public Label label() {
+        return label;
     }
     
 }

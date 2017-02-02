@@ -1,10 +1,10 @@
 package blossom.compiler;
 
 import blossom.lang.Graph;
+import blossom.lang.Label;
 import blossom.lang.Node;
 import blossom.lang.Rule.Variable;
 import blossom.lang.LabelItem;
-import blossom.lang.LabelVariable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,9 +16,11 @@ public class GraphParser extends Parser {
 
     private static final Pattern LITERAL_INT    = Pattern.compile("-?\\d+");
     private static final Pattern LITERAL_STRING = Pattern.compile("\".+?(<!\\\\)\"");
-    private static final Pattern LITERAL_COLOUR = Pattern.compile("#\\w+");
+    private static final Pattern LITERAL_BOOL   = Pattern.compile("(?:TRUE|FALSE|T|F)");
     
-    private static final Pattern ARROW          = Pattern.compile("<?\\->");
+    private static final Pattern LABEL_MARK     = Pattern.compile("#\\w+");
+    
+    private static final Pattern ARROW          = Pattern.compile("\\->");
 
     private Graph graph;
     
@@ -88,7 +90,7 @@ public class GraphParser extends Parser {
         int id = Integer.parseInt(idString);
         consumeWhitespace();
         if (beginsWith("(")) {
-            ArrayList<LabelItem> label = parseList();
+            Label label = parseLabel();
             return new Node(id, label);
         }
         if (verbose) logger.pop("Parsed Node.");
@@ -124,41 +126,35 @@ public class GraphParser extends Parser {
         consumeWhitespace();
         int sourceId = Integer.parseInt(consume(Pattern.compile("\\d+")));
         consumeWhitespace();
-        String direction = consume(ARROW);
+        consume(ARROW);
         consumeWhitespace();
         int targetId = Integer.parseInt(consume(Pattern.compile("\\d+")));
         consumeWhitespace();
 
         if (beginsWith("(")) {
-            ArrayList<LabelItem> label = parseList();
-            if (direction == "<->") {
-                graph.addEdge(new Edge(graph.getNode(targetId), graph.getNode(sourceId), label));
-            }
+            Label label = parseLabel();
             return new Edge(graph.getNode(sourceId), graph.getNode(targetId), label);
-        }
-
-        if (direction == "<->") {
-            graph.addEdge(new Edge(graph.getNode(targetId), graph.getNode(sourceId)));
         }
 
         if (verbose) logger.pop("Parsed Edge.");
         return new Edge(graph.getNode(sourceId), graph.getNode(targetId));
     }
     
-    private ArrayList<LabelItem> parseList() {
-        if (verbose) logger.push("Parsing List...");
-        ArrayList<LabelItem> list = new ArrayList<LabelItem>();
+    private Label parseLabel() {
+        if (verbose) logger.push("Parsing Label...");
         consume("(");
         
-        if (eof() || beginsWith(")")) return list;
-        list.add(parseListItem());
+        if (eof() || beginsWith(")")) return null;
         
-        while (!eof() && !beginsWith(Pattern.compile("(?:,\\s*)?\\)"))) {
+        LabelItem<?> labelValue = parseLabelValue();
+        ArrayList<String> marks = new ArrayList<String>();
+        
+        while (!eof() && !beginsWith(Pattern.compile(",?\\s*\\)"))) {
             consumeWhitespace();
             consume(",");
             consumeWhitespace();
             
-            list.add(parseListItem());
+            marks.add(parseMark());
             if (verbose) logger.log("Added Item to List.");
         }
         
@@ -168,38 +164,36 @@ public class GraphParser extends Parser {
         consume(")");
 
         if (verbose) logger.pop("Parsed List.");
-        return list;
+        return new Label(labelValue, marks);
     }
     
-    private LabelItem parseListItem() {
+    private LabelItem<?> parseLabelValue() {
         if (beginsWith("\"")) {
-            return new LabelItem(LabelItem.Type.STRING, parseString());
-        } else if (beginsWith("#")) {
-            return new LabelItem(LabelItem.Type.COLOUR, parseColour());
-        } else if (beginsWith(Pattern.compile("\\d"))) {
-            return new LabelItem(LabelItem.Type.INTEGER, parseInt());
-        } else if (variables != null) {
-            String variableName = parseVariable();
-            return new LabelVariable(variables.get(variableName), variableName);
+            return new LabelItem<String>(parseString());
+        } else if (beginsWith(LITERAL_INT)) {
+            return new LabelItem<Integer>(parseInt());
+        } else if (beginsWith(LITERAL_BOOL)) {
+            return new LabelItem<Boolean>(parseBool());
         } else {
-        	throw new InvalidSyntaxException("Invalid list literal");
+        	return null;
         }
     }
     
-    private String parseInt() {
-        return consume(LITERAL_INT);
+    private int parseInt() {
+        return Integer.parseInt(consume(LITERAL_INT));
     }
     
     private String parseString() {
         return consume(LITERAL_STRING);
     }
     
-    private String parseColour() {
-        return consume(LITERAL_COLOUR);
+    private Boolean parseBool() {
+        String bool = consume(LITERAL_BOOL);
+        return bool.toUpperCase().startsWith("T");
     }
     
-    private String parseVariable() {
-        return consume(ProgramParser.IDENTIFIER);
+    private String parseMark() {
+        return consume(LABEL_MARK);
     }
-
+    
 }

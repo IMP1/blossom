@@ -64,30 +64,23 @@ remove the items in L−K, preserve K, add the items in R−K, and relabel the u
 
  - From https://www.cs.york.ac.uk/plasma/publications/pdf/Plump.WRS.11.pdf
         */
+        HashMap<Integer, Integer> mapping = Matcher.match(this, hostGraph);
+        if (mapping == null) return Graph.INVALID;
+        Graph L_minus_K = initialGraph.remove(interfaceGraph);
+        System.out.println(L_minus_K);
+        System.out.println(L_minus_K.map(mapping));
         
-        Matcher m = new Matcher(hostGraph, this);
-        if (!m.find()) {
-            return Graph.INVALID;
-        }
-        HashMap<Integer, Integer> ruleToGraphNodeMapping;
-        while ((ruleToGraphNodeMapping = m.nextMatch()) != null) {
-            Graph L_minus_K = initialGraph.remove(interfaceGraph);
-            System.out.println(L_minus_K);
-            System.out.println(L_minus_K.map(ruleToGraphNodeMapping));
-            
-            Graph g = hostGraph.remove(L_minus_K.map(ruleToGraphNodeMapping));
-            System.out.println(g);
-            
-            Graph R_minus_K = resultGraph.remove(interfaceGraph);
-            System.out.println(R_minus_K);
-            System.out.println(R_minus_K.map(ruleToGraphNodeMapping));
-            
-            Graph h = g.add(R_minus_K.map(ruleToGraphNodeMapping));
-            System.out.println(h);
-            
-            return hostGraph; // TODO: remove placeholder no-op.
-        }
-        return Graph.INVALID;
+        Graph g = hostGraph.remove(L_minus_K.map(mapping));
+        System.out.println(g);
+        
+        Graph R_minus_K = resultGraph.remove(interfaceGraph);
+        System.out.println(R_minus_K);
+        System.out.println(R_minus_K.map(mapping));
+        
+        Graph h = g.add(R_minus_K.map(mapping));
+        System.out.println(h);
+        
+        return h;
     }
 
     private Graph createInterface() {
