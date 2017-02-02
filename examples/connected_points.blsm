@@ -1,4 +1,14 @@
+// connected_points.blsm
+// Made to solve this problem:
 // http://codegolf.stackexchange.com/questions/36621/shortest-code-to-randomly-place-points-and-connect-them
+
+// This takes a single node with an integer value, and creates that many nodes.
+// It does this by checking the existence of a node with a positive integer value,
+// and creating a new node (with a zero value) and decreasing the original node's value by one.
+// It then creates an edge between every node where there is not already an edge.
+
+// To run it, use the following commands, having called the file connected_points.blsm and installed blossom.
+
 // "[1 (0)]" | blossom connected_points   -dot | dot -Tpng -o output.png
 // "[1 (1)]" | blossom connected_points   -dot | dot -Tpng -o output.png
 // "[1 (2)]" | blossom connected_points   -dot | dot -Tpng -o output.png
@@ -14,15 +24,14 @@ rule add_node <int n>
 
 rule add_edges [1, 2 | ]
             => [1, 2 | 1->2 ]
-               where not adjacent(1, 2);
+               where adj(1, 2) = 0;
 
 add_node! add_edges!
 
 
-// Golfed
-// Characters: 87
-rule a<int n>[1(n)]=>[1(n-1),2]where n>0;rule b[1,2]=>[1,2|1->2]where not adj(1,2);a!b!
-// This mainly serves to illustrate where whitespace is optional.
-// If no label is specified in the initial graph of a rule, then it will match any label. To specify an empty label, use the `empty` keyword.
-// If no label is specified in the result graph of a rule, then it will retain its label from the initial graph, or have an empty label if it not found in the intial graph.
-// Note: for edges, which are always destroyed and recreated, omitting a label will not retain the label from the initial graph, as it will be a new edge.
+// Below is the 'golfed' form of the above programme. 
+// All unnecessary whitespace has been removed, and rule/procedure names have been shorteded.
+// It is not very readable, but illustrates what syntax is actually necessary.
+
+rule a<int n>[1(n)]=>[1(n-1),2]where n>0;rule b[1,2]=>[1,2|1->2]where adj(1,2)=0;a!b!
+// Number of characters: 85
