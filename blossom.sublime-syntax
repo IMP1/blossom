@@ -47,6 +47,11 @@ contexts:
     - include: conditional_operators
     - include: arithmetic_operators
 
+  addendum:
+    - match: '\balso\b'
+      scope: keyword.control.blossom
+    - include: builtin_instructions
+
   rule_signiture:
     - match: '\b{{type}}\b'
       scope: storage.type.blossom
@@ -64,6 +69,7 @@ contexts:
     - match: '=>'
       scope: punctuation.accessor.blossom
     - include: condition
+    - include: addendum
     - include: builtin_conditions
     - match: ';'
       scope: punctuation.terminator.blossom
