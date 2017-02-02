@@ -36,9 +36,13 @@ public class ProgramParser extends Parser {
                 consumeComment();
             } else if (beginsWith(Rule.DEFINITION_KEYWORD)) {
                 parseRule();
-            } else if (beginsWith(Graph.DEFINITION_KEYWORD)) {
+            } 
+            /*
+            else if (beginsWith(Graph.DEFINITION_KEYWORD)) {
                 parseNamedGraph();
-            } else if (beginsWith(Procedure.DEFINITION_KEYWORD)) {
+            } 
+            */
+            else if (beginsWith(Procedure.DEFINITION_KEYWORD)) {
                 parseProcedure();
             } else {
                 parseInstructionCall();
@@ -69,6 +73,11 @@ public class ProgramParser extends Parser {
         String condition = null;
         if (beginsWith(Rule.CONDITION_KEYWORD)) {
             condition = null; // TODO: add rule conditions
+            consume(Pattern.compile(".*?(?=;|" + Rule.ADDENDUM_KEYWORD + ")"));
+        }
+        String addendum = null;
+        if (beginsWith(Rule.ADDENDUM_KEYWORD)) {
+            addendum = null;
             consume(Pattern.compile(".*?(?=;)"));
         }
         consume(";");

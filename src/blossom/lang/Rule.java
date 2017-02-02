@@ -23,8 +23,9 @@ public class Rule {
 
     }
 
-    public static final String DEFINITION_KEYWORD = "rule";
-    public static final String CONDITION_KEYWORD = "where";
+    public static final String DEFINITION_KEYWORD   = "rule";
+    public static final String CONDITION_KEYWORD    = "where";
+    public static final String ADDENDUM_KEYWORD     = "also";
     public static final String APPLICATION_OPERATOR = "=>";
 
     public final ArrayList<Variable> variables;
@@ -32,6 +33,7 @@ public class Rule {
     public final Graph resultGraph;
     public final Graph interfaceGraph;
     public final String condition;
+    public final String addendum;
     
     public Rule(Graph initialGraph, Graph resultGraph) {
         this(initialGraph, resultGraph, null);
@@ -42,10 +44,15 @@ public class Rule {
     }
 
     public Rule(Graph initialGraph, Graph resultGraph, ArrayList<Variable> variables, String condition) {
-        this.variables = variables;
-        this.initialGraph = initialGraph;
-        this.resultGraph = resultGraph;
-        this.condition = condition;
+        this(initialGraph, resultGraph, variables, null, null);
+    }
+
+    public Rule(Graph initialGraph, Graph resultGraph, ArrayList<Variable> variables, String condition, String addendum) {
+        this.variables      = variables;
+        this.initialGraph   = initialGraph;
+        this.resultGraph    = resultGraph;
+        this.condition      = condition;
+        this.addendum       = addendum
         this.interfaceGraph = createInterface();
     }
 
