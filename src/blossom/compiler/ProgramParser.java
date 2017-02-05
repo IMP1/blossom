@@ -36,9 +36,13 @@ public class ProgramParser extends Parser {
                 consumeComment();
             } else if (beginsWith(Rule.DEFINITION_KEYWORD)) {
                 parseRule();
-            } else if (beginsWith(Graph.DEFINITION_KEYWORD)) {
+            } 
+            /*
+            else if (beginsWith(Graph.DEFINITION_KEYWORD)) {
                 parseNamedGraph();
-            } else if (beginsWith(Procedure.DEFINITION_KEYWORD)) {
+            } 
+            */
+            else if (beginsWith(Procedure.DEFINITION_KEYWORD)) {
                 parseProcedure();
             } else {
                 parseInstructionCall();
@@ -69,6 +73,11 @@ public class ProgramParser extends Parser {
         String condition = null;
         if (beginsWith(Rule.CONDITION_KEYWORD)) {
             condition = null; // TODO: add rule conditions
+            consume(Pattern.compile(".*?(?=;|" + Rule.ADDENDUM_KEYWORD + ")"));
+        }
+        String addendum = null;
+        if (beginsWith(Rule.ADDENDUM_KEYWORD)) {
+            addendum = null;
             consume(Pattern.compile(".*?(?=;)"));
         }
         consume(";");
@@ -153,6 +162,18 @@ public class ProgramParser extends Parser {
     private Instruction parseInstruction() {
     	if (beginsWith("//")) {
     		consumeRestOfLine();
+        } else if (beginsWith(Instruction.NOOP_KEYWORD)) {
+            consume(Instruction.NOOP_KEYWORD);
+            Multiplicity m = parseMultiplicity();
+            return Instruction.NOOP;
+        } else if (beginsWith(Instruction.INVALID_KEYWORD)) {
+            consume(Instruction.INVALID_KEYWORD);
+            Multiplicity m = parseMultiplicity();
+            if (m == Multiplicity.WHILE_POSSIBLE) {
+                return Instruction.NOOP;
+            } else {
+                return Instruction.INVALID;
+            }
     	} else if (beginsWith(Instruction.IF_KEYWORD)) {
             return parseIfInstruction();
         } else if (beginsWith(Instruction.WITH_KEYWORD)) {
@@ -168,6 +189,7 @@ public class ProgramParser extends Parser {
             Multiplicity m = parseMultiplicity();
             if (rules.containsKey(name) && procedures.containsKey(name)) {
                 // ERROR: should never happen: ambiguous instruction (both rule and procedure).
+                logger.log("ERROR: Ambiguous instruction: Both a rule and a procedure are called " + name + ".");
             } else if (rules.containsKey(name)) {
                 return new RuleInstruction(rules.get(name), m);
             } else if (procedures.containsKey(name)) {
@@ -188,6 +210,7 @@ public class ProgramParser extends Parser {
         Multiplicity m = parseMultiplicity();
         if (statement.size() > 3 || statement.size() < 2) {
             // ERROR: not allowed.
+            logger.log("ERROR: Invalid amount of parameters to an if statement.");
         }
         Instruction condition = statement.get(0);
         Instruction thenInstruction = statement.get(1);
@@ -210,6 +233,7 @@ public class ProgramParser extends Parser {
         Multiplicity m = parseMultiplicity();
         if (statement.size() > 3 || statement.size() < 2) {
             // ERROR: not allowed.
+            logger.log("ERROR: Invalid amount of parameters to a with statement.");
         }
         Instruction condition = statement.get(0);
         Instruction thenInstruction = statement.get(1);

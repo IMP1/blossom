@@ -1,3 +1,15 @@
+// Alternating.blsm
+// Made to solve this problem: 
+// http://codegolf.stackexchange.com/questions/103571/an-array-of-challenges-1-alternating-arrays
+
+// This takes a graph, and returns the same graph if is 'alternating' as defined in the above challenge.
+// It does this by checking the only condition where it is *not* alternating. 
+// And if this is the case (if it is not alternating), then it retuns the invalid graph (which is blossom's equivilent of a falsy value).
+// If this is not the case (it *is* alternating), then no operation is performed and the input graph is returned (which is a truthy value).
+
+// To run it, use the following commands, having called the file alternating.blsm and installed blossom.
+// The first should return an invalid graph, as it is not alternating, and the second should return the input graph.
+
 // blossom alternating "[1(1), 2(5), 3(1), 4(5) | 1->2, 2->3, 3->4 ]"
 // blossom alternating "[1(1), 2(5), 3(2), 4(5) | 1->2, 2->3, 3->4 ]"
 
@@ -6,8 +18,11 @@ rule not_alternating? <int x, y, z>
                    => [ 1 (x), 2 (y), 3 (z) | 1->2, 2->3 ]
                       where x != z;
 
-if (not_alternating?, invalid);
+if (not_alternating?, invalid)
 
-// Golfed
-// Characters: 67
-rule a<int x,y>[1(x),2,3(y)|1->2,2->3]=>[]where x!=z;if(a,invalid);
+// Below is the 'golfed' form of the above programme. 
+// All unnecessary whitespace has been removed, and rule/procedure names have been shorteded.
+// It is not very readable, but illustrates what syntax is actually necessary.
+
+rule a<int x,y>[1(x),2,3(y)|1->2,2->3]=>[]where x!=z;if(a,invalid)
+// Number of characters: 65

@@ -1,4 +1,12 @@
+// truth_machine.blsm
+// Made to solve this problem:
 // http://codegolf.stackexchange.com/questions/62732/implement-a-truth-machine
+
+// This checks for a node with the value zero. If there is one, then it prints one zero.
+// Otherwise it will print 1 forever.
+
+// This uses the builtin `print` function, which performs a noop on the graph and prints out the arguments it's passed.
+
 // blossom truth_machine "[1 (1)]"
 // blossom truth_machine "[1 (0)]"
 
@@ -7,6 +15,9 @@ rule zero? [ 1 (0) ]
 
 if (zero?, print(0), print(1)!);
 
-// Golfed
-// Characters: 42
+// Below is the 'golfed' form of the above programme. 
+// All unnecessary whitespace has been removed, and rule/procedure names have been shorteded.
+// It is not very readable, but illustrates what syntax is actually necessary.
+
 rule a[1(0)]=>[1];if(a,print(0),print(1)!)
+// Number of characters: 42

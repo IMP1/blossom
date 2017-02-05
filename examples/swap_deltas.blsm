@@ -1,4 +1,15 @@
+// swap_deltas.blsm
+// Made to solve this problem: 
 // http://codegolf.stackexchange.com/questions/102139/reverse-deltas-of-an-array
+
+// This takes a graph, and calculates the deltas (differences in value between nodes). 
+// It then reverses the order of these deltas, and applies them to the initial first value.
+// It does this by having the deltas stored as the values on the edges between nodes.
+// It then copies the first node's value to the last node, and swaps the direction of each edge.
+// Finally, it changes the values of the nodes, using the newly inversed delta values.
+
+// To run it, use the following commands, having called the file swap_deltas.blsm and installed blossom.
+
 // blossom swap_deltas "[1 (18), 2 (19), 3 (17), 4 (20), 5 (16) | 1->2, 2->3, 3->4, 4->5 ]"
 // blossom swap_deltas "[1 (1), 2 (2), 3 (3), 4 (4), 5 (5) | 1->2, 2->3, 3->4, 4->5 ]"
 // blossom swap_deltas "[1 (6) | ]"
@@ -6,35 +17,26 @@
 
 rule calculate_deltas <int x, y>
                       [ 1 (x), 2 (y) | 1 -> 2 (empty) ]
-                   => [ 1 (x), 2 (y) | 1 -> 2 (y-x)   ];
+                   => [ 1 (x), 2 (y) | 1 -> 2 (y - x) ];
 
 rule swap_ends <int x, y>
-               [ 1 (x), 2 (y) | ] => [ 1 (y), 2 (x) | ]
+               [ 1 (x), 2 (y) | ] => [ 1 (y), 2 (x, #swapped) | ]
                where out(2) = 0 and in(1) = 0;
 
 rule swap_direction <int x, y, k>
-                    [ 1 (x),      2 (y, "!") | 1 -> 2 (k) ]
-                 => [ 1 (x, "!"), 2 (y, "!") | 2 -> 1 (k) ];
+                    [ 1 (x), 2 (y, #swapped) | 1 -> 2 (k) ]
+                 => [ 1 (x, #swapped), 2 (y, #swapped) | 2 -> 1 (k) ];
 
 proc swap_order
-    try(swap_ends); swap_direction!
+    swap_ends swap_direction!
 end
 
 rule apply_deltas <int x, y, k>
-                  [ 1 (x, "!"), 2 (y,   "!") | 1 -> 2 (k) ]
-               => [ 1 (x),      2 (x+k, "!") | 1 -> 2 (k) ];
+                  [ 1 (x, #swapped), 2 (y, #swapped) | 1 -> 2 (k) ]
+               => [ 1 (x), 2 (x + k, #swapped) | 1 -> 2 (k) ];
 
 rule clean_up <int x>
-              [ 1 (x, "!") | ]
-           => [ 1 (x)      | ];
+              [ 1 (x, #swapped) | ]
+           => [ 1 (x) | ];
 
-calculate_deltas! swap_order; apply_deltas! cleanup;
-
-// Golfed
-// Characters: 316 (not counting newlines as they're not necessary)
-rule a<int x,y>[1(x),2(y)|1->2(empty)]=>[1(x),2(y)|1->2(y-x)];
-rule b<int x,y>[1(x),2(y)]=>[1(y),2(x)]where out(2)=0 and in(1)=0;
-rule c<int x,y,k>[1(x),2(y,"!")|1->2(k)]=>[1(x,"!"),2(y,"!")|2->1(k)];
-rule d<int x,y,k>[1(x,"!"),2(y,"!")|1->2(k)]=>[1(x),2(x+k,"!")|1->2(k)];
-rule e<int x>[1(x,"!")]=>[1(x)];
-a!try(b);c!d!e
+calculate_deltas! swap_order apply_deltas! cleanup
