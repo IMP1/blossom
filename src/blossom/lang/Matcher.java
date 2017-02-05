@@ -92,7 +92,7 @@ public class Matcher {
                 }
             }
         }
-        if (substitutions.size() <= rule.initialGraph.nodes().length && depth == 0) {
+        if (substitutions.size() < rule.initialGraph.nodes().length && depth == 0) {
             return null;
         } else {
             return substitutions;
