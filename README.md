@@ -46,6 +46,33 @@ and will attempt to transform it into the resultant subgraph. If no match is fou
 Nodes in subgraphs of rules as well as having constant values in their label lists, can also variables. 
 These have a type (`int`, `string`, `bool`, `any`), which are specified in the rule's signiture. 
 
+#### Label Operations
+
+Various operations can be applied to labels of nodes and edges. These depend on the label's type.
+Integer operations include, in order or precedence:
+
+ 1. `^` exponent
+ 2. `/` division
+ 3. `*` multiplication
+ 4. `+` addition
+ 5. `-` subtraction
+ 6. `%` modulo
+
+Boolean operations include, in order of precedence:
+
+ 1. `¬`/`not` not
+ 2. `&`/`and` and
+ 3. `|`/`or`  or
+ 4. `^`/`xor` xor
+
+<!-- 
+String functions include:
+
+ sub(string text, int from [, int to]) -> string
+
+
+-->
+
 Rules can also be suffixed with a condition, using the `where` modifier. These conditions can use the inbuilt functions 
 
   * `in(node_id) -> int`: returns the number of edges with the node specified by `node_id` as their target.
@@ -58,13 +85,15 @@ Equality is done with a single equals (since there is no assignment operator to 
 These can be combined with the logical operators `and`, `or`, `xor`, and `not`, which use [Polish Notation](https://en.wikipedia.org/wiki/Polish_notation).
 
 If no label is specified in the initial graph of a rule, then it will match any label. To specify a node or edge with no value, use the `void` keyword, 
-and as mentioned above the `unmarked` keyword will match nodes and edges with no marks.
+and as mentioned above the `unmarked` keyword will match nodes and edges with no marks. You can search for a node or edge where its label does not contain a mark, with the `¬markname` syntax.
 If no label is specified for a node in the result graph of a rule, then it will retain its label from the initial graph. 
 If the node did not exist in the initial graph, then it will have an empty label.
 
 Despite the two previous points, it is advised to be explicit when using labels. 
 
 Note that edges are always destroyed and recreated, and so omitting a label in the result graph will not retain the label from the initial graph, as it will always be a new edge.
+
+As well as rule conditions, rules can also have an *addendum*. This is generally used for debugging or for file I/O. It uses the `also` keyword and executes the following statement when the rule application takes place. Any variable use values from before the rule application. See the [Turing Complete example](https://github.com/IMP1/blossom/tree/master/examples/turing_complete.blsm) for an example for this.
 
 ```blossom
 // Rule Example:
