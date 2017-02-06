@@ -9,13 +9,39 @@ import java.io.IOException;
 import blossom.compiler.GraphParser;
 import blossom.compiler.ProgramParser;
 import blossom.lang.Graph;
+import blossom.lang.Node;
 import blossom.lang.Programme;
+import blossom.lang.Rule;
 
 public class Main {
     
     public static void main(String... args) {
-        testProgramme();
+        testRules();
+//        testProgramme();
 //        testCompiler();
+    }
+    
+    private static void testRules() {
+        Graph LHS = new Graph();
+        LHS.addNode(new Node(1));
+        LHS.addNode(new Node(2));
+        LHS.addEdge(1, 2);
+        Graph RHS = new Graph();
+        RHS.addNode(new Node(1));
+        RHS.addNode(new Node(2));
+        RHS.addEdge(2, 1);
+        Rule r = new Rule(LHS, RHS);
+        
+        Graph g = new Graph();
+        g.addNode(new Node(5));
+        g.addNode(new Node(7));
+        g.addEdge(5, 7);
+        
+        Graph h = r.apply(g);
+        System.out.println("Initial Graph");
+        System.out.println(g);
+        System.out.println("Resultant Graph");
+        System.out.println(h);
     }
 
     private static void testProgramme() {
