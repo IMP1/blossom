@@ -28,6 +28,7 @@ public class Rule {
     public static final String ADDENDUM_KEYWORD     = "also";
     public static final String APPLICATION_OPERATOR = "=>";
 
+    public final String name;
     public final ArrayList<Variable> variables;
     public final Graph initialGraph;
     public final Graph resultGraph;
@@ -35,19 +36,20 @@ public class Rule {
     public final String condition;
     public final String addendum;
     
-    public Rule(Graph initialGraph, Graph resultGraph) {
-        this(initialGraph, resultGraph, null);
+    public Rule(String name, Graph initialGraph, Graph resultGraph) {
+        this(name, initialGraph, resultGraph, null);
     }
 
-    public Rule(Graph initialGraph, Graph resultGraph, ArrayList<Variable> variables) {
-        this(initialGraph, resultGraph, variables, null);
+    public Rule(String name, Graph initialGraph, Graph resultGraph, ArrayList<Variable> variables) {
+        this(name, initialGraph, resultGraph, variables, null);
     }
 
-    public Rule(Graph initialGraph, Graph resultGraph, ArrayList<Variable> variables, String condition) {
-        this(initialGraph, resultGraph, variables, null, null);
+    public Rule(String name, Graph initialGraph, Graph resultGraph, ArrayList<Variable> variables, String condition) {
+        this(name, initialGraph, resultGraph, variables, null, null);
     }
 
-    public Rule(Graph initialGraph, Graph resultGraph, ArrayList<Variable> variables, String condition, String addendum) {
+    public Rule(String name, Graph initialGraph, Graph resultGraph, ArrayList<Variable> variables, String condition, String addendum) {
+        this.name           = name;
         this.variables      = variables;
         this.initialGraph   = initialGraph;
         this.resultGraph    = resultGraph;
