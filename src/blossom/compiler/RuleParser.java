@@ -22,22 +22,26 @@ public class RuleParser extends Parser {
         consumeWhitespace();
         String ruleName = consume(ProgramParser.IDENTIFIER);
         consumeWhitespace();
+        
         ArrayList<Variable> variables = null;
         if (beginsWith("<")) {
             variables = parseRuleVariables();
             consumeWhitespace();
         }
+
         Graph initialGraph = parseGraph(variables);
         consumeWhitespace();
         consume(Rule.APPLICATION_OPERATOR);
         consumeWhitespace();
         Graph resultGraph = parseGraph(variables);
         consumeWhitespace();
+
         String condition = null;
         if (beginsWith(Rule.CONDITION_KEYWORD)) {
             condition = null; // TODO: add rule conditions
             consume(Pattern.compile(".*?(?=;|" + Rule.ADDENDUM_KEYWORD + ")"));
         }
+        
         String addendum = null;
         if (beginsWith(Rule.ADDENDUM_KEYWORD)) {
             addendum = null;
