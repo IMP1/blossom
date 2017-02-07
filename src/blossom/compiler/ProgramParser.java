@@ -30,7 +30,7 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         while (!eof()) {
             if (beginsWith("//")) {
-                consumeComment();
+                consumeLineComment();
             } else if (beginsWith(Rule.DEFINITION_KEYWORD)) {
                 parseRule();
             } 
@@ -51,28 +51,18 @@ public class ProgramParser extends Parser {
     }
 
     private void parseRule() {
-        StringBuilder ruleText = new StringBuilder();
-        while (!eof() && !beginsWith(";")) {
-            ruleText.append(consume(Pattern.compile(".*(?=;)")));
-        }
-        ruleText.append(consume(";"));
-        RuleParser rp = new RuleParser(ruleText.toString());
+        RuleParser rp = new RuleParser();
         Rule rule = rp.parse();
+        position += rp.position;
         programme.addRule(rule.name, rule);
         rules.put(rule.name, rule);
     }
 
     private Graph parseGraph(ArrayList<Variable> variables) {
-        StringBuilder graphText = new StringBuilder();
-        while (!eof() && !beginsWith("]")) {
-            graphText.append(consume(Pattern.compile(".*(?=\"|\\])")));
-            if (beginsWith("\"")) {
-                graphText.append(consume(Pattern.compile("\".*(?<!\\\\)\"")));
-            }
-        }
-        graphText.append(consume("]"));
-        GraphParser gp = new GraphParser(graphText.toString(), variables);
-        return gp.parse();
+        GraphParser gp = new GraphParser(text.substring(position), variables);
+        Graph graph = gp.parse();
+        position += gp.position;
+        return graph;
     }
 
     // private void parseNamedGraph() {
@@ -95,7 +85,7 @@ public class ProgramParser extends Parser {
         consumeWhitespace();
         Procedure procedure = new Procedure();
         while (!eof() && !beginsWith(Procedure.END_KEYWORD)) {
-            // TODO; add instructions to procedure.
+            // TODO: add instructions to procedure.
         }
         consume(Procedure.END_KEYWORD);
         addProcedure(procName, procedure);
@@ -108,15 +98,13 @@ public class ProgramParser extends Parser {
     }
     
     private void parseInstructionCall() {
-        if (verbose) logger.push("Parsing Instruction Call...");
-        InstructionParser ip = new InstructionParser(text.substring(position));
+        InstructionParser ip = new InstructionParser(text.substring(position), rules, procedures);
         Instruction instruction = ip.parse();
         position += ip.position;
         programme.addInstruction(instruction);
-        if (verbose) logger.pop("Parsed Instruction Call.");
     }
 
-    private void consumeComment() {
+    private void consumeLineComment() {
         if (verbose) logger.push("Parsing Comment...");
         consume("//");
         consumeRestOfLine();
