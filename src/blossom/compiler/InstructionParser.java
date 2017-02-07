@@ -11,6 +11,15 @@ import blossom.lang.Rule.Variable;
 
 public class InstructionParser extends Parser {
 
+    private HashMap<String, Rule> rules;
+    private HashMap<String, Procedure> procedures;
+
+    public InstructionParser(String graphCode, HashMap<String, Rule> rules, HashMap<String, Procedure> procedures) {
+        super(graphCode);
+        this.rules = rules;
+        this.procedures = procedures;
+    }
+
     public Instruction parse() {
         if (verbose) logger.push("Parsing Instruction...");
         Instruction instruction = Instruction.NOOP;
