@@ -51,18 +51,11 @@ public class ProgramParser extends Parser {
     }
 
     private void parseRule() {
-        RuleParser rp = new RuleParser();
+        RuleParser rp = new RuleParser(text.substring(position));
         Rule rule = rp.parse();
         position += rp.position;
         programme.addRule(rule.name, rule);
         rules.put(rule.name, rule);
-    }
-
-    private Graph parseGraph(ArrayList<Variable> variables) {
-        GraphParser gp = new GraphParser(text.substring(position), variables);
-        Graph graph = gp.parse();
-        position += gp.position;
-        return graph;
     }
 
     // private void parseNamedGraph() {

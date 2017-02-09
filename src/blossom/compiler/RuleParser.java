@@ -16,6 +16,10 @@ public class RuleParser extends Parser {
                                                                      TYPE, ProgramParser.IDENTIFIER, ProgramParser.IDENTIFIER);
     private static final Pattern VARIABLE_LIST = Pattern.compile(VARIABLE_LIST_REGEX);
 
+    public RuleParser(String text) {
+        super(text);
+    }
+
     public Rule parse() {
         if (verbose) logger.push("Parsing Rule...");
         consume(Rule.DEFINITION_KEYWORD);
@@ -53,7 +57,14 @@ public class RuleParser extends Parser {
         if (verbose) logger.pop("Parsed Rule.");
         return rule;
     }
-    
+
+    private Graph parseGraph(ArrayList<Variable> variables) {
+        GraphParser gp = new GraphParser(text.substring(position), variables);
+        Graph graph = gp.parse();
+        position += gp.position;
+        return graph;
+    }
+
     private ArrayList<Variable> parseRuleVariables() {
         ArrayList<Variable> result = new ArrayList<Variable>();
         consume("<");

@@ -111,7 +111,7 @@ public class InstructionParser extends Parser {
         consumeWhitespace();
         consume("(");
         consumeWhitespace();
-        Instruction i = parseInstruction();
+        Instruction i = parse();
         consumeWhitespace();
         consume(")");
         return new TryInstruction(i);
@@ -131,10 +131,10 @@ public class InstructionParser extends Parser {
         ArrayList<Instruction> i = new ArrayList<Instruction>();
         consume("(");
         consumeWhitespace();
-        i.add(parseInstruction());
+        i.add(parse());
         consumeWhitespace();
         while (!eof() && !beginsWith(Pattern.compile("(?:,\\s*)?)"))) {
-            i.add(parseInstruction());
+            i.add(parse());
             consumeWhitespace();
         }
         consumeOptional(",");
@@ -145,12 +145,12 @@ public class InstructionParser extends Parser {
 
     private ArrayList<Instruction> parseInstructionList() {
         ArrayList<Instruction> list = new ArrayList<Instruction>();
-        list.add(parseInstruction());
+        list.add(parse());
         consumeWhitespace();
         while (!eof() && beginsWith(ProgramParser.IDENTIFIER)) {
             consume(",");
             consumeWhitespace();
-            list.add(parseInstruction());
+            list.add(parse());
             consumeWhitespace();
         }
         consumeOptional(",");

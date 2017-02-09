@@ -30,7 +30,7 @@ public class Main {
         RHS.addNode(new Node(1));
         RHS.addNode(new Node(2));
         RHS.addEdge(2, 1);
-        Rule r = new Rule(LHS, RHS);
+        Rule r = new Rule("InverseEdge", LHS, RHS);
         
         Graph g = new Graph();
         g.addNode(new Node(5));
