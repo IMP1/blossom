@@ -1,6 +1,6 @@
 //  Helper Functions
 
-rule cannot_move_left? [ 1 (#head) ] => [ 1 (#head) ] where in(1) = 0;
+rule cannot_move_left?  [ 1 (#head) ] => [ 1 (#head) ] where in(1)  = 0;
 rule cannot_move_right? [ 1 (#head) ] => [ 1 (#head) ] where out(1) = 0;
 
 rule move_left [ 2 , 1 (#head) | 2 -> 1 (empty) ] 
@@ -31,11 +31,11 @@ rule decrement <int x>
             => [ 1 (x + 1, #head) ];
 
 proc left
-    if (cannot_move_left?, add_left); move_left;
+    if (cannot_move_left? : add_left) move_left
 end
 
 proc right
-    if (cannot_move_right?, add_right); move_right;
+    if (cannot_move_right? : add_right) move_right
 end
 
 rule output <any n>
@@ -59,10 +59,10 @@ rule output <any n>
 //     <<      Move the pointer back to cell0
 //   ]       End while
 
-right; right; 
+right right
 if(non_zero?, decrement, invalid)!
-left; left;
-if(non_zero?, decrement; right; right; increment; left; left, invalid)!
+left left
+if(non_zero? : decrement right right increment left left : invalid)!
 
 // Any BrainFuck programme can be rewritten in Blossom, therefore it is Turing Complete. Hurrah.
 
@@ -81,29 +81,29 @@ rule move_two_to_the_right_3 <int x>
                           => [ 1 (0, #head), 2, 3 (x) | 1->2, 2->3 ]
                              where out(1) = 0;
 
-with(move_two_to_the_right_1, noop, with(move_two_to_the_right_2, noop, move_two_to_the_right_3));
+with(move_two_to_the_right_1, noop, with(move_two_to_the_right_2, noop, move_two_to_the_right_3))
 
 
 //  Brainfuck Code:
 //      ++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.
 
-increment increment increment increment increment increment increment increment if(non_zero?, 
-    right increment increment increment increment if(non_zero?, 
+increment increment increment increment increment increment increment increment if(non_zero? : 
+    right increment increment increment increment if(non_zero? : 
         right increment increment 
         right increment increment increment 
         right increment increment increment 
         right increment 
         left left left left decrement
-    , invalid)!, 
+    : invalid)! :
     right increment 
     right increment 
     right decrement 
     right 
-    right increment if(non_zero?,
+    right increment if(non_zero? :
         left
-    , invalid)!
+    : invalid)!
     left decrement
-, invalid)! right 
+: invalid)! right 
 right output 
 right decrement decrement decrement output
 increment increment increment increment increment increment increment output output
