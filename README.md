@@ -10,7 +10,7 @@ being developed at the University of York, Blossom shares many of the same featu
 
 Blossom does not have classes, or arrays, or structs. Instead it has *graphs*. Graphs are made up of *nodes* and *edges*.
 Both nodes and edges can have labels, which are an optional *value*, and a set of *marks*.
-These values can contain be (no signifier), strings (wrapped in quotation marks), or booleans (true/false).
+These values can contain be numbers (no signifier), strings (wrapped in quotation marks), or booleans (true/false).
 A mark is a flag, prefixed with a '#', and these can be turned on or off for a node or edge.
 A label may also contain the keyword 'unmarked', meaning the set of marks must be the empty set.
 If a node or edge's label is empty, then it has no value, and its list of marks is null.
@@ -58,18 +58,35 @@ Integer operations include, in order or precedence:
  5. `-` subtraction
  6. `%` modulo
 
+ 7. `=` equality check
+ 8. `!=` inequality check
+ 9. `<` less-than check
+10. `>=` greater-than-or-equal-to check
+
 Boolean operations include, in order of precedence:
 
  1. `¬`/`not` not
  2. `&`/`and` and
  3. `|`/`or`  or
  4. `^`/`xor` xor
+ 5. `=` equality check
+ 6. `!=` inequality check
 
-<!-- 
 String functions include:
 
- sub(string text, int from [, int to]) -> string
+ 1. `+` concatenate
+ 2. `*` repeat
+ 3. `=` equality check
+ 4. `!=` inequality check
+ 5. `^=` begins with
+ 6. `$=` ends with
+ 7. `~=` contains
 
+<!-- 
+    sub(string text, int from [, int to]) -> string substring
+    replace(string text, string match, string replacement) -> string string_with_replacements
+    find(string text, string match) -> int position_of_match
+    find_last(string text, string match) -> int position_of_match
 
 -->
 
@@ -77,7 +94,7 @@ Rules can also be suffixed with a condition, using the `where` modifier. These c
 
   * `in(node_id) -> int`: returns the number of edges with the node specified by `node_id` as their target.
   * `out(node_id) -> int`: returns the number of edges with the node specified by `node_id` as their source.
-  * `edge(source_id, target_id) -> int`: returnsthe number of edges from the node specified by `source_id` to the node specified be `target_id`.
+  * `edge(source_id, target_id) -> int`: returns the number of edges from the node specified by `source_id` to the node specified be `target_id`.
   * `adj(node_1_id, node_2_id) -> int`: returns the number of edges in either direction between the two nodes.
 
 Conditions can also query values of nodes, or the existence (or non-existence) of marks.
@@ -121,7 +138,7 @@ rule reduce
 ### Programmes
 
 A *procedure* is made up of rules. It can be a single rule, or sequential rule after rule, or a choice of rules. 
-It can be an if-statement, or a with-statement, or a try-statement. A programme is made up of one or more procedures.
+It can be an if-statement, or a with-statement, or a try-statement. A programme is made up of one or more procedures, which are executed in sequence.
 
 Blossom is non-deterministic, which affects its feature-set.
 
@@ -139,6 +156,8 @@ An if statement can return an invalid graph if the condition holds and the 'then
 'With' statements are very similar to if statements. The difference is the result of the condition. 
 With an if statement, the changes to the graph made by the "condition" procedure are not kept before going on to either the 'then' or 'else' procedure, 
 whereas with a 'with' statement the 'then' procedure uses the result of the condition procedure: `with (r1, r2)` `with (r1, r2, r3)`
+
+Some special case procedures include `noop`, which performs no action, and `invalid`
 
 ```blossom
 // Programme Example:
