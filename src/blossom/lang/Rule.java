@@ -54,7 +54,7 @@ public class Rule {
         this.initialGraph   = initialGraph;
         this.resultGraph    = resultGraph;
         this.condition      = condition;
-        this.addendum       = addendum
+        this.addendum       = addendum;
         this.interfaceGraph = createInterface();
     }
 
