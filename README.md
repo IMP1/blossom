@@ -44,7 +44,7 @@ These are both graphs. Applying a rule to a graph will search within that graph 
 and will attempt to transform it into the resultant subgraph. If no match is found, or the resultant subgraph is invalid, then the rule application has failed.
 
 Nodes in subgraphs of rules as well as having constant values in their label lists, can also variables. 
-These have a type (`int`, `string`, `bool`, `any`), which are specified in the rule's signiture. 
+These have a type (`int`, `real`, `string`, `bool`, `any`), which are specified in the rule's signiture. 
 
 #### Label Operations
 
