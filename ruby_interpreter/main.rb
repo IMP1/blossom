@@ -50,8 +50,6 @@ class Runner
             lines = source.split(/\n/)
             from_line = [error.token.line-4, 0].max
             to_line   = [error.token.line+4, lines.size-1].min
-            p from_line
-            p to_line
             (from_line...to_line).each do |i|
                 if i == (error.token.line - 1)
                     message += ConsoleStyle::BOLD_ON + lines[i] + ConsoleStyle::BOLD_OFF + "\n"
