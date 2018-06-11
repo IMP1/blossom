@@ -87,3 +87,9 @@ output_graph = Runner.run(programme_source, host_graph, programme_filename, host
 
 # TODO: convert ouput to desired format.
 output_file.write(output_graph.join("\n"))
+
+
+# Example Usage:
+
+# ruby_interpreter/blossom examples/alternating.blsm "[1(1), 2(5), 3(2), 4(5) | 1->2, 2->3, 3->4 ]"
+# ruby_interpreter/blossom examples/alternating.blsm "[1(1), 2(5), 3(1), 4(5) | 1->2, 2->3, 3->4 ]"
