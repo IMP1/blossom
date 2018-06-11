@@ -1,0 +1,82 @@
+programme       -> statement* EOF
+
+statement       -> rule_def
+                 | proc_def
+                 | rule_app
+
+rule_def        -> "rule" IDENTIFIER var_list? 
+                   graph_def "=>" graph_def 
+                   condition? addendum?
+var_list        -> "<" (TYPE ":" IDENTIFIER ("," IDENTIFER)* ","?) ">"
+condition       -> "where" expression
+addendum        -> "also" statement
+
+graph_def       -> "[" node_def? ("," node_def)* ","? ( 
+                   "|" edge_def? ("," edge_def)* ","? )? "]"
+
+node_def        -> NODE_ID label?
+edge_def        -> NODE_ID "<"? "->" NODE_ID label?
+
+label           -> "(" value ( "," markset )? ","? ")"
+value           -> literal_value
+                 | 
+                 | IDENTIFIER
+                 | expression                                                   # only in RHS graphs 
+
+markset         -> mark ( "," mark )*
+                 | "unmarked"
+mark            -> "#" IDENTIFER
+                 | "¬" IDENTIFER
+
+literal_value   -> INTEGER_VALUE
+                 | STRING_VALUE
+                 | REAL_VALUE
+                 | BOOLEAN_VALUE
+
+
+
+proc_def        -> "proc" IDENTIFER rule_app* "end"
+
+rule_app        -> try "(" rule_app  ")"                                        # try
+                 | if "(" rule_app ("," rule_app)? ("," rule_app)? ")"          # if
+                 | with "(" rule_app ("," rule_app)? ("," rule_app)? ")"        # with
+                 | "{" rule_app ("," rule_app)* "}"                             # choose
+                 | "(" rule_app ("," rule_app)* ")"                             # sequence (for grouping)
+                 | rule_app "!"                                                 # loop
+                 | "noop"                                                       # noop
+                 | "invalid"                                                    # invalid
+                 | IDENTIFER                                                    # rule/proc
+
+
+expression      -> func_call                                                    # builtin in/out/adj functions
+                 | expression "^"   expression
+                 | expression "/"   expression
+                 | expression "*"   expression
+                 | expression "+"   expression
+                 | expression "-"   expression
+                 | expression "%"   expression
+                 | expression "="   expression
+                 | expression "!="  expression
+                 | expression "<"   expression
+                 | expression "<="  expression
+                 | expression ">"   expression
+                 | expression ">="  expression
+                 | expression "&"   expression
+                 | expression "and" expression
+                 | expression "|"   expression
+                 | expression "or"  expression
+                 | expression "^"   expression
+                 | expression "xor" expression
+                 | expression "^="  expression
+                 | expression "$="  expression
+                 | expression "~="  expression
+                 | "¬"   expression
+                 | "not" expression
+                 | IDENTIFER
+                 | literal_value
+
+func_call       -> IDENTIFER "(" func_args? ")"
+func_args       -> expression ( "," expression )*
+
+statement       -> func_call                                                    # builtin print/debug procedures
+
