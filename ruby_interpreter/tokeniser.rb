@@ -155,10 +155,11 @@ class Tokeniser
             # do nothing
         when "\n"
             newline
+            
         when "/"
             if advance_if("/")
                 # Line comment:
-                while peek != "\n" && !eof?
+                while !eof? && peek != "\n"
                     advance
                 end
             else
@@ -183,7 +184,7 @@ class Tokeniser
     end
 
     def mark
-        while !eof? && !peek ~= /\s/
+        while !eof? && !peek =~ /\s/
             advance
         end
         # Trim the leading `#`.
@@ -226,7 +227,7 @@ class Tokeniser
     end
 
     def identifier
-        advance while peek() =~ /\w/
+        advance while peek() =~ /[\w\?]/
 
         # See if the identifier is a reserved word.
         text = @source[@start...@current]
