@@ -83,7 +83,7 @@ class Runner
         parser = Parser.new(programme_tokens)
         programme = parser.parse_programme
 
-        return programme_tokens
+        return programme
 
         @@log.trace(tokens.map {|t| "\t<#{t.to_s}>"}.join("\n"))
 
