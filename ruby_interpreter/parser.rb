@@ -201,7 +201,7 @@ class Parser
             parameters = parameter_list
             consume_token(:GREATER, "Expecting '>' after the rule's parameters.")
         end
-        host_graph = parse_graph(parameters)
+        match_graph = parse_graph(parameters)
         consume_token(:RIGHT_ARROW, "Expecting => between the match graph and the result graph.")
         result_graph = parse_graph(parameters)
         condition = nil
@@ -214,8 +214,7 @@ class Parser
             addendun_keyword_token = previous
             addendum_statement = statement
         end
-        return RuleDefinitionStatement.new(rule_name_token, parameters, host_graph, result_graph, condition, addendum)
-        # TODO: define this statement.
+        return RuleDefinitionStatement.new(rule_name_token, parameters, match_graph, result_graph, condition, addendum)
     end
 
     def parameter_list
