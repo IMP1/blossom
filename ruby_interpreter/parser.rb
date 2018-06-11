@@ -1,8 +1,9 @@
 require_relative 'log'
-require_relative 'expression'
-require_relative 'statement'
 require_relative 'main'
 require_relative 'error'
+
+require_relative 'expression'
+# require_relative 'statement'
 
 class Parser
 
@@ -55,7 +56,7 @@ class Parser
 
     def fault(token, message)
         e = BlossomParseError.new(token, message)
-        Compiler.compile_error(e)
+        Runner.compile_error(e)
         return e
     end
 
@@ -104,45 +105,40 @@ class Parser
     # Blossom Graph Grammar Nonterminals #
     #------------------------------------#
     def parse_node(parameters)
-        node_id_token = consume_token(:INTEGER_LITERAL)
+        node_id_token = consume_token(:INTEGER_LITERAL, "Expecting an id for the node.")
         if match_token(:LEFT_PAREN)
             node_label = parse_label(parameters)
             consume_token(:RIGHT_PAREN)
         end
         return NodeExpression.new(node_id_token, node_label)
-        # TODO: define this expression.
     end
 
     def parse_label(parameters)
+        paren_token = previous
         value = parse_label_value(parameters)
         if value.nil? || match_token(:COMMA)
             markset = parse_markset
         end
-        return LabelExpression.new(value, markset)
-        # TODO: define this expression.
+        return LabelExpression.new(paren_token, value, markset)
     end
 
     def parse_label_value(parameters)
         if match_token(:ASTERISK)
             return AnyLabelValueExpression.new(previous)
-            # TODO: define this expression.
         end
         if match_token(:BOOLEAN_LITERAL, :INTEGER_LITERAL, :RATIONAL_LITERAL, :REAL_LITERAL, :STRING_LITERAL)
             token = previous
             value = previous.literal
             return LiteralExpression.new(token, value)
-            # TODO: define this expression.
         elsif match_token(:VOID)
             token = previous
-            return VoidLabelExpression.new(token)
-            # TODO: define this expression.
+            return VoidLabelValueExpression.new(token)
         elsif match_token(:IDENTIFIER)
             token = previous
             var_name = previous.lexeme
             if parameters.has_key?(var_name)
-                type = parameters[var_name]
+                type = parameters[var_name][:type_name]
                 return VariableExpression.new(token, var_name, type)
-                # TODO: define this expression.
             else
                 fault(token, "Unrecognised value for a label.")
             end
@@ -154,8 +150,7 @@ class Parser
         while match_token(:MARK)
             token = previous
             value = previous.literal
-            set.push(Mark.new(token, value))
-            # TODO: define this expression.
+            set.push(MarkExpression.new(token, value))
         end
         return set
     end
@@ -175,11 +170,10 @@ class Parser
             consume_token(:RIGHT_PAREN)
         end
         if both_ways
-            return EdgeExpression.new(source_id, target_id, edge_label), 
-                   EdgeExpression.new(target_id, source_id, edge_label)
+            return EdgeExpression.new(arrow_token, source_id, target_id, edge_label), 
+                   EdgeExpression.new(arrow_token, target_id, source_id, edge_label)
         else
-            return EdgeExpression.new(source_id, target_id, edge_label)
-            # TODO: define this expression.
+            return EdgeExpression.new(arrow_token, source_id, target_id, edge_label)
         end
     end
 
@@ -223,15 +217,26 @@ class Parser
     end
 
     def parameter_list
-        
+        params = {}
+        while !eof? && !check(:GREATER)
+            param_type_token = consume_token(:IDENTIFIER, "Expecting a type for the parameters.")
+            param_type_name = param_type_token.lexeme
+            while !eof? && !check(:SEMICOLON)
+                param_name_token = consume_token(:IDENTIFIER, "Expecting a name for this parameter.")
+                param_name = param_name_token.lexeme
+                params[param_name] = { name: param_name, token: param_name_token, type_name: param_type_name, type_token: param_type_token }
+                break if !match_token(:COMMA)
+            end
+        end
+        return params
     end
 
     def procedure_definition
-
+        
     end
 
     def rule_application
-
+        
     end
 
     def statement
