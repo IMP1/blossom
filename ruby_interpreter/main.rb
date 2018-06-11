@@ -1,7 +1,12 @@
 require_relative 'console_colours'
 
 require_relative 'log'
+
 require_relative 'tokeniser'
+require_relative 'parser'
+
+# Error Codes:
+# https://stackoverflow.com/questions/1101957/are-there-any-standard-exit-status-codes-in-linux
 
 class Runner
 
@@ -45,10 +50,15 @@ class Runner
             lines = source.split(/\n/)
             from_line = [error.token.line-4, 0].max
             to_line   = [error.token.line+4, lines.size-1].min
+            p from_line
+            p to_line
             (from_line...to_line).each do |i|
-                message += lines[i] + "\n"
+                if i == (error.token.line - 1)
+                    message += ConsoleStyle::BOLD_ON + lines[i] + ConsoleStyle::BOLD_OFF + "\n"
+                else
+                    message += lines[i] + "\n"
+                end
             end
-            message += ConsoleStyle::BOLD_ON + lines[to_line] + ConsoleStyle::BOLD_OFF + "\n"
             message += ConsoleStyle::RESET + "\n"
         end
         if fatal
