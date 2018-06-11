@@ -69,6 +69,12 @@ class Runner
         tokeniser = Tokeniser.new(prog_source, prog_filename)
         programme_tokens = tokeniser.tokenise
 
+        parser = Parser.new(graph_tokens)
+        graph = parser.parse_graph
+
+        parser = Parser.new(programme_tokens)
+        programme = parser.parse_programme
+
         return programme_tokens
 
         @@log.trace(tokens.map {|t| "\t<#{t.to_s}>"}.join("\n"))
