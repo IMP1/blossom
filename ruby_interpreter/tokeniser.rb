@@ -11,6 +11,13 @@ class Tokeniser
         'also'      => :ALSO,
         'unmarked'  => :UNMARKED,
         'void'      => :VOID,
+
+        'noop'      => :NOOP,
+        'invalid'   => :INVALID,
+
+        'if'        => :IF,
+        'with'      => :WITH,
+        'try'       => :TRY,
     }
 
     def initialize(source, filename="")
@@ -98,6 +105,8 @@ class Tokeniser
             add_token(:COMMA)
         when ';'
             add_token(:SEMICOLON)
+        when ':'
+            add_token(:COLON)
 
         when '-'
             add_token(advance_if('>') ? :UNIDIRECTIONAL : :MINUS)

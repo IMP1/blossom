@@ -18,11 +18,11 @@ rule not_alternating? <int x, y, z>
                    => [ 1 (x), 2 (y), 3 (z) | 1->2, 2->3 ]
                       where x != z;
 
-if (not_alternating?, invalid)
+if (not_alternating? : invalid)
 
 // Below is the 'golfed' form of the above programme. 
 // All unnecessary whitespace has been removed, and rule/procedure names have been shorteded.
 // It is not very readable, but illustrates what syntax is actually necessary.
 
-rule a<int x,y>[1(x),2,3(y)|1->2,2->3]=>[]where x!=z;if(a,invalid)
+// rule a<int x,y>[1(x),2,3(y)|1->2,2->3]=>[]where x!=z;if(a:invalid)
 // Number of characters: 65

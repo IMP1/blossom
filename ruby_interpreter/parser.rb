@@ -3,7 +3,7 @@ require_relative 'main'
 require_relative 'error'
 
 require_relative 'expression'
-# require_relative 'statement'
+require_relative 'statement'
 
 class Parser
 
@@ -11,6 +11,9 @@ class Parser
         @log = Log.new("Parser")
         @tokens = tokens
         @current = 0
+
+        @rules = {}
+        @procs = {}
     end
 
     #--------------------------------------------------------------------------#
@@ -214,6 +217,8 @@ class Parser
             addendun_keyword_token = previous
             addendum_statement = statement
         end
+        match_token(:SEMICOLON)
+        @rules[rule_name_token.lexeme] = rule_name_token
         return RuleDefinitionStatement.new(rule_name_token, parameters, match_graph, result_graph, condition, addendum)
     end
 
@@ -233,17 +238,93 @@ class Parser
     end
 
     def procedure_definition
-        
+        @procs[proc_name_token.lexeme] = proc_name_token
     end
 
     def rule_application
-        
+        application = rule_application_prefix
+        if match_token(:EXCLAMATION)
+            application = LoopStatement.new(previous, application)
+        end
+        return application
+    end
+
+    def rule_application_prefix
+        if match_token(:TRY)
+            keyword_token = previous
+            consume_token(:LEFT_PAREN, "Expecting '(' before a try statement.")
+            attempt = sequence
+            consume_token(:RIGHT_PAREN, "Expecting ')' after a try statment.")
+            return TryStatement.new(keyword_token, attempt)
+        end
+        if match_token(:IF)
+            keyword_token = previous
+            consume_token(:LEFT_PAREN, "Expecting '(' before an if statement.")
+            condition = rule_application
+            consume_token(:COLON, "Expecting ':' after an if statement's condition.")
+            then_stmt = rule_application
+            else_stmt = nil
+            if match_token(:COLON)
+                else_stmt = rule_application
+            end
+            consume_token(:RIGHT_PAREN, "Expecting ')' after an if statment.")
+            return IfStatement.new(keyword_token, condition, then_stmt, else_stmt)
+        end
+        if match_token(:WITH)
+            keyword_token = previous
+            consume_token( :LEFT_PAREN, "Expecting '(' before a with statement.", ")")
+            condition = rule_application
+            consume_token(:COLON, "Expecting ':' after a with statement's condition.")
+            then_stmt = rule_application
+            else_stmt = nil
+            if match_token(:COLON)
+                else_stmt = rule_application
+            end
+            consume_token(:RIGHT_PAREN, "Expecting ')' after a with statment.")
+            return WithStatement.new(keyword_token, condition, then_stmt, else_stmt)
+        end
+        if match_token(:LEFT_PAREN)
+            paren_token = previous
+            applications = sequence
+            consume_token(:RIGHT_PAREN, "Expecting ')' after a rule application sequence")
+            return SequenceStatement.new(paren_token, applications)
+        end
+        if match_token(:LEFT_BRACE)
+            paren_token = previous
+            applications = sequence
+            consume_token(:RIGHT_BRACE, "Expecting '}' after a rule application set")
+            return ChoiceStatement.new(paren_token, applications)
+        end
+        if match_token(:NOOP)
+            return NoopStatement.new(previous)
+        end
+        if match_token(:INVALID)
+            return InvalidStatement.new(previous)
+        end
+        if match_token(:IDENTIFIER)
+            var_name_token = previous
+
+            if @rules.has_key?(var_name_token.lexeme)
+                return RuleApplicationStatement.new(var_name_token, var_name_token.lexeme)
+            end
+            if @procs.has_key?(var_name_token.lexeme)
+                return ProcedureApplicationStatement.new(var_name_token, var_name_token.lexeme)
+            end
+        end
+        fault(peek, "Expecting a statement. Got '#{peek.lexeme}'.")
+    end
+
+    def sequence
+        applications = []
+        while !eof? && !check(:RIGHT_PAREN)
+            applications.push(rule_application)
+        end
+        return applications
     end
 
     def statement
         
     end
-
 
     # Remnants from Raven. Pick and choose what is still relavent to blossom.
 
@@ -378,7 +459,7 @@ class Parser
             return VariableExpression.new(previous, previous.lexeme)
         end
 
-        raise fault(peek, "Expecting an expression. Got '#{peek.lexeme}'.")
+        fault(peek, "Expecting an expression. Got '#{peek.lexeme}'.")
     end
 
     def primitive_literal(type, value, token)
