@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+
+require_relative 'main'
+
+# Output file
+if ARGV.include?("-h") || ARGV.include?("--help")
+    puts "Blossom Help: "
+    # TODO: version
+    # TODO: usage
+    # TODO: help
+    exit(0)
+end
+
+
+# Host Graph
+if ARGV.count {|a| a == "-i" || a == "--input" } > 1
+    puts "Multiple input arguments were included (-i and/or --input). Exiting."
+    exit(64)
+end
+
+host_graph_filename = "console"
+host_graph_file = $stdin
+
+host_graph_index = ARGV.index("-i") || ARGV.index("--input")
+if host_graph_index
+    ARGV.delete_at(host_graph_index)
+    host_graph_filename = ARGV.delete_at(host_graph_index)
+    if !File.exists?(host_graph_filename)
+        puts "Could not find graph file '#{host_graph_filename}'. Exiting."
+        exit(66)
+    else
+        host_graph_file = File.open(host_graph_filename, 'r')
+    end
+end
+
+
+# Output File
+if ARGV.count {|a| a == "-o" || a == "--output" } > 1
+    puts "Multiple output arguments were included (-o and/or --output). Exiting."
+    exit(64)
+end
+
+output_file = $stdout
+
+output_index = ARGV.index("-o") || ARGV.index("--output")
+if output_index
+    ARGV.delete_at(output_index)
+    output_filename = ARGV.delete_at(output_index)
+    begin
+        output_file = File.open(output_filename, 'w')
+    rescue Exception => e
+        # TODO: handle permission errors and return appropriate exit codes.
+    end
+end
+
+
+# Output Format
+output_format = :blossom
+# TODO: handle other output formats (error on multiple selected.)
+if ARGV.count {|a| a == "--dot" } == 0
+    output_format = :dot
+    ARGV.delete("--dot")
+end
+
+# Programme Filename
+if ARGV.size > 0
+    programme_filename = ARGV.delete_at(0)
+else
+    programme_filename = gets.chomp
+end
+if !File.exists?(programme_filename)
+    puts "Could not find programme file '#{programme_filename}'. Exiting."
+    exit(66)
+end
+programme_file = File.open(programme_filename, 'r')
+programme_source = programme_file.read
+
+if ARGV.size > 0
+    host_graph = ARGV.delete_at(0)
+elsif host_graph_file != $stdin
+    host_graph = host_graph_file.read
+else
+    host_graph = gets.chomp
+end
+
+output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename)
+
+# TODO: convert ouput to desired format.
+output_file.write(output_graph.join("\n"))
