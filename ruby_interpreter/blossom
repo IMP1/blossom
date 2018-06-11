@@ -87,6 +87,7 @@ output_graph = Runner.run(programme_source, host_graph, programme_filename, host
 
 # TODO: convert ouput to desired format.
 output_file.write(output_graph.join("\n"))
+output_file.write("\n")
 
 
 # Example Usage:
