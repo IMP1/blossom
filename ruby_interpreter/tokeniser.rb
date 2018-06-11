@@ -4,6 +4,15 @@ require_relative 'error'
 
 class Tokeniser
 
+    KEYWORDS = {
+        'rule'      => :RULE_DEF,
+        'proc'      => :PROC_DEF,
+        'where'     => :WHERE,
+        'also'      => :ALSO,
+        'unmarked'  => :UNMARKED,
+        'void'      => :VOID,
+    }
+
     def initialize(source, filename="")
         @filename = filename
         @source   = source
@@ -91,7 +100,7 @@ class Tokeniser
             add_token(:SEMICOLON)
 
         when '-'
-            add_token(:MINUS)
+            add_token(advance_if('>') ? :UNIDIRECTIONAL : :MINUS)
         when '+'
             add_token(:PLUS)
         when '*'
@@ -108,11 +117,22 @@ class Tokeniser
             add_token(:QUESTION)
 
         when '='
-            add_token(:EQUAL)
+            if advance_if('>')
+                add_token(:RIGHT_ARROW)
+            else
+                add_token(:EQUAL)
+            end
         when '!'
             add_token(:NOT_EQUAL)
         when '<'
-            if advance_if('=')
+            if advance_if('-') 
+                if advance_if('>')
+                    add_token(:BIDIRECTIONAL)
+                else
+                    add_token(:LESS)
+                    add_token(:MINUS)
+                end
+            elsif advance_if('=')
                 add_token(:LESS_EQUAL)
             else
                 add_token(:LESS)
@@ -145,6 +165,9 @@ class Tokeniser
                 add_token(:STROKE)
             end
 
+        when "#"
+            mark
+
         when '"'
             string
 
@@ -157,6 +180,15 @@ class Tokeniser
         else
             report_error("Unexpected character '#{@source[@current-1]}'.")
         end
+    end
+
+    def mark
+        while !eof? && !peek ~= /\s/
+            advance
+        end
+        # Trim the leading `#`.
+        value = @source[@start+1...@current]
+        add_token(:MARK, value)
     end
 
     def string
@@ -174,7 +206,7 @@ class Tokeniser
         advance();
         # Trim the surrounding quotes.
         value = @source[@start + 1...@current - 1]
-        add_token(:STRING_LITERAL, value);
+        add_token(:STRING_LITERAL, value)
     end
 
     def number
@@ -208,7 +240,7 @@ class Tokeniser
 
         # See if the identifier is a type.
         type = :IDENTIFIER
-        # type = KEYWORDS[text] if KEYWORDS.has_key?(text)
+        type = KEYWORDS[text] if KEYWORDS.has_key?(text)
 
         add_token(type)
     end
