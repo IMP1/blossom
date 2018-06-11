@@ -83,7 +83,7 @@ class VariableExpression < Expression
     attr_reader :name
     attr_reader :type
 
-    def initialize(token, name, type)
+    def initialize(token, name, type=nil)
         super(token)
         @name = name
         @type = type
@@ -98,6 +98,32 @@ class MarkExpression < Expression
     def initialize(token, value)
         super(token)
         @value = value
+    end
+
+end
+
+class BinaryOperatorExpression < Expression
+
+    attr_reader :left
+    attr_reader :right
+    attr_reader :operator
+
+    def initialize(left, operator, right)
+        super(operator)
+        @left = left
+        @right = right
+        @operator = operator
+    end
+
+end
+
+class FunctionCallExpression < Expression
+
+    attr_reader :args
+
+    def initialize(callee, args)
+        super(callee.token)
+        @args = args
     end
 
 end

@@ -123,7 +123,11 @@ class Tokeniser
                 add_token(:EQUAL)
             end
         when '!'
-            add_token(:NOT_EQUAL)
+            if advance_if('=')
+                add_token(:NOT_EQUAL)
+            else
+                add_token(:NOT)
+            end
         when '<'
             if advance_if('-') 
                 if advance_if('>')

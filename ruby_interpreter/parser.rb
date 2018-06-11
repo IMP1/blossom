@@ -88,10 +88,12 @@ class Parser
         edges = []
         while !eof? && !check(:PIPE) && !check(:RIGHT_SQUARE)
             nodes.push(parse_node(parameters))
+            break if !match_token(:COMMA)
         end
         if match_token(:PIPE)
             while !eof? && !check(:RIGHT_SQUARE)
                 edges.push(*parse_edge(parameters))
+                break if !match_token(:COMMA)
             end
         end
         consume_token(:RIGHT_SQUARE, "Expecting '[' to end a graph.")
@@ -108,7 +110,7 @@ class Parser
         node_id_token = consume_token(:INTEGER_LITERAL, "Expecting an id for the node.")
         if match_token(:LEFT_PAREN)
             node_label = parse_label(parameters)
-            consume_token(:RIGHT_PAREN)
+            consume_token(:RIGHT_PAREN, "Expecting ')' after a node's label.")
         end
         return NodeExpression.new(node_id_token, node_label)
     end
@@ -156,7 +158,7 @@ class Parser
     end
 
     def parse_edge(parameters)
-        source_id = consume_token(:INTEGER_LITERAL)
+        source_id = consume_token(:INTEGER_LITERAL, "Expecting an id of a source node.")
         both_ways = false
         if match_token(:BIDIRECTIONAL)
             arrow_token = previous
@@ -164,10 +166,10 @@ class Parser
         else
             arrow_token = consume_token(:UNIDIRECTIONAL, "Expecting an arrow (-> or <->) between the nodes' ids.")
         end
-        target_id = consume_token(:INTEGER_LITERAL)
+        target_id = consume_token(:INTEGER_LITERAL, "Expecting an id of a target node.")
         if match_token(:LEFT_PAREN)
             edge_label = parse_label(parameters)
-            consume_token(:RIGHT_PAREN)
+            consume_token(:RIGHT_PAREN, "Expecting ')' after an edge's label.")
         end
         if both_ways
             return EdgeExpression.new(arrow_token, source_id, target_id, edge_label), 
@@ -200,7 +202,7 @@ class Parser
             consume_token(:GREATER, "Expecting '>' after the rule's parameters.")
         end
         host_graph = parse_graph(parameters)
-        consume_token(:RIGHT_ARROW)
+        consume_token(:RIGHT_ARROW, "Expecting => between the match graph and the result graph.")
         result_graph = parse_graph(parameters)
         condition = nil
         if match_token(:WHERE)
@@ -253,10 +255,10 @@ class Parser
     def or_shortcircuit
         expr = and_shortcircuit
 
-        while match_token(:DOUBLE_PIPE)
+        while match_token(:PIPE)
             op = previous
             right = and_shortcircuit
-            expr = ShortCircuitExpression.new(expr, op, right)
+            expr = BinaryOperatorExpression.new(expr, operator, right)
         end
 
         return expr
@@ -265,10 +267,10 @@ class Parser
     def and_shortcircuit
         expr = equality
 
-        while match_token(:DOUBLE_AMPERSAND)
+        while match_token(:AMPERSAND)
             op = previous
             right = equality
-            expr = ShortCircuitExpression.new(expr, op, right)
+            expr = BinaryOperatorExpression.new(expr, operator, right)
         end
 
         return expr
@@ -277,9 +279,9 @@ class Parser
     def equality
         expr = comparison
         while match_token(:EQUAL, :NOT_EQUAL)
-            op = previous
+            operator = previous
             right = comparison
-            expr = BinaryExpression.new(expr, op, right)
+            expr = BinaryOperatorExpression.new(expr, operator, right)
         end
         return expr
     end
@@ -289,7 +291,7 @@ class Parser
         while match_token(:GREATER, :GREATER_EQUAL, :LESS, :LESS_EQUAL, :BEGINS_WITH, :ENDS_WITH, :CONTAINS)
             operator = previous
             right = addition
-            expr = BinaryExpression.new(expr, operator, right)
+            expr = BinaryOperatorExpression.new(expr, operator, right)
         end
         return expr
     end
@@ -299,7 +301,7 @@ class Parser
         while match_token(:MINUS, :PLUS, :PIPE, :PERCENT)
             operator = previous
             right = multiplication
-            expr = BinaryExpression.new(expr, operator, right)
+            expr = BinaryOperatorExpression.new(expr, operator, right)
         end
         return expr
     end
@@ -309,7 +311,7 @@ class Parser
         while match_token(:STROKE, :ASTERISK, :AMPERSAND, :DOUBLE_STROKE)
             operator = previous
             right = exponent
-            expr = BinaryExpression.new(expr, operator, right)
+            expr = BinaryOperatorExpression.new(expr, operator, right)
         end
         return expr
     end
@@ -319,7 +321,7 @@ class Parser
         while match_token(:CARET)
             operator = previous
             right = unary
-            expr = BinaryExpression.new(expr, operator, right)
+            expr = BinaryOperatorExpression.new(expr, operator, right)
         end
         return expr
     end
@@ -329,6 +331,7 @@ class Parser
             operator = previous
             right = unary
             return UnaryExpression.new(operator, right)
+            # TODO: define this expression.
         end
         return call
     end
@@ -336,18 +339,8 @@ class Parser
     def call
         expr = primary
 
-        loop do
-            if match_token(:LEFT_PAREN)
-                expr = finish_call(expr)
-            elsif match_token(:LEFT_SQUARE)
-                key = or_shortcircuit
-                expr = index_of(expr, key)
-            elsif match_token(:DOT)
-                field = consume_token(:IDENTIFIER, "Expecting property name after '.'.")
-                expr = PropertyExpression.new(expr, field)
-            else
-                break
-            end
+        while match_token(:LEFT_PAREN)
+            expr = finish_call(expr)
         end
 
         return expr
@@ -362,129 +355,28 @@ class Parser
             end
         end
         paren = consume_token(:RIGHT_PAREN, "Expecting ')' after arguments.")
-        return CallExpression.new(callee, paren, args)
-    end
-
-    def index_of(expr, key)
-        paren = consume_token(:RIGHT_SQUARE, "Expecting ']' after index.")
-        return IndexExpression.new(previous, expr, key)
+        return FunctionCallExpression.new(callee, paren, args)
     end
 
     def primary
         if match_token(:STRING_LITERAL)
-            return primitive_literal(try_coerce_type([:string], @type_hint), previous.literal, previous)
+            return primitive_literal(:string, previous.literal, previous)
         end
         if match_token(:BOOLEAN_LITERAL)
-            return primitive_literal(try_coerce_type([:bool], @type_hint), previous.literal, previous)
+            return primitive_literal(:bool, previous.literal, previous)
         end        
         if match_token(:INTEGER_LITERAL)
-            return primitive_literal(try_coerce_type([:int], @type_hint), previous.literal, previous)
+            return primitive_literal(:int, previous.literal, previous)
         end
         if match_token(:REAL_LITERAL)
-            return primitive_literal(try_coerce_type([:real], @type_hint), previous.literal, previous)
+            return primitive_literal(:real, previous.literal, previous)
         end
         if match_token(:RATIONAL_LITERAL)
-            return primitive_literal(try_coerce_type([:rational], @type_hint), previous.literal, previous)
-        end
-        if match_token(:NULL_LITERAL)
-            # TODO: should NULL have its own type? Or is it a special value for the optional type?
-            # Should this at least be attempted to coerce?
-            return primitive_literal([:optional, nil], previous.literal, previous)
-        end
-
-        # Array Literals
-        if match_token(:LEFT_SQUARE)
-            array = []
-            while !eof? && !check(:RIGHT_SQUARE)
-                array.push(expression)
-                break if !match_token(:COMMA)
-            end
-            consume_token(:RIGHT_SQUARE, "Expecting ']' after array literal.")
-            var_type = [:array, nil]
-            if !array.empty?
-                var_type = [:array, array.first.type]
-            end
-            return ArrayExpression.new(previous, array, try_coerce_type(var_type, @type_hint))
-        end
-
-        # Type Literals / Function Literals
-        if check(:TYPE_LITERAL)
-            var_token = peek.literal
-            type_value = variable_type
-            if match_token(:LEFT_BRACE)
-                return subroutine_body(previous, [], type_value)
-            else
-                if type_value == [:func]
-                    # Add nil values for func inferrence later
-                    type_value += [[nil, nil]]
-                end
-                return LiteralExpression.new(var_token, type_value, [:type])
-            end
-        end
-
-        # Function Literals
-        if match_token(:LEFT_PAREN)
-            if check(:TYPE_LITERAL) || match_user_type?
-                type = variable_type
-                if check(:IDENTIFIER)
-                    params = []
-                    var_name = consume_token(:IDENTIFIER, "Expecting parameter name.")
-                    params.push({name: var_name, type: type})
-                    while !check(:RIGHT_PAREN) && !eof?
-                        break if !check(:COMMA)
-                        consume_token(:COMMA, "Expecting ',' in parameter list.")
-                        type = variable_type
-                        var_name = consume_token(:IDENTIFIER, "Expecting parameter name.")
-                        params.push({name: var_name, type: type})
-                    end
-                    consume_token(:RIGHT_PAREN, "Expecting ')' after parameter list.")
-                    return_type = []
-                    if check(:TYPE_LITERAL) || (check(:IDENTIFIER) && match_user_type?)
-                        return_type = variable_type
-                    end
-                    func_token = consume_token(:LEFT_BRACE, "Expecting '{' before function body.")
-                    body = block
-                    return FunctionExpression.new(func_token, params, return_type, body)
-                else
-                    revert
-                    group_token = previous
-                    expr = expression
-                    consume_token(:RIGHT_PAREN, "Expecting ')' after expression.")
-                    return GroupingExpression.new(group_token, expr)
-                end
-            end
-            group_token = previous
-            expr = expression
-            consume_token(:RIGHT_PAREN, "Expecting ')' after expression.")
-            return GroupingExpression.new(group_token, expr)
-        end
-
-        if match_token(:LEFT_BRACE)
-            return subroutine_body(previous, [], [])
+            return primitive_literal(:rational, previous.literal, previous)
         end
 
         if match_token(:IDENTIFIER)
-            if user_type?(previous.lexeme)
-                token = previous
-                type = user_type(previous.lexeme)
-                case type[0]
-                when :struct
-                    initialiser = {}
-                    if match_token(:LEFT_BRACE)
-                        while !eof? && !check(:RIGHT_BRACE)
-                            # TODO: Get default values for fields
-                            field = assignment
-                            initialiser[field.name.lexeme] = field.expression
-                        end
-                        consume_token(:RIGHT_BRACE, "Expecting '}' after struct initialiser.")
-                        @log.trace("New Struct Initialiser" + type.inspect)
-                        return StructExpression.new(token, type, initialiser)
-                    else
-                        return LiteralExpression.new(token, type, [:type])
-                    end
-                end
-            end
-            return VariableExpression.new(previous)
+            return VariableExpression.new(previous, previous.lexeme)
         end
 
         raise fault(peek, "Expecting an expression. Got '#{peek.lexeme}'.")
@@ -492,28 +384,19 @@ class Parser
 
     def primitive_literal(type, value, token)
         case type
-        when [:string]
+        when :string
             return LiteralExpression.new(token, escape_string(value.to_s), type)
-        when [:int]
+        when :int
             return LiteralExpression.new(token, value.to_i, type)
-        when [:real]
+        when :real
             return LiteralExpression.new(token, value.to_f, type)
-        when [:rational]
+        when :rational
             return LiteralExpression.new(token, value.to_r, type)
-        when [:bool]
+        when :bool
             return LiteralExpression.new(token, !!value, type)
         else
-            if type[0] == :optional
-                return LiteralExpression.new(token, value, type)
-            else
-                raise "What kind of literal is this?"
-            end
+            raise "What kind of literal is this?"
         end
-    end
-
-    def subroutine_body(token, params, return_type)
-        body = block
-        return FunctionExpression.new(token, params, return_type, body)
     end
 
 end
