@@ -15,11 +15,13 @@ class GraphExpression < Expression
 
     attr_reader :nodes
     attr_reader :edges
+    attr_reader :parameters
 
-    def initialize(token, nodes, edges)
+    def initialize(token, nodes, edges, parameters)
         super(token)
         @nodes = nodes
         @edges = edges
+        @parameters = parameters
     end
 
 end
