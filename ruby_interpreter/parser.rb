@@ -430,8 +430,7 @@ class Parser
         if match_token(:NOT, :MINUS, :EXCLAMATION)
             operator = previous
             right = unary
-            return UnaryExpression.new(operator, right)
-            # TODO: define this expression.
+            return UnaryOperatorExpression.new(operator, right)
         end
         return call
     end
@@ -477,6 +476,13 @@ class Parser
 
         if match_token(:IDENTIFIER)
             return VariableExpression.new(previous, previous.lexeme)
+        end
+
+        if match_token(:LEFT_PAREN)
+            grouping_token = previous
+            expr = expression
+            consume_token(:RIGHT_PAREN, "Expecting ')' after expression.")
+            return GroupingExpression.new(grouping_token, expr)
         end
 
         fault(peek, "Expecting an expression. Got '#{peek.lexeme}'.")

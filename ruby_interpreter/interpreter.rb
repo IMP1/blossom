@@ -6,6 +6,7 @@ require_relative 'objects/graph'
 require_relative 'objects/node'
 require_relative 'objects/edge'
 require_relative 'objects/label'
+require_relative 'objects/label_value_expression'
 
 class Interpreter < Visitor
 
@@ -178,36 +179,41 @@ class Interpreter < Visitor
     end
 
     def visit_EmptyLabelExpression(expr)
-        return Label.new(:void, [])
+        return Label.new(Matcher.new(:void), [])
     end
 
     def visit_VoidLabelValueExpression(expr)
-        return :void
+        return Matcher.new(:void)
     end
 
     def visit_AnyLabelValueExpression(expr)
-        return :any
+        return Matcher.new(:any)
     end
 
     def visit_LiteralExpression(expr)
-        return expr.value
+        return Literal.new(expr.value)
     end
 
     def visit_VariableExpression(expr)
-        return expr
-        var = @variables[expr.name]
-        return var[:type]
+        return Variable.new(expr.name)
     end
 
     def visit_MarkExpression(expr)
         return expr.value
     end
 
+    def visit_GroupingExpression(expr)
+        return evaluate(expr.expression)
+    end
+
     def visit_BinaryOperatorExpression(expr)
-        return expr
+        left = evaluate(expr.left)
+        right = evaluate(expr.right)
+        return BinaryOperator.new(expr.operator.name, left, right)
     end
 
     def visit_FunctionCallExpression(expr)
+        p expr
         return expr
     end
 

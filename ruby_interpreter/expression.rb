@@ -128,6 +128,19 @@ class MarkExpression < Expression
 
 end
 
+class UnaryOperatorExpression < Expression
+
+    attr_reader :operand
+    attr_reader :operator
+
+    def initialize(operator, operand)
+        super(operator)
+        @operand = operand
+        @operator = operator
+    end
+
+end
+
 class BinaryOperatorExpression < Expression
 
     attr_reader :left
@@ -150,6 +163,17 @@ class FunctionCallExpression < Expression
     def initialize(callee, args)
         super(callee.token)
         @args = args
+    end
+
+end
+
+class GroupingExpression < Expression
+
+    attr_reader :expression
+
+    def initialize(token, expr)
+        super(token)
+        @expression = expr
     end
 
 end
