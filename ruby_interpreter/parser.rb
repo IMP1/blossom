@@ -121,6 +121,9 @@ class Parser
 
     def parse_label(parameters)
         paren_token = previous
+        if match_token(:EMPTY)
+            return EmptyLabelExpression.new(paren_token)
+        end
         value = parse_label_value(parameters)
         if value.nil? || match_token(:COMMA)
             markset = parse_markset

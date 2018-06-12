@@ -16,7 +16,7 @@
 
 
 rule calculate_deltas <int x, y>
-                      [ 1 (x), 2 (y) | 1 -> 2 (empty) ]
+                      [ 1 (x), 2 (y) | 1 -> 2 (void) ]
                    => [ 1 (x), 2 (y) | 1 -> 2 (y - x) ];
 
 rule swap_ends <int x, y>
@@ -39,4 +39,4 @@ rule clean_up <int x>
               [ 1 (x, #swapped) | ]
            => [ 1 (x) | ];
 
-calculate_deltas! swap_order apply_deltas! cleanup
+calculate_deltas! swap_order apply_deltas! clean_up
