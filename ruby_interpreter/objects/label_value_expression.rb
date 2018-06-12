@@ -3,6 +3,14 @@ require_relative '../visitor'
 class LabelValueExpression
     include Visitable
 
+    def variable?
+        raise "Not implemented in this child class (#{self.class.name})."
+    end
+
+    def type
+        raise "Not implemented in this child class (#{self.class.name})."
+    end
+
 end
 
 class Literal < LabelValueExpression
@@ -11,6 +19,10 @@ class Literal < LabelValueExpression
 
     def initialize(value)
         @value = value
+    end
+
+    def variable?
+        return false
     end
 
 end
@@ -23,6 +35,10 @@ class Variable < LabelValueExpression
         @name = name
     end
 
+    def variable?
+        return true
+    end
+
 end
 
 class Matcher < LabelValueExpression
@@ -31,6 +47,10 @@ class Matcher < LabelValueExpression
 
     def initialize(keyword)
         @keyword = keyword
+    end
+
+    def variable?
+        return false
     end
 
 end
@@ -43,6 +63,10 @@ class UnaryOperator < LabelValueExpression
     def initialize(operator, operand)
         @operator = operator
         @operand = operand
+    end
+
+    def variable?
+        return @operand.variable?
     end
 
 end
@@ -59,16 +83,8 @@ class BinaryOperator < LabelValueExpression
         @right = right
     end
 
-end
-
-class Function < LabelValueExpression
-
-    attr_reader :callee
-    attr_reader :args
-
-    def initialize(callee, args)
-        @callee = callee
-        @args = args
+    def variable?
+        return @left.variable? || @right.variable?
     end
 
 end
@@ -79,6 +95,10 @@ class Group < LabelValueExpression
 
     def initialize(expression)
         @expression = expression
+    end
+
+    def variable?
+        return @expression.variable?
     end
 
 end
