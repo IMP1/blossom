@@ -33,5 +33,5 @@ add_node! add_edges!
 // All unnecessary whitespace has been removed, and rule/procedure names have been shorteded.
 // It is not very readable, but illustrates what syntax is actually necessary.
 
-rule a<int n>[1(n)]=>[1(n-1),2]where n>0;rule b[1,2]=>[1,2|1->2]where adj(1,2)=0;a!b!
+// rule a<int n>[1(n)]=>[1(n-1),2]where n>0;rule b[1,2]=>[1,2|1->2]where adj(1,2)=0;a!b!
 // Number of characters: 85
