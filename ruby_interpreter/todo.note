@@ -1,0 +1,6 @@
+# TODO
+
+  * [ ] Email detlef asking about certain language decisions.
+      - [ ] should non-deterministic choice choose one that can succeed over ones that will fail?
+            {a, b}! could loop 0 times because b can't be applied, whereas a /can/ be applied.
+  * [ ] Solve node matching            
