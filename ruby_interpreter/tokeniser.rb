@@ -207,8 +207,7 @@ class Tokeniser
         while !eof? && (peek =~ /\w/)
             advance
         end
-        # Trim the leading `#`.
-        value = @source[@start+1...@current]
+        value = @source[@start...@current]
         add_token(:MARK, value)
     end
 
