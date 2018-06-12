@@ -85,22 +85,22 @@ class Parser
     end
 
     def parse_graph(parameters=nil)
-        parameters ||= []
+        parameters ||= {}
         open_bracket_token = consume_token(:LEFT_SQUARE, "Expecting '[' to start a graph.")
         nodes = []
         edges = []
         while !eof? && !check(:PIPE) && !check(:RIGHT_SQUARE)
-            nodes.push(parse_node(parameters))
+            nodes.push(parse_node)
             break if !match_token(:COMMA)
         end
         if match_token(:PIPE)
             while !eof? && !check(:RIGHT_SQUARE)
-                edges.push(*parse_edge(parameters))
+                edges.push(*parse_edge)
                 break if !match_token(:COMMA)
             end
         end
         consume_token(:RIGHT_SQUARE, "Expecting '[' to end a graph.")
-        return GraphExpression.new(open_bracket_token, nodes, edges)
+        return GraphExpression.new(open_bracket_token, nodes, edges, parameters)
     end
 
     #--------------------------------------------------------------------------#
@@ -110,28 +110,28 @@ class Parser
     #------------------------------------#
     # Blossom Graph Grammar Nonterminals #
     #------------------------------------#
-    def parse_node(parameters)
+    def parse_node
         node_id_token = consume_token(:INTEGER_LITERAL, "Expecting an id for the node.")
         if match_token(:LEFT_PAREN)
-            node_label = parse_label(parameters)
+            node_label = parse_label
             consume_token(:RIGHT_PAREN, "Expecting ')' after a node's label.")
         end
         return NodeExpression.new(node_id_token, node_label)
     end
 
-    def parse_label(parameters)
+    def parse_label
         paren_token = previous
         if match_token(:EMPTY)
             return EmptyLabelExpression.new(paren_token)
         end
-        value = parse_label_value(parameters)
+        value = parse_label_value
         if value.nil? || match_token(:COMMA)
             markset = parse_markset
         end
         return LabelExpression.new(paren_token, value, markset)
     end
 
-    def parse_label_value(parameters)
+    def parse_label_value
         if match_token(:ASTERISK)
             return AnyLabelValueExpression.new(previous)
         end
@@ -166,8 +166,9 @@ class Parser
         return set
     end
 
-    def parse_edge(parameters)
-        source_id = consume_token(:INTEGER_LITERAL, "Expecting an id of a source node.")
+    def parse_edge
+        source_id_token = consume_token(:INTEGER_LITERAL, "Expecting an id of a source node.")
+        source_id = source_id_token.lexeme.to_i
         both_ways = false
         if match_token(:BIDIRECTIONAL)
             arrow_token = previous
@@ -175,9 +176,10 @@ class Parser
         else
             arrow_token = consume_token(:UNIDIRECTIONAL, "Expecting an arrow (-> or <->) between the nodes' ids.")
         end
-        target_id = consume_token(:INTEGER_LITERAL, "Expecting an id of a target node.")
+        target_id_token = consume_token(:INTEGER_LITERAL, "Expecting an id of a target node.")
+        target_id = target_id_token.lexeme.to_i
         if match_token(:LEFT_PAREN)
-            edge_label = parse_label(parameters)
+            edge_label = parse_label
             consume_token(:RIGHT_PAREN, "Expecting ')' after an edge's label.")
         end
         if both_ways
