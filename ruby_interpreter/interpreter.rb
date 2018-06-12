@@ -7,6 +7,7 @@ require_relative 'objects/node'
 require_relative 'objects/edge'
 require_relative 'objects/label'
 require_relative 'objects/label_value_expression'
+# require_relative 'objects/rule_condition_expression'
 require_relative 'objects/rule'
 require_relative 'objects/rule_application'
 
@@ -176,8 +177,10 @@ class Interpreter < Visitor
 
     def visit_LabelExpression(expr)
         value = evaluate(expr.value)
+        # TODO: get type of value
+        type = nil
         markset = expr.markset.map {|m| evaluate(m) }
-        return Label.new(value, markset)
+        return Label.new(value, type, markset)
     end
 
     #------------------------#
@@ -185,7 +188,7 @@ class Interpreter < Visitor
     #------------------------#
 
     def visit_EmptyLabelExpression(expr)
-        return Label.new(Matcher.new(:void), [])
+        return Label.new(Matcher.new(:void), nil, [])
     end
 
     def visit_VoidLabelValueExpression(expr)
