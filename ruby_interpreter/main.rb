@@ -5,6 +5,7 @@ require_relative 'log'
 require_relative 'tokeniser'
 require_relative 'parser'
 require_relative 'printer'
+require_relative 'interpreter'
 
 # Error Codes:
 # https://stackoverflow.com/questions/1101957/are-there-any-standard-exit-status-codes-in-linux
@@ -94,13 +95,10 @@ class Runner
         @@log.trace("Programme:")
         @@log.trace(printer.print_programme)
 
-        # TODO: Trace the graph and programme's ASTs
+        interpreter = Interpreter.new(graph, programme)
+        result_graph = interpreter.interpret
 
-        return programme
-
-        
-
-        # return interpreter
+        return result_graph
     end
 
 end
