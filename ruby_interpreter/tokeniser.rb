@@ -214,7 +214,7 @@ class Tokeniser
 
     def string
         while !eof? && !(peek == '"' && previous != "\\")
-            newline if peek == '\n'
+            newline if peek == "\n"
             advance
         end
 
