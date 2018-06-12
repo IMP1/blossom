@@ -25,10 +25,13 @@ class Interpreter < Visitor
         @log.trace(@current_graph.inspect)
         puts "Host Graph = " + @current_graph.inspect
         begin
-            @statements.each { |stmt| @current_graph = execute(stmt) }
-            @log.trace("Current Graph:")
-            @log.trace(@current_graph.inspect)
-            puts "Current Graph = " + @current_graph.inspect
+            @statements.each do |stmt| 
+                @current_graph = execute(stmt) 
+                @log.trace("Current Graph:")
+                @log.trace(@current_graph.inspect)
+                puts stmt
+                puts "Current Graph = " + @current_graph.inspect
+            end
         rescue BlossomRuntimeError => e
             Runner.runtime_error(e)
         end
@@ -93,6 +96,8 @@ class Interpreter < Visitor
             return execute(stmt.then_stmt)
         elsif !stmt.else_stmt.nil?
             return execute(stmt.else_stmt)
+        else
+            return current_graph
         end
     end
 
@@ -102,6 +107,8 @@ class Interpreter < Visitor
             return execute(stmt.then_stmt, next_graph)
         elsif !stmt.else_stmt.nil?
             return execute(stmt.else_stmt, current_graph)
+        else
+            return current_graph
         end
     end
 
@@ -114,10 +121,9 @@ class Interpreter < Visitor
     end
 
     def visit_ChoiceStatement(stmt, current_graph)
-        # TODO: will this always choose a /possible/ (valid) rule application if there is one?
-        #       If so, what if there is no valid rule application?
-        #       At the moment, this just chooses any rule at random.
+        @log.trace("Choosing from #{stmt.statements.size}.")
         i = rand(stmt.statements.size)
+        @log.trace("Chose #{i}.")
         return execute(stmt.statements[i], current_graph)
     end
 
@@ -177,6 +183,10 @@ class Interpreter < Visitor
         markset = expr.markset.map {|m| evaluate(m) }
         return Label.new(value, markset)
     end
+
+    #------------------------#
+    # Node Value Expressions #
+    #------------------------#
 
     def visit_EmptyLabelExpression(expr)
         return Label.new(Matcher.new(:void), [])
