@@ -32,8 +32,105 @@ class Interpreter < Visitor
     # Statements #
     #------------#
 
+    def visit_RuleDefinitionStatement(stmt)
+
+    end
+
+    def visit_ProcedureDefinitionStatement(stmt)
+
+    end
+
+    def visit_LoopStatement(stmt)
+
+    end
+
+    def visit_TryStatement(stmt)
+
+    end
+
+    def visit_IfStatement(stmt)
+
+    end
+
+    def visit_WithStatement(stmt)
+
+    end
+
+    def visit_SequenceStatement(stmt)
+
+    end
+
+    def visit_ChoiceStatement(stmt)
+
+    end
+
+    def visit_NoopStatement(stmt)
+
+    end
+
+    def visit_InvalidStatement(stmt)
+
+    end
+
+    def visit_RuleApplicationStatement(stmt)
+
+    end
+
+    def visit_ProcedureApplicationStatement(stmt)
+
+    end
+
     #-------------#
     # Expressions #
     #-------------#    
+
+    def visit_GraphExpression(expr)
+        
+    end
+
+    def visit_NodeExpression(expr)
+        
+    end
+
+    def visit_EdgeExpression(expr)
+        
+    end
+
+    def visit_LabelExpression(expr)
+        
+    end
+
+    def visit_EmptyLabelExpression(expr)
+        
+    end
+
+    def visit_VoidLabelValueExpression(expr)
+        
+    end
+
+    def visit_AnyLabelValueExpression(expr)
+        
+    end
+
+    def visit_LiteralExpression(expr)
+        
+    end
+
+    def visit_VariableExpression(expr)
+        
+    end
+
+    def visit_MarkExpression(expr)
+        
+    end
+
+    def visit_BinaryOperatorExpression(expr)
+        
+    end
+
+    def visit_FunctionCallExpression(expr)
+        
+    end
+
 
 end
