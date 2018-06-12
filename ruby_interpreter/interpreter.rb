@@ -10,6 +10,7 @@ require_relative 'objects/label'
 class Interpreter < Visitor
 
     def initialize(host_graph, statements)
+        @log = Log.new("Interpreter")
         @host_graph = host_graph
         @statements = statements
         @current_graph = evaluate(host_graph)
@@ -19,8 +20,14 @@ class Interpreter < Visitor
     end
 
     def interpret
+        @log.trace("Host Graph:")
+        @log.trace(@current_graph.inspect)
+        puts "Host Graph = " + @current_graph.inspect
         begin
             @statements.each { |stmt| @current_graph = execute(stmt) }
+            @log.trace("Current Graph:")
+            @log.trace(@current_graph.inspect)
+            puts "Current Graph = " + @current_graph.inspect
         rescue BlossomRuntimeError => e
             Runner.runtime_error(e)
         end
@@ -45,6 +52,7 @@ class Interpreter < Visitor
 
     def visit_RuleDefinitionStatement(stmt, current_graph)
         # TODO: make a rule class in /objects
+        @log.trace("Defining rule #{stmt.name}.")
         @rules[stmt.name] = {
             parameters:   stmt.parameters,
             match_graph:  evaluate(stmt.match_graph),
@@ -56,6 +64,7 @@ class Interpreter < Visitor
     end
 
     def visit_ProcedureDefinitionStatement(stmt, current_graph)
+        @log.trace("Defining proc #{stmt.name}.")
         @procedures[stmt.name] = {
             statements: stmt.statements,
         }
@@ -181,24 +190,25 @@ class Interpreter < Visitor
     end
 
     def visit_LiteralExpression(expr)
-
+        return expr.value
     end
 
     def visit_VariableExpression(expr)
-        p @variables
+        return expr
+        var = @variables[expr.name]
+        return var[:type]
     end
 
     def visit_MarkExpression(expr)
-
+        return expr.value
     end
 
     def visit_BinaryOperatorExpression(expr)
-
+        return expr
     end
 
     def visit_FunctionCallExpression(expr)
-
+        return expr
     end
-
 
 end

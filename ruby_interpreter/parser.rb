@@ -125,6 +125,7 @@ class Parser
             return EmptyLabelExpression.new(paren_token)
         end
         value = parse_label_value
+        markset = []
         if value.nil? || match_token(:COMMA)
             markset = parse_markset
         end
@@ -138,7 +139,7 @@ class Parser
         if match_token(:BOOLEAN_LITERAL, :INTEGER_LITERAL, :RATIONAL_LITERAL, :REAL_LITERAL, :STRING_LITERAL)
             token = previous
             value = previous.literal
-            return LiteralExpression.new(token, value)
+            return LiteralExpression.new(token, value, token.name)
         elsif match_token(:VOID)
             token = previous
             return VoidLabelValueExpression.new(token)
@@ -226,7 +227,7 @@ class Parser
             addendum_statement = statement
         end
         if !match_token(:SEMICOLON, :END)
-            raise fault(peek, "Expecting ';' after a procedure's definition.")
+            raise fault(peek, "Expecting ';' or 'end' after a rule's definition.")
         end
         @rules[rule_name_token.lexeme] = rule_name_token
         return RuleDefinitionStatement.new(rule_name_token, parameters, match_graph, result_graph, condition, addendum)
@@ -240,7 +241,7 @@ class Parser
             statements.push(rule_application)
         end
         if !match_token(:SEMICOLON, :END)
-            raise fault(peek, "Expecting ';' after a procedure's definition.")
+            raise fault(peek, "Expecting ';' or 'end' after a procedure's definition.")
         end
         @procs[proc_name_token.lexeme] = proc_name_token
         return ProcedureDefinitionStatement.new(proc_name_token, statements)
@@ -344,10 +345,8 @@ class Parser
     end
 
     def statement
-        
+        return call # TODO: can statements be more complicated?
     end
-
-    # Remnants from Raven. Pick and choose what is still relavent to blossom.
 
     def expression
         return or_shortcircuit
