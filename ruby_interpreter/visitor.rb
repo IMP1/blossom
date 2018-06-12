@@ -1,7 +1,7 @@
 module Visitable
 
-    def accept(visitor)
-        visitor.visit(self)
+    def accept(visitor, *args)
+        visitor.visit(self, *args)
     end
     
 end
@@ -9,9 +9,9 @@ end
 
 class Visitor
 
-    def visit(subject)
+    def visit(subject, *args)
         method_name = "visit_#{subject.class}".intern
-        send(method_name, subject)
+        send(method_name, subject, *args)
     end
 
 end
