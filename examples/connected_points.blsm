@@ -23,7 +23,7 @@ rule add_node <int n>
               where n > 0;
 
 rule add_edges [1, 2 | ]
-            => [1, 2 | 1->2 ]
+            => [1, 2 | 1 -> 2 ]
                where adj(1, 2) = 0;
 
 add_node! add_edges!
