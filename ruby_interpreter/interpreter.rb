@@ -7,6 +7,8 @@ require_relative 'objects/node'
 require_relative 'objects/edge'
 require_relative 'objects/label'
 require_relative 'objects/label_value_expression'
+require_relative 'objects/rule'
+require_relative 'objects/rule_application'
 
 class Interpreter < Visitor
 
@@ -23,14 +25,11 @@ class Interpreter < Visitor
     def interpret
         @log.trace("Host Graph:")
         @log.trace(@current_graph.inspect)
-        puts "Host Graph = " + @current_graph.inspect
         begin
             @statements.each do |stmt| 
                 @current_graph = execute(stmt) 
                 @log.trace("Current Graph:")
                 @log.trace(@current_graph.inspect)
-                puts stmt
-                puts "Current Graph = " + @current_graph.inspect
             end
         rescue BlossomRuntimeError => e
             Runner.runtime_error(e)
@@ -55,15 +54,12 @@ class Interpreter < Visitor
     #------------#
 
     def visit_RuleDefinitionStatement(stmt, current_graph)
-        # TODO: make a rule class in /objects
         @log.trace("Defining rule #{stmt.name}.")
-        @rules[stmt.name] = {
-            parameters:   stmt.parameters,
-            match_graph:  evaluate(stmt.match_graph),
-            result_graph: evaluate(stmt.result_graph),
-            condition:    stmt.condition,
-            addendum:     stmt.addendum,
-        }
+        match_graph = evaluate(stmt.match_graph)
+        result_graph = evaluate(stmt.result_graph)
+        condition = evaluate(stmt.condition) if !stmt.condition.nil?
+        addendum = evaluate(stmt.addendum) if !stmt.addendum.nil?
+        @rules[stmt.name] = Rule.new(stmt.name, stmt.parameters, match_graph, result_graph, condition, addendum)
         return current_graph
     end
 
@@ -137,7 +133,7 @@ class Interpreter < Visitor
 
     def visit_RuleApplicationStatement(stmt, current_graph)
         rule = @rules[stmt.name]
-        # TODO: this is where the magic happens
+        RuleApplication.attempt(rule, current_graph)
         return Graph::INVALID # TODO: remove
     end
 
@@ -223,6 +219,7 @@ class Interpreter < Visitor
     end
 
     def visit_FunctionCallExpression(expr)
+        puts "Function Call: "
         p expr
         return expr
     end
