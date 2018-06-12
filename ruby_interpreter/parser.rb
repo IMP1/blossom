@@ -86,7 +86,7 @@ class Parser
 
     def parse_graph(parameters=nil)
         parameters ||= []
-        consume_token(:LEFT_SQUARE, "Expecting '[' to start a graph.")
+        open_bracket_token = consume_token(:LEFT_SQUARE, "Expecting '[' to start a graph.")
         nodes = []
         edges = []
         while !eof? && !check(:PIPE) && !check(:RIGHT_SQUARE)
@@ -100,6 +100,7 @@ class Parser
             end
         end
         consume_token(:RIGHT_SQUARE, "Expecting '[' to end a graph.")
+        return GraphExpression.new(open_bracket_token, nodes, edges)
     end
 
     #--------------------------------------------------------------------------#
@@ -138,15 +139,17 @@ class Parser
         elsif match_token(:VOID)
             token = previous
             return VoidLabelValueExpression.new(token)
-        elsif match_token(:IDENTIFIER)
-            token = previous
-            var_name = previous.lexeme
-            if parameters.has_key?(var_name)
-                type = parameters[var_name][:type_name]
-                return VariableExpression.new(token, var_name, type)
-            else
-                fault(token, "Unrecognised value for a label.")
-            end
+        else
+            return expression
+        # elsif match_token(:IDENTIFIER)
+        #     token = previous
+        #     var_name = previous.lexeme
+        #     if parameters.has_key?(var_name)
+        #         type = parameters[var_name][:type_name]
+        #         return VariableExpression.new(token, var_name, type)
+        #     else
+        #         fault(token, "Unrecognised value for a label.")
+        #     end
         end
     end
 
@@ -217,9 +220,25 @@ class Parser
             addendun_keyword_token = previous
             addendum_statement = statement
         end
-        match_token(:SEMICOLON)
+        if !match_token(:SEMICOLON, :END)
+            raise fault(peek, "Expecting ';' after a procedure's definition.")
+        end
         @rules[rule_name_token.lexeme] = rule_name_token
         return RuleDefinitionStatement.new(rule_name_token, parameters, match_graph, result_graph, condition, addendum)
+    end
+
+    def procedure_definition
+        proc_keyword_token = previous
+        proc_name_token = consume_token(:IDENTIFIER, "Expecting a name for the rule.")
+        statements = []
+        while !eof? && !(check(:SEMICOLON) || check(:END))
+            statements.push(rule_application)
+        end
+        if !match_token(:SEMICOLON, :END)
+            raise fault(peek, "Expecting ';' after a procedure's definition.")
+        end
+        @procs[proc_name_token.lexeme] = proc_name_token
+        return ProcedureDefinitionStatement.new(proc_name_token, statements)
     end
 
     def parameter_list
@@ -235,10 +254,6 @@ class Parser
             end
         end
         return params
-    end
-
-    def procedure_definition
-        @procs[proc_name_token.lexeme] = proc_name_token
     end
 
     def rule_application
@@ -310,8 +325,9 @@ class Parser
             if @procs.has_key?(var_name_token.lexeme)
                 return ProcedureApplicationStatement.new(var_name_token, var_name_token.lexeme)
             end
+            raise fault(var_name_token, "No rule or procedure found called '#{var_name_token.lexeme}'.")
         end
-        fault(peek, "Expecting a statement. Got '#{peek.lexeme}'.")
+        raise fault(peek, "Expecting a rule application. Got '#{peek.lexeme}'.")
     end
 
     def sequence
@@ -335,8 +351,8 @@ class Parser
     def or_shortcircuit
         expr = and_shortcircuit
 
-        while match_token(:PIPE)
-            op = previous
+        while match_token(:PIPE, :OR)
+            operator = previous
             right = and_shortcircuit
             expr = BinaryOperatorExpression.new(expr, operator, right)
         end
@@ -347,8 +363,8 @@ class Parser
     def and_shortcircuit
         expr = equality
 
-        while match_token(:AMPERSAND)
-            op = previous
+        while match_token(:AMPERSAND, :AND)
+            operator = previous
             right = equality
             expr = BinaryOperatorExpression.new(expr, operator, right)
         end
@@ -435,7 +451,7 @@ class Parser
             end
         end
         paren = consume_token(:RIGHT_PAREN, "Expecting ')' after arguments.")
-        return FunctionCallExpression.new(callee, paren, args)
+        return FunctionCallExpression.new(callee, args)
     end
 
     def primary

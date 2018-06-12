@@ -1,9 +1,25 @@
+require_relative 'visitor'
+
 class Expression
+    include Visitable
 
     attr_reader :token
 
     def initialize(token)
         @token = token
+    end
+
+end
+
+class GraphExpression < Expression
+
+    attr_reader :nodes
+    attr_reader :edges
+
+    def initialize(token, nodes, edges)
+        super(token)
+        @nodes = nodes
+        @edges = edges
     end
 
 end
@@ -68,12 +84,12 @@ end
 class LiteralExpression < Expression
 
     attr_reader :value
-    # attr_reader :type
+    attr_reader :type
 
-    def initialize(token, value) #, type)
+    def initialize(token, value, type)
         super(token)
         @value = value
-        # @type = type
+        @type = type
     end
 
 end

@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require_relative 'main'
+require_relative 'graph_formatter'
 
 # Output file
 if ARGV.include?("-h") || ARGV.include?("--help")
@@ -50,14 +51,15 @@ if output_index
         output_file = File.open(output_filename, 'w')
     rescue Exception => e
         # TODO: handle permission errors and return appropriate exit codes.
+        p e
     end
 end
 
 
 # Output Format
 output_format = :blossom
-# TODO: handle other output formats (error on multiple selected.)
-if ARGV.count {|a| a == "--dot" } == 0
+# TODO: handle other output formats (error on multiple selected?)
+if ARGV.count {|a| a == "--dot" } == 1
     output_format = :dot
     ARGV.delete("--dot")
 end
@@ -84,9 +86,9 @@ else
 end
 
 output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename)
-
 # TODO: convert ouput to desired format.
-output_file.write(output_graph.join("\n"))
+
+output_file.write(GraphFormatter.format(output_graph, output_format))
 output_file.write("\n")
 
 

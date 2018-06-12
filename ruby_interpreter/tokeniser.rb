@@ -9,8 +9,11 @@ class Tokeniser
         'proc'      => :PROC_DEF,
         'where'     => :WHERE,
         'also'      => :ALSO,
+        'end'       => :END,
+
         'unmarked'  => :UNMARKED,
         'void'      => :VOID,
+        'empty'     => :EMPTY,
 
         'noop'      => :NOOP,
         'invalid'   => :INVALID,
@@ -18,6 +21,10 @@ class Tokeniser
         'if'        => :IF,
         'with'      => :WITH,
         'try'       => :TRY,
+
+        'and'       => :AND,
+        'or'        => :OR,
+        'not'       => :NOT,
     }
 
     def initialize(source, filename="")
@@ -135,7 +142,7 @@ class Tokeniser
             if advance_if('=')
                 add_token(:NOT_EQUAL)
             else
-                add_token(:NOT)
+                add_token(:EXCLAMATION)
             end
         when '<'
             if advance_if('-') 
@@ -197,7 +204,7 @@ class Tokeniser
     end
 
     def mark
-        while !eof? && !peek =~ /\s/
+        while !eof? && (peek =~ /\w/)
             advance
         end
         # Trim the leading `#`.
@@ -217,7 +224,7 @@ class Tokeniser
         end
 
         # The closing ".
-        advance();
+        advance
         # Trim the surrounding quotes.
         value = @source[@start + 1...@current - 1]
         add_token(:STRING_LITERAL, value)
@@ -242,14 +249,14 @@ class Tokeniser
     def identifier
         advance while peek() =~ /[\w\?]/
 
-        # See if the identifier is a reserved word.
         text = @source[@start...@current]
 
+        # See if the identifier is a reserved word.
         # if VALUE_KEYWORDS.has_key?(text)
-            # type  = VALUE_KEYWORDS[text][0]
-            # value = VALUE_KEYWORDS[text][1]
-            # add_token(type, value)
-            # return
+        #     type  = VALUE_KEYWORDS[text][0]
+        #     value = VALUE_KEYWORDS[text][1]
+        #     add_token(type, value)
+        #     return
         # end
 
         # See if the identifier is a type.

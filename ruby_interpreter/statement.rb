@@ -1,4 +1,7 @@
+require_relative 'visitor'
+
 class Statement 
+    include Visitable
 
     attr_reader :token
 
@@ -11,6 +14,7 @@ end
 
 class RuleDefinitionStatement < Statement
 
+    attr_reader :name
     attr_reader :parameters
     attr_reader :match_graph
     attr_reader :result_graph
@@ -19,11 +23,25 @@ class RuleDefinitionStatement < Statement
 
     def initialize(rule_name_token, parameters, match_graph, result_graph, condition, addendum)
         super(rule_name_token)
+        @name = rule_name_token.lexeme
         @parameters = parameters
         @match_graph = match_graph
         @result_graph = result_graph
         @condition = condition
         @addendum = addendum
+    end
+
+end
+
+class ProcedureDefinitionStatement < Statement
+
+    attr_reader :name
+    attr_reader :statements
+
+    def initialize(procedure_name_token, statements)
+        super(procedure_name_token)
+        @name = procedure_name_token.lexeme
+        @statements = statements
     end
 
 end

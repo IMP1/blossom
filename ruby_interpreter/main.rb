@@ -4,6 +4,7 @@ require_relative 'log'
 
 require_relative 'tokeniser'
 require_relative 'parser'
+require_relative 'printer'
 
 # Error Codes:
 # https://stackoverflow.com/questions/1101957/are-there-any-standard-exit-status-codes-in-linux
@@ -64,10 +65,11 @@ class Runner
         else
             @@log.error(message)
         end
+        puts caller
     end
 
     def self.run(prog_source, graph_source, prog_filename, graph_filename, log=nil)
-        @@log = log || Log.new("Compiler")
+        @@log = log || Log.new("Blossom")
         @@compile_errors = []
         @@runtime_errors = []
 
@@ -77,15 +79,26 @@ class Runner
         tokeniser = Tokeniser.new(prog_source, prog_filename)
         programme_tokens = tokeniser.tokenise
 
+        @@log.trace("Graph Tokens:")
+        @@log.trace(graph_tokens.map {|t| "\t<#{t.to_s}>"}.join("\n"))
+        @@log.trace("Programme Tokens:")
+        @@log.trace(programme_tokens.map {|t| "\t<#{t.to_s}>"}.join("\n"))
+
         parser = Parser.new(graph_tokens)
         graph = parser.parse_graph
 
         parser = Parser.new(programme_tokens)
         programme = parser.parse_programme
 
+        printer = Printer.new(programme)
+        @@log.trace("Programme:")
+        @@log.trace(printer.print_programme)
+
+        # TODO: Trace the graph and programme's ASTs
+
         return programme
 
-        @@log.trace(tokens.map {|t| "\t<#{t.to_s}>"}.join("\n"))
+        
 
         # return interpreter
     end
