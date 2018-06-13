@@ -8,4 +8,9 @@ class Node
         @label = label
     end
 
+    def to_s
+        str = @id.to_s + " " + @label.to_s
+        return str
+    end
+
 end

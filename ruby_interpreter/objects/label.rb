@@ -10,4 +10,10 @@ class Label
         @markset = markset
     end
 
+    def to_s
+        str = "("
+
+        return str + ")"
+    end
+
 end

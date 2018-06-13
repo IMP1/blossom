@@ -10,4 +10,8 @@ class Edge
         @label = label
     end
 
+    def to_s
+        return @source_id.to_s + "->" + @target_id.to_s + " " + @label.to_s
+    end
+
 end

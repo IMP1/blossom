@@ -12,4 +12,12 @@ class Graph
         @variables = variables
     end 
 
+    def to_s
+        str = "[\n"
+        @nodes.each { |n| str += "  " + n.to_s + "\n" }
+        str += "|\n"
+        @edges.each { |e| str += "  " + e.to_s + "\n" }
+        return str + "]\n"
+    end
+
 end
