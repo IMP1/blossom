@@ -7,6 +7,7 @@ class Log
     INFO    = 4
     DEBUG   = 5
     TRACE   = 6
+    ALL     = 7
 
     def set_output(output)
         @output = output
@@ -58,7 +59,7 @@ class Log
         return if importance > @importance_level
         prefix = "[#{source}] "
         message = obj.to_s.gsub("\n", "\n" + (" " * prefix.length))
-        @output.puts "\n" + prefix + message
+        @output.puts prefix + message
     end
 
 end
