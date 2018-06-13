@@ -25,18 +25,31 @@ class Literal < LabelValueExpression
         return false
     end
 
+    def type
+        case self.value
+        when Integer
+            return :int
+        # TODO: add others
+        end
+    end
+
 end
 
 class Variable < LabelValueExpression
 
     attr_reader :name
 
-    def initialize(name)
+    def initialize(name, type)
         @name = name
+        @type = type
     end
 
     def variable?
         return true
+    end
+
+    def type
+        return @type
     end
 
 end
@@ -53,6 +66,10 @@ class Matcher < LabelValueExpression
         return false
     end
 
+    def type
+        return nil
+    end
+
 end
 
 class UnaryOperator < LabelValueExpression
@@ -67,6 +84,10 @@ class UnaryOperator < LabelValueExpression
 
     def variable?
         return @operand.variable?
+    end
+
+    def type
+        return operand.type
     end
 
 end
@@ -87,6 +108,10 @@ class BinaryOperator < LabelValueExpression
         return @left.variable? || @right.variable?
     end
 
+    def type
+        return left.type
+    end
+
 end
 
 class Group < LabelValueExpression
@@ -99,6 +124,10 @@ class Group < LabelValueExpression
 
     def variable?
         return @expression.variable?
+    end
+
+    def type
+        return expression.type
     end
 
 end

@@ -5,12 +5,26 @@ module RuleApplication
         p rule
         p graph
         puts "\n\n"
+
+        possible_matches = {}
+
+        rule.match_graph.nodes.each do |rule_node|
+            possible_matches[rule_node] = graph.nodes.select { |graph_node| 
+                nodes_match?(rule_node, graph_node, rule.match_graph.edges, graph.edges) 
+            }
+        end
+
+        puts possible_matches
+
     end
 
-    def self.nodes_match?(rule_node, graph_node)
+    def self.nodes_match?(rule_node, graph_node, rule_graph_edges, graph_edges)
         return false if !label_value_match?(rule_node.label, graph_node.label)
-        return false if !markset_match?(rule_node, graph_node)
-        return false if !adj_edges_match?(rule_node, graph_node)
+        puts "match label vale"
+        return false if !markset_match?(rule_node.label, graph_node.label)
+        puts "match label marks"
+        return false if !adj_edges_match?(rule_node, graph_node, rule_graph_edges, graph_edges)
+        puts "match edges"
         # ...
         return true
     end
@@ -23,12 +37,17 @@ module RuleApplication
         return true if rule_label.value.nil?
 
         if rule_label.value.is_a?(Matcher) && rule_label.value.keyword == :void
+            puts "Checking for void"
             return graph_node.label.value == nil
         end
         if rule_label.value.variable?
+            puts "Checking type"
+            p rule_label.value.type
+            p graph_label.type
             return rule_label.value.type == graph_label.type
         end
         if rule_label.value.is_a?(Literal)
+            puts "Checking values"
             return rule_label.value.value == graph_label.value
         end
         puts "Unaccounted for label value pairing: "

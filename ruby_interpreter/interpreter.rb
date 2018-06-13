@@ -177,8 +177,9 @@ class Interpreter < Visitor
 
     def visit_LabelExpression(expr)
         value = evaluate(expr.value)
-        # TODO: get type of value
-        type = nil
+        type = value.type
+        p value
+        p type
         markset = expr.markset.map {|m| evaluate(m) }
         return Label.new(value, type, markset)
     end
@@ -204,7 +205,8 @@ class Interpreter < Visitor
     end
 
     def visit_VariableExpression(expr)
-        return Variable.new(expr.name)
+        type = @variables[expr.name][:type_name].to_sym
+        return Variable.new(expr.name, type)
     end
 
     def visit_MarkExpression(expr)
