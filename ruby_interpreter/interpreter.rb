@@ -134,8 +134,11 @@ class Interpreter < Visitor
 
     def visit_RuleApplicationStatement(stmt, current_graph)
         rule = @rules[stmt.name]
-        RuleApplication.attempt(rule, current_graph)
-        return Graph::INVALID # TODO: remove
+        application = RuleApplication.new(rule, current_graph)
+        next_graph = application.attempt
+        return next_graph
+        # RuleApplication.attempt(rule, current_graph)
+        # return Graph::INVALID # TODO: remove
     end
 
     def visit_ProcedureApplicationStatement(stmt, current_graph)
@@ -178,8 +181,6 @@ class Interpreter < Visitor
     def visit_LabelExpression(expr)
         value = evaluate(expr.value)
         type = value.type
-        p value
-        p type
         markset = expr.markset.map {|m| evaluate(m) }
         return Label.new(value, type, markset)
     end
@@ -224,7 +225,7 @@ class Interpreter < Visitor
     end
 
     def visit_FunctionCallExpression(expr)
-        puts "Function Call: "
+        puts "Interpreter::visit_FunctionCallExpression"
         p expr
         return expr
     end
