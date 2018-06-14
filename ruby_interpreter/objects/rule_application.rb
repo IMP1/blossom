@@ -76,14 +76,31 @@ class RuleApplication
 
         removed_rule_nodes.each do |removed_rule_node|
             possible_matches = possible_matches.reject do |mapping| 
-                puts "Adj Graph = " + adjacent_graph_edge_count[mapping[removed_rule_node]].to_s
-                puts "Adj Rule = "  + adjacent_rule_edge_count[removed_rule_node].to_s
                 mapping.has_key?(removed_rule_node) &&
                 adjacent_graph_edge_count[mapping[removed_rule_node]] > adjacent_rule_edge_count[removed_rule_node]
             end
         end
 
         @log.trace("Removed mappings that create dangling edges.")
+        @log.trace("Remaining possible mappings:")
+        @log.trace(possible_matches.map { |pm| 
+            pm.map { |k, v| 
+                "#{k.id} => #{v.id}" 
+            }.join(", ") 
+        }.join("\n"))
+
+        possible_matches = possible_matches.select do |mapping|
+            id_mapping = {}
+            mapping.each { |k, v| id_mapping[k.id] = v.id }
+            @rule.match_graph.edges.all? do |rule_edge|
+                @graph.edges.any? do |graph_edge|
+                    graph_edge.source_id == id_mapping[rule_edge.source_id] &&
+                    graph_edge.target_id == id_mapping[rule_edge.target_id]
+                end
+            end
+        end
+
+        @log.trace("Removed mappings without required edges.")
         @log.trace("Remaining possible mappings:")
         @log.trace(possible_matches.map { |pm| 
             pm.map { |k, v| 
@@ -100,9 +117,11 @@ class RuleApplication
         #       [ 1(3), 2(1) | 1->1 ]    \_ Should these last two be valid? If so, should there be a way
         #       [ 1(3), 2(1) | 2->2 ]    /  of specifying that they must be different (in the where condition maybe?)
 
-        # TODO: handle matching edges between possible node mappings.
+        # TODO: check rule condition with possible mappings
 
+        # TODO: actually apply mapping (add, remove, and update nodes as necessary.)
 
+        # TODO: execute addendum
 
         puts "\nPossible Matches:"
         possible_matches.each do |pm|
@@ -112,13 +131,7 @@ class RuleApplication
             end
             print "\n"
         end
-
-        # TODO: check rule condition with possible mappings
-
-        # TODO: actually apply mapping (add, remove, and update nodes as necessary.)
-
-        # TODO: execute addendum
-
+        
         return Graph::INVALID
     end
 
