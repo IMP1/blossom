@@ -15,33 +15,35 @@ class RuleApplication
         graph = @graph
         @log.trace("Attempting to apply a rule.")
 
+        @log.trace("Current Host Graph:")
+        @log.trace(@graph.to_s)
         @log.trace("Rule Match Graph:")
-        @log.trace(rule.match_graph.to_s)
+        @log.trace(@rule.match_graph.to_s)
         @log.trace("Rule Result Graph:")
-        @log.trace(rule.result_graph.to_s)
+        @log.trace(@rule.result_graph.to_s)
 
-        added_rule_nodes = rule.result_graph.nodes.select { |node| 
-            !rule.match_graph.nodes.any? { |n| node.id == n.id }
+        added_rule_nodes = @rule.result_graph.nodes.select { |node| 
+            !@rule.match_graph.nodes.any? { |n| node.id == n.id }
         }
-        removed_rule_nodes = rule.match_graph.nodes.select { |node| 
-            !rule.result_graph.nodes.any? { |n| node.id == n.id }
+        removed_rule_nodes = @rule.match_graph.nodes.select { |node| 
+            !@rule.result_graph.nodes.any? { |n| node.id == n.id }
         }
         @log.trace("#{added_rule_nodes.size} nodes to add.")
         @log.trace("#{removed_rule_nodes.size} nodes to remove.")
 
         possible_matches = {}
 
-        rule.match_graph.nodes.each do |rule_node|
-            possible_matches[rule_node] = graph.nodes.select { |graph_node| 
-                nodes_match?(rule_node, graph_node, rule.match_graph.edges, graph.edges) 
+        @rule.match_graph.nodes.each do |rule_node|
+            possible_matches[rule_node] = @graph.nodes.select { |graph_node| 
+                nodes_match?(rule_node, graph_node, @rule.match_graph.edges, @graph.edges) 
             }
         end
 
         possible_matches = [{}]
 
-        rule.match_graph.nodes.each do |rule_node|
-            node_matches = graph.nodes.select do |graph_node| 
-                nodes_match?(rule_node, graph_node, rule.match_graph.edges, graph.edges) 
+        @rule.match_graph.nodes.each do |rule_node|
+            node_matches = @graph.nodes.select do |graph_node| 
+                nodes_match?(rule_node, graph_node, @rule.match_graph.edges, @graph.edges) 
             end
             possible_matches = possible_matches.map { |existing_match|
                 node_matches.map { |matched_node| 
@@ -64,18 +66,20 @@ class RuleApplication
         # Otherwise it will not satisfy the DANGLING CONDITION.
 
         adjacent_graph_edge_count = {}
-        graph.nodes.each do |n|
-            adjacent_graph_edge_count[n] = graph.edges.count { |e| e.source_id == n.id || e.target_id == n.id }
+        @graph.nodes.each do |n|
+            adjacent_graph_edge_count[n] = @graph.edges.count { |e| e.source_id == n.id || e.target_id == n.id }
         end
         adjacent_rule_edge_count = {}
-        rule.match_graph.nodes.each do |n|
-            adjacent_rule_edge_count[n] = graph.edges.count { |e| e.source_id == n.id || e.target_id == n.id }
+        @rule.match_graph.nodes.each do |n|
+            adjacent_rule_edge_count[n] = @rule.match_graph.edges.count { |e| e.source_id == n.id || e.target_id == n.id }
         end
 
         removed_rule_nodes.each do |removed_rule_node|
             possible_matches = possible_matches.reject do |mapping| 
+                puts "Adj Graph = " + adjacent_graph_edge_count[mapping[removed_rule_node]].to_s
+                puts "Adj Rule = "  + adjacent_rule_edge_count[removed_rule_node].to_s
                 mapping.has_key?(removed_rule_node) &&
-                adjacent_edge_count[mapping[removed_rule_node]] <= adjacent_edge_count[rule_node]
+                adjacent_graph_edge_count[mapping[removed_rule_node]] > adjacent_rule_edge_count[removed_rule_node]
             end
         end
 
@@ -97,6 +101,8 @@ class RuleApplication
         #       [ 1(3), 2(1) | 2->2 ]    /  of specifying that they must be different (in the where condition maybe?)
 
         # TODO: handle matching edges between possible node mappings.
+
+
 
         puts "\nPossible Matches:"
         possible_matches.each do |pm|
