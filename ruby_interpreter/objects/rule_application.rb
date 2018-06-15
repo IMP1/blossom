@@ -11,9 +11,11 @@ class RuleApplication
     end
 
     def attempt
-        rule = @rule
-        graph = @graph
         @log.trace("Attempting to apply a rule.")
+
+        #------------------------#
+        # Find possible mappings #
+        #------------------------#
 
         @log.trace("Current Host Graph:")
         @log.trace(@graph.to_s)
@@ -31,14 +33,6 @@ class RuleApplication
         @log.trace("#{added_rule_nodes.size} nodes to add.")
         @log.trace("#{removed_rule_nodes.size} nodes to remove.")
 
-        possible_matches = {}
-
-        @rule.match_graph.nodes.each do |rule_node|
-            possible_matches[rule_node] = @graph.nodes.select { |graph_node| 
-                nodes_match?(rule_node, graph_node, @rule.match_graph.edges, @graph.edges) 
-            }
-        end
-
         possible_matches = [{}]
 
         @rule.match_graph.nodes.each do |rule_node|
@@ -55,6 +49,17 @@ class RuleApplication
         end
 
         @log.trace("Initial possible mappings:")
+        @log.trace(possible_matches.map { |pm| 
+            pm.map { |k, v| 
+                "#{k.id} => #{v.id}" 
+            }.join(", ") 
+        }.join("\n"))
+
+        possible_matches.reject! do |mapping|
+            mapping.size != @rule.match_graph.nodes.size
+        end
+
+        @log.trace("Removed mappings that don't include all rule nodes.")
         @log.trace(possible_matches.map { |pm| 
             pm.map { |k, v| 
                 "#{k.id} => #{v.id}" 
@@ -116,23 +121,66 @@ class RuleApplication
         #       [ 1(3), 2(1) | 2->1 ]
         #       [ 1(3), 2(1) | 1->1 ]    \_ Should these last two be valid? If so, should there be a way
         #       [ 1(3), 2(1) | 2->2 ]    /  of specifying that they must be different (in the where condition maybe?)
+        #
+        #       What happens as a result of the code as it is?
 
-        # TODO: check rule condition with possible mappings
+        # TODO: check rule condition with possible mappings to further whittle down the viable
+        #       applications.
 
-        # TODO: actually apply mapping (add, remove, and update nodes as necessary.)
+        # TODO: make sure, all remaining mappings in possible_matches are viable applications.
+
+        #----------------------#
+        # Apply random mapping #
+        #----------------------#
+
+        application = possible_matches.sample
+
+        @log.trace("Chosen application:")
+        @log.trace(application.map { |k, v| 
+            "#{k.id} => #{v.id}" 
+        }.join(", "))
+
+
+        new_graph = @graph.clone # TODO: make a clone method for a graph?
+        added_node_mappings = {}
+
+        added_rule_nodes.each do |rule_node|
+            added_node = new_graph.add_node(rule_node)
+            added_node_mappings[rule_node.id] = added_node.id
+        end
+        @log.trace("Added new nodes.")
+
+        removed_rule_nodes.each do |rule_node|
+            new_graph.remove_node(application[rule_node].id)
+        end
+        @log.trace("Removed old nodes.")
+
+        # TODO: remove/add edges too.
+
+        persiting_rule_nodes = @rule.match_graph.nodes.select { |node| 
+            @rule.result_graph.nodes.any? { |n| node.id == n.id }
+        }
+
+        persiting_rule_nodes.each do |rule_node|
+            rule_node_before = rule_node
+            rule_node_after  = @rule.result_graph.nodes.first { |n| n.id == rule_node.id }
+            current_graph_node = @graph.nodes.first { |n| n.id == application[rule_node] }
+            new_node = apply_node_change(rule_node_before, rule_node_after, current_graph_node)
+            new_graph.update_node(current_graph_node.id, new_node.label)
+        end
+
+        @log.trace("Updated nodes.")
+
+        puts "new_graph"
+        puts new_graph
 
         # TODO: execute addendum
 
-        puts "\nPossible Matches:"
-        possible_matches.each do |pm|
-            pm.each do |k, v|
-                print "#{k.id} => #{v.id}"
-                print ", "
-            end
-            print "\n"
-        end
-        
-        return Graph::INVALID
+        return new_graph
+    end
+
+    def find_posisble_mappings
+
     end
 
     def nodes_match?(rule_node, graph_node, rule_graph_edges, graph_edges)
@@ -200,6 +248,11 @@ class RuleApplication
             return false
         end
         return true
+    end
+
+    def apply_node_change(rule_node_before, rule_node_after, graph_node_before)
+        graph_node_after = graph_node_before.clone
+        return graph_node_after
     end
 
 end

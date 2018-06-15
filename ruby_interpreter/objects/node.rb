@@ -1,7 +1,7 @@
 class Node
 
     attr_reader :id
-    attr_reader :label
+    attr_accessor :label
 
     def initialize(id, label)
         @id = id
