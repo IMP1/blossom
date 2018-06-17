@@ -12,7 +12,7 @@ class Label
 
     def to_s
         str = "("
-
+        str += @value.to_s
         return str + ")"
     end
 

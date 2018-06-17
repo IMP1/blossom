@@ -33,6 +33,10 @@ class Literal < LabelValueExpression
         end
     end
 
+    def to_s
+        return @value.to_s
+    end
+
 end
 
 class Variable < LabelValueExpression
@@ -52,6 +56,10 @@ class Variable < LabelValueExpression
         return @type
     end
 
+    def to_s
+        return @name
+    end
+
 end
 
 class Matcher < LabelValueExpression
@@ -68,6 +76,10 @@ class Matcher < LabelValueExpression
 
     def type
         return nil
+    end
+
+    def to_s
+        return @keyword.to_s
     end
 
 end

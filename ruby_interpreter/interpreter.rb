@@ -190,7 +190,7 @@ class Interpreter < Visitor
     #------------------------#
 
     def visit_EmptyLabelExpression(expr)
-        return Label.new(Matcher.new(:void), nil, [])
+        return Label.new(Matcher.new(:empty), nil, [])
     end
 
     def visit_VoidLabelValueExpression(expr)

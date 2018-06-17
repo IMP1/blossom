@@ -67,10 +67,10 @@ class LabelExpression < Expression
 
 end
 
-class EmptyLabelExpression < Expression
+class EmptyLabelExpression < LabelExpression
 
     def initialize(token)
-        super(token)
+        super(token, nil, [])
     end
 
 end

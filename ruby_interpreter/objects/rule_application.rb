@@ -1,5 +1,6 @@
 require_relative '../log'
 require_relative 'graph'
+require_relative 'edge'
 
 class RuleApplication
 
@@ -60,6 +61,7 @@ class RuleApplication
         end
 
         @log.trace("Removed mappings that don't include all rule nodes.")
+        @log.trace("Remaining possible mappings:")
         @log.trace(possible_matches.map { |pm| 
             pm.map { |k, v| 
                 "#{k.id} => #{v.id}" 
@@ -100,7 +102,8 @@ class RuleApplication
             @rule.match_graph.edges.all? do |rule_edge|
                 @graph.edges.any? do |graph_edge|
                     graph_edge.source_id == id_mapping[rule_edge.source_id] &&
-                    graph_edge.target_id == id_mapping[rule_edge.target_id]
+                    graph_edge.target_id == id_mapping[rule_edge.target_id] &&
+                    edges_match?(rule_edge, graph_edge)
                 end
             end
         end
@@ -155,13 +158,33 @@ class RuleApplication
         end
         @log.trace("Removed old nodes.")
 
+        id_mapping = {}
+        application.each { |k, v| id_mapping[k.id] = v.id }
+
+        # TODO: getting weird result with test/rule_matching
+        #       the edges of the resulting graph are not right.
+        #       they're no longer pointing between the right edges.
+        #       I would suppose these two following steps are the problem.
+        #       The `removed` isn't corresponding to the `added`.
+
         # remove all edges in match graph
-        @rule.match_graph.edges.each do
-            
+        @rule.match_graph.edges.each do |rule_edge|
+            source_id = id_mapping[rule_edge.source_id]
+            target_id = id_mapping[rule_edge.target_id]
+            graph_edge = new_graph.edges.first do |graph_edge|
+                graph_edge.source_id == source_id &&
+                graph_edge.target_id == target_id &&
+                edges_match?(rule_edge, graph_edge)
+            end
+            new_graph.edges.delete(graph_edge)
         end
         # add all edges in result graph
-        @rule.result_graph.edges.each do
 
+        @rule.result_graph.edges.each do |rule_edge|
+            source_id = id_mapping[rule_edge.source_id]
+            target_id = id_mapping[rule_edge.target_id]
+            graph_edge = Edge.new(source_id, target_id, rule_edge.label)
+            new_graph.edges.push(graph_edge)
         end
 
         # TODO: remove/add edges too.
@@ -214,9 +237,13 @@ class RuleApplication
         return true if rule_label.nil?
         return true if rule_label.value.nil?
 
+        if rule_label.value.is_a?(Matcher) && rule_label.value.keyword == :empty
+            @log.trace("Checking for empty")
+            return graph_label == nil
+        end
         if rule_label.value.is_a?(Matcher) && rule_label.value.keyword == :void
             @log.trace("Checking for void")
-            return graph_node.label.value == nil
+            return graph_label.value == nil
         end
         if rule_label.value.variable?
             @log.trace("Checking type")
@@ -241,6 +268,7 @@ class RuleApplication
         return true if rule_label.markset.nil?
 
         if rule_label.markset.empty?
+            return true if graph_label.nil?
             return graph_label.markset.empty?
         end
         if rule_label.markset.select { |m| m[0] == "#" }
