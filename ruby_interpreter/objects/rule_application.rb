@@ -166,6 +166,7 @@ class RuleApplication
         #       they're no longer pointing between the right edges.
         #       I would suppose these two following steps are the problem.
         #       The `removed` isn't corresponding to the `added`.
+        #       (sometimes it does work, but sometimes it doesn't, and that's unacceptable.)
 
         # remove all edges in match graph
         @rule.match_graph.edges.each do |rule_edge|
@@ -203,8 +204,8 @@ class RuleApplication
 
         @log.trace("Updated nodes.")
 
-        puts "new_graph"
-        puts new_graph
+        @log.trace("Resultant graph:")
+        @log.trace(new_graph.to_s)
 
         # TODO: execute addendum
 
