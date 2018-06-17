@@ -1,14 +1,5 @@
 #!/usr/bin/env ruby
 
-a = Object.new()
-
-foo = [a, Object.new(), "12", 10]
-
-p foo
-foo.delete(a)
-p foo
-exit(0)
-
 require_relative 'main'
 require_relative 'graph_formatter'
 
