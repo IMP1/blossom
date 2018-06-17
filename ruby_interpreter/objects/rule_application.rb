@@ -169,6 +169,8 @@ class RuleApplication
             new_graph.update_node(current_graph_node.id, new_node.label)
         end
 
+        # TODO: update edges too.
+
         @log.trace("Updated nodes.")
 
         puts "new_graph"
