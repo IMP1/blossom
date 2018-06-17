@@ -26,6 +26,11 @@ class Graph
         @nodes.reject! { |n| n.id == node_id }
     end
 
+    def remove_edge(edge)
+        # TODO: check functionality of this
+        @edges.delete(edge)
+    end
+
     def add_node(node)
         new_node_id = @nodes.size
         while @nodes.any? { |n| n.id == new_node_id }

@@ -155,6 +155,15 @@ class RuleApplication
         end
         @log.trace("Removed old nodes.")
 
+        # remove all edges in match graph
+        @rule.match_graph.edges.each do
+            
+        end
+        # add all edges in result graph
+        @rule.result_graph.edges.each do
+
+        end
+
         # TODO: remove/add edges too.
 
         persiting_rule_nodes = @rule.match_graph.nodes.select { |node| 
@@ -189,6 +198,13 @@ class RuleApplication
         return false if !label_value_match?(rule_node.label, graph_node.label)
         return false if !markset_match?(rule_node.label, graph_node.label)
         return false if !adj_edges_match?(rule_node, graph_node, rule_graph_edges, graph_edges)
+        # ...
+        return true
+    end
+
+    def edges_match?(rule_edge, graph_edge)
+        return false if !label_value_match?(rule_edge.label, graph_edge.label)
+        return false if !markset_match?(rule_edge.label, graph_edge.label)
         # ...
         return true
     end
