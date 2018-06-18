@@ -29,6 +29,14 @@ class Literal < LabelValueExpression
         case self.value
         when Integer
             return :int
+        when String
+            return :string
+        when Float
+            return :real
+        when Rational
+            return :rational
+        when TrueClass, FalseClass
+            return :bool
         # TODO: add others
         end
     end

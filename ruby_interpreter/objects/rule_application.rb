@@ -186,6 +186,10 @@ class RuleApplication
         @log.trace("Added edges.")
 
         # TODO: Get values of variables now?
+        variable_values = {}
+        @rule.parameters.each do |var|
+            p var
+        end
 
         persiting_rule_nodes = @rule.match_graph.nodes.select { |node| 
             @rule.result_graph.nodes.any? { |n| node.id == n.id }

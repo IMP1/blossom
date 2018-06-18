@@ -185,9 +185,9 @@ class Interpreter < Visitor
         return Label.new(value, type, markset)
     end
 
-    #------------------------#
-    # Node Value Expressions #
-    #------------------------#
+    #-------------------------#
+    # Label Value Expressions #
+    #-------------------------#
 
     def visit_EmptyLabelExpression(expr)
         return Label.new(Matcher.new(:empty), nil, [])

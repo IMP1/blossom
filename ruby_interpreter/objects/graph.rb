@@ -38,7 +38,7 @@ class Graph
     end
 
     def update_node(node_id, new_label)
-        @nodes.first { |n| n.id == node_id}.label = new_label
+        @nodes.find { |n| n.id == node_id }.label = new_label
     end
 
 end
