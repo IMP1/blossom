@@ -115,6 +115,8 @@ class Parser
         if match_token(:LEFT_PAREN)
             node_label = parse_label
             consume_token(:RIGHT_PAREN, "Expecting ')' after a node's label.")
+        else
+            node_label = EmptyLabelExpression.new(node_id_token)
         end
         return NodeExpression.new(node_id_token, node_label)
     end
@@ -182,6 +184,8 @@ class Parser
         if match_token(:LEFT_PAREN)
             edge_label = parse_label
             consume_token(:RIGHT_PAREN, "Expecting ')' after an edge's label.")
+        else
+            edge_label = EmptyLabelExpression.new(arrow_token)
         end
         if both_ways
             return EdgeExpression.new(arrow_token, source_id, target_id, edge_label), 
