@@ -13,9 +13,10 @@ class LabelEvaluator < Visitor
     def evaluate
         if @label.nil?
             puts "Label is nil!!"
+            puts caller
         end
         if @label.value.nil?
-            puts "Label value is nil!"
+            return nil
         end
         evaluate_expression(@label.value)
     end

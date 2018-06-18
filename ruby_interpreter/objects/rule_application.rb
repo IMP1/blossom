@@ -85,18 +85,6 @@ class RuleApplication
             }.join(", ") 
         }.join("\n"))
 
-        possible_matches.reject! do |mapping|
-            mapping.size != @rule.match_graph.nodes.size
-        end
-
-        @log.trace("Removed mappings that don't include all rule nodes.")
-        @log.trace("Remaining possible mappings:")
-        @log.trace(possible_matches.map { |pm| 
-            pm.map { |k, v| 
-                "#{k.id} => #{v.id}" 
-            }.join(", ") 
-        }.join("\n"))
-
         # Any removed nodes must not be incident to any edges not in the rule.
         # (the host graph's node must not have a higher incident value than the initial graph's node).
         # Otherwise it will not satisfy the DANGLING CONDITION.
@@ -156,13 +144,37 @@ class RuleApplication
             # end
         # end
 
-        # @log.trace("Removed mappings with conflicting variable usage.")
-        # @log.trace("Remaining possible mappings:")
-        # @log.trace(possible_matches.map { |pm| 
-        #     pm.map { |k, v| 
-        #         "#{k.id} => #{v.id}" 
-        #     }.join(", ") 
-        # }.join("\n"))
+        possible_matches = possible_matches.select do |mapping|
+            variable_values = {}
+            @rule.parameters.each do |name, type|
+                var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
+                variable_values[name] = mapping[var_node].label.value.value
+            end
+            @rule.match_graph.nodes.select { |node| node.label.value.is_a?(Variable) }.all? do |node| 
+                variable_values[node.label.value.name] == mapping[node].label.value.value
+            end
+        end
+
+        @log.trace("Removed mappings with conflicting variable usage.")
+        @log.trace("Remaining possible mappings:")
+        @log.trace(possible_matches.map { |pm| 
+            pm.map { |k, v| 
+                "#{k.id} => #{v.id}" 
+            }.join(", ") 
+        }.join("\n"))
+
+
+        possible_matches.reject! do |mapping|
+            mapping.size != @rule.match_graph.nodes.size
+        end
+
+        @log.trace("Removed mappings that don't include all rule nodes.")
+        @log.trace("Remaining possible mappings:")
+        @log.trace(possible_matches.map { |pm| 
+            pm.map { |k, v| 
+                "#{k.id} => #{v.id}" 
+            }.join(", ") 
+        }.join("\n"))
 
 
         # TODO: check rule condition (with possible mappings in order to further whittle down the 
@@ -222,7 +234,6 @@ class RuleApplication
 
         @log.trace("Added edges.")
 
-        # TODO: Get values of variables now?
         variable_values = {}
         @log.trace("Variables:")
         @rule.parameters.each do |name, type|
@@ -338,6 +349,9 @@ class RuleApplication
         new_markset = graph_node_before.label.markset.reject { |mark| removed_marks.include?(mark) }
         new_markset.push(*added_marks)
         new_markset.uniq!
+
+        p graph_node_before
+        p rule_node_after
 
         evaluator = LabelEvaluator.new(rule_node_after.label, variables)
         new_label_value = Literal.new(evaluator.evaluate)
