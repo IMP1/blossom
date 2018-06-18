@@ -9,7 +9,8 @@ class Node
     end
 
     def to_s
-        str = @id.to_s + " " + @label.to_s
+        str = @id.to_s
+        str += " " + @label.to_s if !@label.nil?
         return str
     end
 

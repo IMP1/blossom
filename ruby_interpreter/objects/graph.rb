@@ -1,4 +1,5 @@
 require_relative 'node'
+require_relative 'edge'
 
 class Graph
 

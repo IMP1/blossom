@@ -12,6 +12,20 @@ class RuleApplication
     end
 
     def attempt
+
+
+        # TODO: decide on whether different rule match_graph nodes can be mapped to the same graph node.
+        #       rule r [ 1, 2 ] => [ 1, 2 | 1->2 ];
+        #       applying r on [ 1(3), 2(1) ]
+        #       could yield any of these:
+        #       [ 1(3), 2(1) | 1->2 ]
+        #       [ 1(3), 2(1) | 2->1 ]
+        #       [ 1(3), 2(1) | 1->1 ]    \_ Should these last two be valid? If so, should there be a way
+        #       [ 1(3), 2(1) | 2->2 ]    /  of specifying that they must be different (in the where condition maybe?)
+        #
+        #       What happens as a result of the code as it is?
+
+
         @log.trace("Attempting to apply a rule.")
 
         #------------------------#
@@ -116,17 +130,6 @@ class RuleApplication
             }.join(", ") 
         }.join("\n"))
 
-        # TODO: decide on whether different rule match_graph nodes can be mapped to the same graph node.
-        #       rule r [ 1, 2 ] => [ 1, 2 | 1->2 ];
-        #       applying r on [ 1(3), 2(1) ]
-        #       could yield any of these:
-        #       [ 1(3), 2(1) | 1->2 ]
-        #       [ 1(3), 2(1) | 2->1 ]
-        #       [ 1(3), 2(1) | 1->1 ]    \_ Should these last two be valid? If so, should there be a way
-        #       [ 1(3), 2(1) | 2->2 ]    /  of specifying that they must be different (in the where condition maybe?)
-        #
-        #       What happens as a result of the code as it is?
-
         # TODO: check rule condition with possible mappings to further whittle down the viable
         #       applications.
 
@@ -172,12 +175,13 @@ class RuleApplication
         @rule.match_graph.edges.each do |rule_edge|
             source_id = id_mapping[rule_edge.source_id]
             target_id = id_mapping[rule_edge.target_id]
-            graph_edge = new_graph.edges.first do |graph_edge|
+            remove_edge = new_graph.edges.find do |graph_edge|
                 graph_edge.source_id == source_id &&
                 graph_edge.target_id == target_id &&
                 edges_match?(rule_edge, graph_edge)
             end
-            new_graph.edges.delete(graph_edge)
+            @log.trace("Removing edge between #{source_id} and #{target_id}.")
+            new_graph.edges.delete(remove_edge)
         end
         # add all edges in result graph
 
@@ -185,6 +189,7 @@ class RuleApplication
             source_id = id_mapping[rule_edge.source_id]
             target_id = id_mapping[rule_edge.target_id]
             graph_edge = Edge.new(source_id, target_id, rule_edge.label)
+            @log.trace("Adding edge between #{source_id} and #{target_id}.")
             new_graph.edges.push(graph_edge)
         end
 
@@ -196,13 +201,13 @@ class RuleApplication
 
         persiting_rule_nodes.each do |rule_node|
             rule_node_before = rule_node
-            rule_node_after  = @rule.result_graph.nodes.first { |n| n.id == rule_node.id }
-            current_graph_node = @graph.nodes.first { |n| n.id == application[rule_node] }
+            rule_node_after  = @rule.result_graph.nodes.find { |n| n.id == rule_node.id }
+            current_graph_node = @graph.nodes.find { |n| n.id == id_mapping[rule_node_before.id] }
             new_node = apply_node_change(rule_node_before, rule_node_after, current_graph_node)
             new_graph.update_node(current_graph_node.id, new_node.label)
         end
 
-        @log.trace("Updated nodes.")
+        # @log.trace("Updated nodes.")
 
         @log.trace("Resultant graph:")
         @log.trace(new_graph.to_s)
@@ -210,10 +215,6 @@ class RuleApplication
         # TODO: execute addendum
 
         return new_graph
-    end
-
-    def find_posisble_mappings
-
     end
 
     def nodes_match?(rule_node, graph_node, rule_graph_edges, graph_edges)
@@ -258,7 +259,7 @@ class RuleApplication
             @log.trace(graph_label.value.inspect)
             return rule_label.value.value == graph_label.value
         end
-        puts "Unaccounted for label value pairing: "
+        puts "Unaccounted-for label value pairing: "
         p rule_label
         p graph_label
         raise "Unaccounted-for label value pairing."
@@ -297,6 +298,10 @@ class RuleApplication
 
     def apply_node_change(rule_node_before, rule_node_after, graph_node_before)
         graph_node_after = graph_node_before.clone
+        # TODO: apply change to labels.
+        #   - [ ] add new marks
+        #   - [ ] remove old marks
+        #   - [ ] update label value
         return graph_node_after
     end
 

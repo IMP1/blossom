@@ -4,9 +4,9 @@ class Edge
     attr_reader :target_id
     attr_reader :label
 
-    def initialize(source, target, label)
-        @source_id = source
-        @target_id = target
+    def initialize(source_id, target_id, label)
+        @source_id = source_id
+        @target_id = target_id
         @label = label
     end
 
