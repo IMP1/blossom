@@ -43,4 +43,12 @@ class Graph
         @nodes.find { |n| n.id == node_id }.label = new_label
     end
 
+    def clone
+        return Graph.new(
+            @nodes.map { |node| node.clone },
+            @edges.map { |node| node.clone },
+            @variables,
+        )
+    end
+
 end
