@@ -47,19 +47,14 @@ assert(host_graph.edges.size == 2, "Host graph should have two edges.")
 #-----#
 # Act #
 #-----#
-test_run = Test.run(true) {
+test_run = Test.run do
 
     application = RuleApplication.new(rule, host_graph)
     application.attempt
 
-}
+end
 
-#-----------------#
-# Post-Conditions #
-#-----------------#
-assert(host_graph.nodes.size == 2, "Host graph should have three nodes.")
-assert(host_graph.edges.size == 2, "Host graph should have two edges.")
-
-assert(host_graph.nodes.count {|n| !n.label.nil? && !n.label.value.nil? && n.label.value.value == 0 } > 0)
-
-puts "Test completed."
+test_run.assert do |result|
+    assert(host_graph.nodes.size == 2, "Host graph should have three nodes.")
+    assert(host_graph.edges.size == 2, "Host graph should have two edges.")
+end

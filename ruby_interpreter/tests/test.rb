@@ -2,15 +2,19 @@ require 'date'
 
 class Test
 
+    class AssertionError < RuntimeError
+    end
+
     class TestRun
 
         attr_reader :start_time
-        attr_reader :result
+        attr_reader :thread
 
         def initialize(block)
             @block = block
             @start_time = nil
             @result = nil
+            @thread = nil
         end
         def started?
             return !@start_time.nil?
@@ -19,19 +23,37 @@ class Test
             return !@result.nil?
         end
         def run(*args)
-            @start_time = DateTime.now
-            error = nil
-            begin
-                result_value = @block.call(*args)
-                success = true
-            rescue StandardError => e
-                result_value = e
-                success = false
-                p e
-                puts e.backtrace
+            @thread = Thread.new do
+                @start_time = DateTime.now
+                error = nil
+                begin
+                    result_value = @block.call(*args)
+                    success = true
+                rescue StandardError => e
+                    result_value = e
+                    success = false
+                end
+                end_time = DateTime.now
+                @result = TestResult.new(result_value, @start_time, end_time, success)
             end
-            end_time = DateTime.now
-            @result = TestResult.new(result_value, @start_time, end_time, success)
+            @thread.abort_on_exception = true
+        end
+        def result
+            if @result.nil?
+                @thread.join
+            end
+            return @result
+        end
+        def assert(&block)
+            begin
+                block.call(result)
+                success = result.success
+            rescue AssertionError => e
+                puts e
+                puts e.backtrace
+                success = false
+            end
+            puts "Test " + (success ? "succeeded" : "failed") + "."
         end
     end
 
@@ -57,19 +79,15 @@ class Test
 
     def self.run(blocking=false, &block)
         test_run = TestRun.new(block)
-        t = Thread.new {
-            test_run.run
-        }
-        t.abort_on_exception = true
-        t.join if blocking
+        test_run.run
+        test_run.thread.join if blocking
         return test_run
     end
 
 end
 
 def assert(expression, message="")
-    # TODO: have this raise an exception?
     if !expression
-        puts "Assersion Failed: #{message}"
+        raise AssertionError.new("Assersion Failed: #{message}")
     end
 end
