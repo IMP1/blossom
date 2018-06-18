@@ -130,8 +130,8 @@ class RuleApplication
             }.join(", ") 
         }.join("\n"))
 
-        # TODO: check rule condition with possible mappings to further whittle down the viable
-        #       applications.
+        # TODO: check rule condition (with possible mappings in order to further whittle down the 
+        #       viable applications).
 
         # TODO: make sure, all remaining mappings in possible_matches are viable applications.
 
@@ -164,14 +164,6 @@ class RuleApplication
         id_mapping = {}
         application.each { |k, v| id_mapping[k.id] = v.id }
 
-        # TODO: getting weird result with test/rule_matching
-        #       the edges of the resulting graph are not right.
-        #       they're no longer pointing between the right edges.
-        #       I would suppose these two following steps are the problem.
-        #       The `removed` isn't corresponding to the `added`.
-        #       (sometimes it does work, but sometimes it doesn't, and that's unacceptable.)
-
-        # remove all edges in match graph
         @rule.match_graph.edges.each do |rule_edge|
             source_id = id_mapping[rule_edge.source_id]
             target_id = id_mapping[rule_edge.target_id]
@@ -180,20 +172,20 @@ class RuleApplication
                 graph_edge.target_id == target_id &&
                 edges_match?(rule_edge, graph_edge)
             end
-            @log.trace("Removing edge between #{source_id} and #{target_id}.")
             new_graph.edges.delete(remove_edge)
         end
-        # add all edges in result graph
+        @log.trace("Removed edges.")
 
         @rule.result_graph.edges.each do |rule_edge|
             source_id = id_mapping[rule_edge.source_id]
             target_id = id_mapping[rule_edge.target_id]
             graph_edge = Edge.new(source_id, target_id, rule_edge.label)
-            @log.trace("Adding edge between #{source_id} and #{target_id}.")
             new_graph.edges.push(graph_edge)
         end
 
-        # TODO: remove/add edges too.
+        @log.trace("Added edges.")
+
+        # TODO: Get values of variables now?
 
         persiting_rule_nodes = @rule.match_graph.nodes.select { |node| 
             @rule.result_graph.nodes.any? { |n| node.id == n.id }
@@ -297,6 +289,7 @@ class RuleApplication
     end
 
     def apply_node_change(rule_node_before, rule_node_after, graph_node_before)
+        # make note of variable values before rule application
         graph_node_after = graph_node_before.clone
         # TODO: apply change to labels.
         #   - [ ] add new marks
@@ -306,15 +299,3 @@ class RuleApplication
     end
 
 end
-
-#-----------------------------------------------------------#
-#
-# Find match of nodes
-# make note of variable values before rule application
-# add new nodes, remove old nodes
-# change labels where needbe
-# check graph validity
-# 
-#
-
-
