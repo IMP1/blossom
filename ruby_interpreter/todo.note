@@ -3,4 +3,19 @@
   * [ ] Email detlef asking about certain language decisions.
       - [ ] should non-deterministic choice choose one that can succeed over ones that will fail?
             {a, b}! could loop 0 times because b can't be applied, whereas a /can/ be applied.
-  * [ ] Solve node matching            
+      - [ ] can more than one node in a rule's match-graph have the same variable? 
+            either this should not be allowed, or 
+  * [X] Solve node matching
+  * [ ] Enfore no '¬mark's in a normal graph's label's markset.
+  * [ ] Have some error handling at all and report problems to the user.
+      - [ ] duplicate node IDs.
+      - [ ] same variable name in the parameter list.
+      - [ ] invalid variable name (given declared vars in rule)
+      - [ ] 
+  * [ ] Remove alllll the unnecessary duplication of parameter types everywhere (in the variable type, in the label type, in the graph, in the rule parameters...)
+
+
+# Questions
+  * [ ] Should a variable be allowed to be reused in a rule's match graph?
+        I think so, but they should all be the same value (and if not, then not a match)?
+        If not, then enforce this.
