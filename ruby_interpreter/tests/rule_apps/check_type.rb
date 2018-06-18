@@ -11,9 +11,9 @@ require_relative '../../objects/rule_application'
 #---------#
 host_graph = Graph.new(
     [
-        Node.new(1, nil),
-        Node.new(2, nil),
-        Node.new(3, nil),
+        Node.new(1, Label.new(Literal.new(4), :int, [])),
+        Node.new(2, Label.new(Literal.new(2), :int, [])),
+        Node.new(3, Label.new(Literal.new("a str"), :string, [])),
     ], 
     [
         Edge.new(1, 2, nil),
@@ -25,10 +25,10 @@ host_graph = Graph.new(
 
 match_graph  = Graph.new(
     [
-        Node.new(1, nil),
+        Node.new(1, Label.new(Variable.new("x", :string), :string, [])),
     ], 
     [], 
-    {}
+    {"x" => :string}
 )
 result_graph = Graph.new(
     [
@@ -37,7 +37,7 @@ result_graph = Graph.new(
     [], 
     {}
 )
-rule = Rule.new("r1", {}, match_graph, result_graph, nil, nil)
+rule = Rule.new("r1", {"x" => :string}, match_graph, result_graph, nil, nil)
 #----------------#
 # Pre-Conditions #
 #----------------#
@@ -60,6 +60,6 @@ test_run = Test.run(true) {
 assert(host_graph.nodes.size == 3, "Host graph should have three nodes.")
 assert(host_graph.edges.size == 2, "Host graph should have two edges.")
 
-assert(host_graph.nodes.count {|n| !n.label.nil? && !n.label.value.nil? && n.label.value.value == 0 } > 0)
+assert(host_graph.nodes.count {|n| !n.label.nil? && !n.label.value.nil? && n.label.value == 0 } > 0)
 
-puts "Test succeeded."
+puts "Test completed."

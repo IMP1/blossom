@@ -27,6 +27,7 @@ class Test
             rescue StandardError => e
                 result_value = e
                 success = false
+                p e
                 puts e.backtrace
             end
             end_time = DateTime.now

@@ -21,7 +21,7 @@ host_graph = Graph.new(
         Edge.new(1, 2, nil),
         Edge.new(2, 3, nil),
     ], 
-    []
+    {}
 )
 
 match_graph  = Graph.new(
@@ -32,7 +32,7 @@ match_graph  = Graph.new(
     [
         Edge.new(1, 2, nil),
     ], 
-    []
+    {}
 )
 result_graph  = Graph.new(
     [
@@ -41,9 +41,9 @@ result_graph  = Graph.new(
     ], 
     [
     ], 
-    []
+    {}
 )
-rule = Rule.new("r1", [], match_graph, result_graph, nil, nil)
+rule = Rule.new("r1", {}, match_graph, result_graph, nil, nil)
 
 #----------------#
 # Pre-Conditions #
@@ -64,3 +64,5 @@ test_run = Test.run(true) {
 # Post-Conditions #
 #-----------------#
 assert(host_graph.edges.size == 1, "Graph should now have one edge.")
+
+puts "Test succeeded.
