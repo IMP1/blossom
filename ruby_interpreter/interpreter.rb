@@ -137,8 +137,6 @@ class Interpreter < Visitor
         application = RuleApplication.new(rule, current_graph)
         next_graph = application.attempt
         return next_graph
-        # RuleApplication.attempt(rule, current_graph)
-        # return Graph::INVALID # TODO: remove
     end
 
     def visit_ProcedureApplicationStatement(stmt, current_graph)

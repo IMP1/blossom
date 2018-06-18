@@ -2,6 +2,8 @@ require_relative '../log'
 require_relative 'graph'
 require_relative 'edge'
 
+require_relative 'evaluator'
+
 class RuleApplication
 
     def initialize(rule, graph)
@@ -12,8 +14,30 @@ class RuleApplication
     end
 
     def attempt
+        mappings = find_mappings
 
+        if mappings.empty?
+            @log.trace("No possible applications.")
+            return Graph::INVALID
+        end
 
+        return apply(mappings.sample)
+
+    end
+
+    def added_rule_nodes 
+        return @rule.result_graph.nodes.select { |node| 
+            !@rule.match_graph.nodes.any? { |n| node.id == n.id }
+        }
+    end
+
+    def removed_rule_nodes
+        return @rule.match_graph.nodes.select { |node| 
+            !@rule.result_graph.nodes.any? { |n| node.id == n.id }
+        }
+    end
+
+    def find_mappings
         # TODO: decide on whether different rule match_graph nodes can be mapped to the same graph node.
         #       rule r [ 1, 2 ] => [ 1, 2 | 1->2 ];
         #       applying r on [ 1(3), 2(1) ]
@@ -38,15 +62,6 @@ class RuleApplication
         @log.trace(@rule.match_graph.to_s)
         @log.trace("Rule Result Graph:")
         @log.trace(@rule.result_graph.to_s)
-
-        added_rule_nodes = @rule.result_graph.nodes.select { |node| 
-            !@rule.match_graph.nodes.any? { |n| node.id == n.id }
-        }
-        removed_rule_nodes = @rule.match_graph.nodes.select { |node| 
-            !@rule.result_graph.nodes.any? { |n| node.id == n.id }
-        }
-        @log.trace("#{added_rule_nodes.size} nodes to add.")
-        @log.trace("#{removed_rule_nodes.size} nodes to remove.")
 
         possible_matches = [{}]
 
@@ -95,6 +110,9 @@ class RuleApplication
             adjacent_rule_edge_count[n] = @rule.match_graph.edges.count { |e| e.source_id == n.id || e.target_id == n.id }
         end
 
+        removed_rule_nodes = @rule.match_graph.nodes.select { |node| 
+            !@rule.result_graph.nodes.any? { |n| node.id == n.id }
+        }
         removed_rule_nodes.each do |removed_rule_node|
             possible_matches = possible_matches.reject do |mapping| 
                 mapping.has_key?(removed_rule_node) &&
@@ -130,21 +148,35 @@ class RuleApplication
             }.join(", ") 
         }.join("\n"))
 
+
+        # TODO: make sure all references to 'x', say, are the same value.
+        # possible_matches = possible_matches.select do |mapping|
+            # @rule.parameters.all? do |name, type|
+                # 
+            # end
+        # end
+
+        # @log.trace("Removed mappings with conflicting variable usage.")
+        # @log.trace("Remaining possible mappings:")
+        # @log.trace(possible_matches.map { |pm| 
+        #     pm.map { |k, v| 
+        #         "#{k.id} => #{v.id}" 
+        #     }.join(", ") 
+        # }.join("\n"))
+
+
         # TODO: check rule condition (with possible mappings in order to further whittle down the 
         #       viable applications).
 
         # TODO: make sure, all remaining mappings in possible_matches are viable applications.
 
-        #----------------------#
-        # Apply random mapping #
-        #----------------------#
+        return possible_matches
+    end
 
-        if possible_matches.empty?
-            @log.trace("No possible applications.")
-            return Graph::INVALID
-        end
+    def apply(application)
+        @log.trace("#{added_rule_nodes.size} nodes to add.")
+        @log.trace("#{removed_rule_nodes.size} nodes to remove.")
 
-        application = possible_matches.sample
 
         @log.trace("Chosen application:")
         @log.trace(application.map { |k, v| 
@@ -192,8 +224,11 @@ class RuleApplication
 
         # TODO: Get values of variables now?
         variable_values = {}
-        @rule.parameters.each do |var|
-            p var
+        @log.trace("Variables:")
+        @rule.parameters.each do |name, type|
+            var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
+            variable_values[name] = application[var_node].label.value.value
+            @log.trace("#{name} (#{type}) = #{application[var_node].label.value.value}")
         end
 
         persiting_rule_nodes = @rule.match_graph.nodes.select { |node| 
@@ -204,7 +239,7 @@ class RuleApplication
             rule_node_before = rule_node
             rule_node_after  = @rule.result_graph.nodes.find { |n| n.id == rule_node.id }
             current_graph_node = @graph.nodes.find { |n| n.id == id_mapping[rule_node_before.id] }
-            new_node = apply_node_change(rule_node_before, rule_node_after, current_graph_node)
+            new_node = apply_node_change(rule_node_before, rule_node_after, current_graph_node, variable_values)
             new_graph.update_node(current_graph_node.id, new_node.label)
         end
 
@@ -249,8 +284,6 @@ class RuleApplication
         end
         if rule_label.value.variable?
             @log.trace("Checking type")
-            @log.trace(rule_label.value.type.inspect)
-            @log.trace(graph_label.type.inspect)
             return rule_label.value.type == graph_label.type
         end
         if rule_label.value.is_a?(Literal)
@@ -294,21 +327,24 @@ class RuleApplication
         return true
     end
 
-    def apply_node_change(rule_node_before, rule_node_after, graph_node_before)
+    def apply_node_change(rule_node_before, rule_node_after, graph_node_before, variables)
         # make note of variable values before rule application
         graph_node_after = graph_node_before.clone
+
 
         removed_marks = rule_node_after.label&.markset.to_a.select { |mark| mark[0] == '¬' }.map { |demark| '#' + demark[1..-1] }
         added_marks = rule_node_after.label&.markset.to_a.select { |mark| mark[0] == '#' }
 
-        graph_node_after.label.markset.reject! { |mark| removed_marks.include?(mark) }
-        graph_node_after.label.markset.push(*added_marks)
-        graph_node_after.label.markset.uniq!
+        new_markset = graph_node_before.label.markset.reject { |mark| removed_marks.include?(mark) }
+        new_markset.push(*added_marks)
+        new_markset.uniq!
 
-        # TODO: apply change to labels.
-        #   - [ ] update label value
+        evaluator = LabelEvaluator.new(rule_node_after.label, variables)
+        new_label_value = Literal.new(evaluator.evaluate)
 
-        return graph_node_after
+        new_label = Label.new(new_label_value, new_label_value.type, new_markset)
+
+        return Node.new(graph_node_before.id, new_label)
     end
 
 end

@@ -20,7 +20,7 @@ class Label
 
     def to_s
         str = @value.to_s
-        if !@markset.nil?
+        if !@markset.nil? && !@markset.empty?
             str += " " if !str.empty?
             str += @markset.join(", ")
         end
