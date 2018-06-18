@@ -232,7 +232,6 @@ class RuleApplication
     # Graph node labels have, as their value, either nil (for `void`) or a literal value. 
     # They may also have nil for their whole label if it is not given (for `empty`).
     def label_value_match?(rule_label, graph_label)
-        return true if rule_label.nil?
         return true if rule_label.value.nil?
 
         if rule_label.value.is_a?(Matcher) && rule_label.value.keyword == :empty
@@ -262,11 +261,9 @@ class RuleApplication
     end
 
     def markset_match?(rule_label, graph_label)
-        return true if rule_label.nil?
-        return true if rule_label.markset.nil?
+        return true if rule_label.markset.empty?
 
-        if rule_label.markset.empty?
-            return true if graph_label.nil?
+        if rule_label.markset.nil?
             return graph_label.markset.empty?
         end
         if rule_label.markset.select { |m| m[0] == "#" }
@@ -295,10 +292,18 @@ class RuleApplication
     def apply_node_change(rule_node_before, rule_node_after, graph_node_before)
         # make note of variable values before rule application
         graph_node_after = graph_node_before.clone
+
+
         # TODO: apply change to labels.
-        #   - [ ] add new marks
         #   - [ ] remove old marks
+        #   - [ ] add new marks
         #   - [ ] update label value
+
+        added_marks = rule_node_after&.label&.markset.to_a#.select { |mark| mark[0] == '#' &&  }
+        p added_marks
+        removed_marks = []
+        p removed_marks
+
         return graph_node_after
     end
 

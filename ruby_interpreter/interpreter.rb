@@ -181,7 +181,7 @@ class Interpreter < Visitor
     def visit_LabelExpression(expr)
         value = evaluate(expr.value)
         type = value.type
-        markset = expr.markset.map {|m| evaluate(m) }
+        markset = expr.markset&.map {|m| evaluate(m) }
         return Label.new(value, type, markset)
     end
 

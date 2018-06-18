@@ -160,6 +160,9 @@ class Parser
     end
 
     def parse_markset
+        if match_token(:UNMARKED)
+            return nil
+        end
         set = []
         while match_token(:MARK)
             token = previous
