@@ -295,14 +295,15 @@ class RuleApplication
 
 
         # TODO: apply change to labels.
-        #   - [ ] remove old marks
-        #   - [ ] add new marks
         #   - [ ] update label value
 
-        added_marks = rule_node_after&.label&.markset.to_a#.select { |mark| mark[0] == '#' &&  }
-        p added_marks
-        removed_marks = []
+        removed_marks = rule_node_after.label&.markset.to_a.select { |mark| mark[0] == '¬' }.map { |demark| '#' + demark[1..-1] }
         p removed_marks
+        added_marks = rule_node_after.label&.markset.to_a.select { |mark| mark[0] == '#' }
+        p graph_node_after.label.markset
+        graph_node_after.label.markset.reject! { |mark| removed_marks.include?(mark) }
+        graph_node_after.label.markset.push(*added_marks)
+        graph_node_after.label.markset.uniq!
 
         return graph_node_after
     end

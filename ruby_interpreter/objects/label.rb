@@ -19,9 +19,12 @@ class Label
     end
 
     def to_s
-        str = "("
-        str += @value.to_s
-        return str + ")"
+        str = @value.to_s
+        if !@markset.nil?
+            str += " " if !str.empty?
+            str += @markset.join(", ")
+        end
+        return "(" + str + ")"
     end
 
 end
