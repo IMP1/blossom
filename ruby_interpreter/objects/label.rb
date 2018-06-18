@@ -3,6 +3,10 @@ class Label
     attr_reader :value
     attr_reader :markset
 
+    def self.empty
+        return Label.new(nil, nil, [])
+    end
+
     def initialize(value, type, markset)
         @value = value
         @type = type

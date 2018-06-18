@@ -32,7 +32,7 @@ match_graph  = Graph.new(
 )
 result_graph = Graph.new(
     [
-        Node.new(1, Label.new(Literal.new(0), Literal.new(0).type, [])),
+        Node.new(1, Label.new(Literal.new(0), Literal.new(0).type, ["#foo"])),
     ], 
     [], 
     {}

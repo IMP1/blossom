@@ -16,8 +16,8 @@ host_graph = Graph.new(
         Node.new(3, Label.new(Literal.new("a str"), :string, [])),
     ], 
     [
-        Edge.new(1, 2, nil),
-        Edge.new(2, 3, nil),
+        Edge.new(1, 2, Label.empty),
+        Edge.new(2, 3, Label.empty),
     ],
     {}
 )

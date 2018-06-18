@@ -13,31 +13,31 @@ require_relative '../../objects/rule_application'
 # Host Graph
 host_graph = Graph.new(
     [
-        Node.new(1, nil),
-        Node.new(2, nil),
-        Node.new(3, nil),
+        Node.new(1, Label.empty),
+        Node.new(2, Label.empty),
+        Node.new(3, Label.empty),
     ], 
     [
-        Edge.new(1, 2, nil),
-        Edge.new(2, 3, nil),
+        Edge.new(1, 2, Label.empty),
+        Edge.new(2, 3, Label.empty),
     ], 
     {}
 )
 
 match_graph  = Graph.new(
     [
-        Node.new(1, nil),
-        Node.new(2, nil),
+        Node.new(1, Label.empty),
+        Node.new(2, Label.empty),
     ], 
     [
-        Edge.new(1, 2, nil),
+        Edge.new(1, 2, Label.empty),
     ], 
     {}
 )
 result_graph  = Graph.new(
     [
-        Node.new(1, nil),
-        Node.new(2, nil),
+        Node.new(1, Label.empty),
+        Node.new(2, Label.empty),
     ], 
     [
     ], 
@@ -65,4 +65,4 @@ test_run = Test.run(true) {
 #-----------------#
 assert(host_graph.edges.size == 1, "Graph should now have one edge.")
 
-puts "Test succeeded.
+puts "Test completed."
