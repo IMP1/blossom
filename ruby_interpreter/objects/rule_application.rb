@@ -52,16 +52,16 @@ class RuleApplication
 
         @log.trace("Attempting to apply a rule.")
 
-        #------------------------#
-        # Find possible mappings #
-        #------------------------#
-
         @log.trace("Current Host Graph:")
         @log.trace(@graph.to_s)
         @log.trace("Rule Match Graph:")
         @log.trace(@rule.match_graph.to_s)
         @log.trace("Rule Result Graph:")
         @log.trace(@rule.result_graph.to_s)
+
+        #------------------------#
+        # Find possible mappings #
+        #------------------------#
 
         possible_matches = [{}]
 
@@ -116,6 +116,8 @@ class RuleApplication
             }.join(", ") 
         }.join("\n"))
 
+        # Any node matches must have edges in the host graph, if they have edges in the rule graph.
+
         possible_matches = possible_matches.select do |mapping|
             id_mapping = {}
             mapping.each { |k, v| id_mapping[k.id] = v.id }
@@ -136,13 +138,10 @@ class RuleApplication
             }.join(", ") 
         }.join("\n"))
 
-
-        # TODO: make sure all references to 'x', say, are the same value.
-        # possible_matches = possible_matches.select do |mapping|
-            # @rule.parameters.all? do |name, type|
-                # 
-            # end
-        # end
+        # I may or may not later on decide that you can't have more than one variable used in a rule, 
+        # and if you want to check equality of two nodes' label values, you can have that in the rule's condition.
+        # HOWEVER, at the moment you can, and so the same variable cannot point to different values, which lowers
+        # the possible matches it can have.
 
         possible_matches = possible_matches.select do |mapping|
             variable_values = {}
@@ -163,6 +162,7 @@ class RuleApplication
             }.join(", ") 
         }.join("\n"))
 
+        # If not all the rule's match graph's nodes have a match in the graph, then the rule is not matched.
 
         possible_matches.reject! do |mapping|
             mapping.size != @rule.match_graph.nodes.size
@@ -180,8 +180,6 @@ class RuleApplication
         # TODO: check rule condition (with possible mappings in order to further whittle down the 
         #       viable applications).
 
-        # TODO: make sure, all remaining mappings in possible_matches are viable applications.
-
         return possible_matches
     end
 
@@ -189,12 +187,10 @@ class RuleApplication
         @log.trace("#{added_rule_nodes.size} nodes to add.")
         @log.trace("#{removed_rule_nodes.size} nodes to remove.")
 
-
         @log.trace("Chosen application:")
         @log.trace(application.map { |k, v| 
             "#{k.id} => #{v.id}" 
         }.join(", "))
-
 
         new_graph = @graph.clone # TODO: make a clone method for a graph?
         added_node_mappings = {}
@@ -254,7 +250,7 @@ class RuleApplication
             new_graph.update_node(current_graph_node.id, new_node.label)
         end
 
-        # @log.trace("Updated nodes.")
+        @log.trace("Updated nodes.")
 
         @log.trace("Resultant graph:")
         @log.trace(new_graph.to_s)
@@ -349,9 +345,6 @@ class RuleApplication
         new_markset = graph_node_before.label.markset.reject { |mark| removed_marks.include?(mark) }
         new_markset.push(*added_marks)
         new_markset.uniq!
-
-        p graph_node_before
-        p rule_node_after
 
         evaluator = LabelEvaluator.new(rule_node_after.label, variables)
         new_label_value = Literal.new(evaluator.evaluate)
