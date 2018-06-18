@@ -13,11 +13,10 @@ host_graph = Graph.new(
     [
         Node.new(1, Label.new(Literal.new(4), :int, [])),
         Node.new(2, Label.new(Literal.new(2), :int, [])),
-        Node.new(3, Label.new(Literal.new("a str"), :string, [])),
     ], 
     [
         Edge.new(1, 2, Label.empty),
-        Edge.new(2, 3, Label.empty),
+        Edge.new(2, 1, Label.empty),
     ],
     {}
 )
@@ -25,14 +24,15 @@ host_graph = Graph.new(
 
 match_graph  = Graph.new(
     [
-        Node.new(1, Label.new(Variable.new("x", :string), :string, [])),
+        Node.new(1, Label.new(Variable.new("x", :int), :int, [])),
     ], 
     [], 
-    {"x" => :string}
+    {"x" => :int}
 )
+expr = BinaryOperator.new(:PLUS, Variable.new("x", :int), Literal.new(1))
 result_graph = Graph.new(
     [
-        Node.new(1, Label.new(Literal.new(0), Literal.new(0).type, [])),
+        Node.new(1, Label.new(expr, :int, [])),
     ], 
     [], 
     {}
@@ -41,7 +41,7 @@ rule = Rule.new("r1", {"x" => :string}, match_graph, result_graph, nil, nil)
 #----------------#
 # Pre-Conditions #
 #----------------#
-assert(host_graph.nodes.size == 3, "Host graph should have three nodes.")
+assert(host_graph.nodes.size == 2, "Host graph should have three nodes.")
 assert(host_graph.edges.size == 2, "Host graph should have two edges.")
 
 #-----#
@@ -57,7 +57,7 @@ test_run = Test.run(true) {
 #-----------------#
 # Post-Conditions #
 #-----------------#
-assert(host_graph.nodes.size == 3, "Host graph should have three nodes.")
+assert(host_graph.nodes.size == 2, "Host graph should have three nodes.")
 assert(host_graph.edges.size == 2, "Host graph should have two edges.")
 
 assert(host_graph.nodes.count {|n| !n.label.nil? && !n.label.value.nil? && n.label.value.value == 0 } > 0)
