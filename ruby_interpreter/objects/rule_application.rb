@@ -139,6 +139,11 @@ class RuleApplication
         # Apply random mapping #
         #----------------------#
 
+        if possible_matches.empty?
+            @log.trace("No possible applications.")
+            return Graph::INVALID
+        end
+
         application = possible_matches.sample
 
         @log.trace("Chosen application:")
@@ -271,7 +276,7 @@ class RuleApplication
             return false
         end
         if rule_label.markset.select { |m| m[0] == "¬" }
-                             .any? { |m| graph_label.markset.include?(m) }
+                             .any? { |m| graph_label.markset.include?('#'+m[1..-1]) }
             return false
         end
         return true
@@ -293,17 +298,15 @@ class RuleApplication
         # make note of variable values before rule application
         graph_node_after = graph_node_before.clone
 
-
-        # TODO: apply change to labels.
-        #   - [ ] update label value
-
         removed_marks = rule_node_after.label&.markset.to_a.select { |mark| mark[0] == '¬' }.map { |demark| '#' + demark[1..-1] }
-        p removed_marks
         added_marks = rule_node_after.label&.markset.to_a.select { |mark| mark[0] == '#' }
-        p graph_node_after.label.markset
+
         graph_node_after.label.markset.reject! { |mark| removed_marks.include?(mark) }
         graph_node_after.label.markset.push(*added_marks)
         graph_node_after.label.markset.uniq!
+
+        # TODO: apply change to labels.
+        #   - [ ] update label value
 
         return graph_node_after
     end

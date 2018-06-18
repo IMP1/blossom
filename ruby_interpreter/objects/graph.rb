@@ -16,6 +16,8 @@ class Graph
     end 
 
     def to_s
+        return "invalid" if self == INVALID
+        
         str = "[\n"
         @nodes.each { |n| str += "  " + n.to_s + "\n" }
         str += "|\n"
