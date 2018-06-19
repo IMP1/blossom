@@ -183,17 +183,19 @@ class RuleApplication
             }.join(", ") 
         }.join("\n"))
 
+        # Check rule's condition (with possible mappings in order to further whittle down the viable applications).
 
-        # TODO: check rule condition (with possible mappings in order to further whittle down the 
-        #       viable applications).
+        possible_matches = possible_matches.select do |mapping|
+            condition_holds?(mapping)
+        end
 
-        # @log.trace("Removed mappings that don't satisfy the rule's condition.")
-        # @log.trace("Remaining possible mappings:")
-        # @log.trace(possible_matches.map { |pm| 
-        #     pm.map { |k, v| 
-        #         "#{k.id} => #{v.id}" 
-        #     }.join(", ") 
-        # }.join("\n"))
+        @log.trace("Removed mappings that don't satisfy the rule's condition.")
+        @log.trace("Remaining possible mappings:")
+        @log.trace(possible_matches.map { |pm| 
+            pm.map { |k, v| 
+                "#{k.id} => #{v.id}" 
+            }.join(", ") 
+        }.join("\n"))
 
         return possible_matches
     end
@@ -347,6 +349,22 @@ class RuleApplication
             return false
         end
         return true
+    end
+
+    def condition_holds?(mapping)
+        return true if @rule.condition.nil?
+        id_mapping = {}
+        mapping.each { |k, v| id_mapping[k.id] = v.id }
+
+        variable_values = {}
+        @rule.parameters.each do |name, type|
+            var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
+            variable_values[name] = mapping[var_node].label.value.value
+        end
+
+        evaluator = ConditionEvaluator.new(@rule.condition, @graph, id_mapping, variable_values)
+
+        return evaluator.evaluate
     end
 
     def apply_node_change(rule_node_before, rule_node_after, graph_node_before, variables)

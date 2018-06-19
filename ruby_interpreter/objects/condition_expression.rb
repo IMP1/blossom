@@ -1,4 +1,4 @@
-require_relative '../visitor'
+require_relative 'label_value_expression'
 
 class ConditionExpression
     include Visitable
@@ -13,7 +13,7 @@ class ConditionExpression
 
 end
 
-class Literal < ConditionExpression
+class Literal < LabelValueExpression
 
     attr_reader :value
 
@@ -47,7 +47,7 @@ class Literal < ConditionExpression
 
 end
 
-class Variable < ConditionExpression
+class Variable < LabelValueExpression
 
     attr_reader :name
 
@@ -70,29 +70,7 @@ class Variable < ConditionExpression
 
 end
 
-class Matcher < ConditionExpression
-
-    attr_reader :keyword
-
-    def initialize(keyword)
-        @keyword = keyword
-    end
-
-    def variable?
-        return false
-    end
-
-    def type
-        return nil
-    end
-
-    def to_s
-        return @keyword.to_s
-    end
-
-end
-
-class UnaryOperator < ConditionExpression
+class UnaryOperator < LabelValueExpression
 
     attr_reader :operator
     attr_reader :operand
@@ -112,7 +90,7 @@ class UnaryOperator < ConditionExpression
 
 end
 
-class BinaryOperator < ConditionExpression
+class BinaryOperator < LabelValueExpression
 
     attr_reader :left
     attr_reader :operator
@@ -134,7 +112,7 @@ class BinaryOperator < ConditionExpression
 
 end
 
-class Group < ConditionExpression
+class Group < LabelValueExpression
 
     attr_reader :expression
 
@@ -154,6 +132,20 @@ end
 
 class FunctionCall < ConditionExpression
 
-    # TODO: add function call
+    attr_reader :function
+    attr_reader :arguments
+
+    def initialize(function, arguments)
+        @function = function
+        @arguments = arguments
+    end
+
+    def variable?
+        return arguments.any? { |arg| arg.variable? }
+    end
+
+    def type
+        return @function.return_type
+    end
 
 end
