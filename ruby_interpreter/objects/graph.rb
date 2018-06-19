@@ -3,8 +3,6 @@ require_relative 'edge'
 
 class Graph
 
-    INVALID = Graph.new
-
     attr_reader :nodes
     attr_reader :edges
     attr_reader :variables
@@ -50,5 +48,7 @@ class Graph
             @variables,
         )
     end
+
+    INVALID = Graph.new([], [], {})
 
 end

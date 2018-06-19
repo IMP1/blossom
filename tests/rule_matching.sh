@@ -2,7 +2,7 @@
 
 echo "rule foo    <int x, y>"                      >> tmp.blsm
 echo "            [ 1 (x), 2 (y) | 1->2 (empty) ]" >> tmp.blsm
-echo "         => [ 1 (x), 2 (y) | 1->2 (1) ]"     >> tmp.blsm
+echo "         => [ 1 (x), 2 (y) | 1->2 (0) ]"     >> tmp.blsm
 echo "end"                                         >> tmp.blsm
 echo "foo"                                         >> tmp.blsm
 
