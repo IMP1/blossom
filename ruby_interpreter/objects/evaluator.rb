@@ -146,3 +146,36 @@ class ConditionEvaluator < Visitor
     end
 
 end
+
+
+class AddendumExecutor < ConditionEvaluator
+
+    attr_reader :mapping
+    attr_reader :graph
+    attr_reader :variables
+
+    def initialize(addendum, graph, mapping, variables)
+        @addendum = addendum
+        @graph = graph
+        @mapping = mapping
+        @variables = variables
+    end
+
+    def execute
+        return execute_statement(@addendum)
+    end
+
+    def execute_statement(expr)
+        return expr.accept(self)
+    end
+
+    #------------#
+    # Statements #
+    #------------#
+
+    def visit_ProcedureCall(stmt)
+        # TODO: eval args
+        # TODO: call proc with args
+    end
+
+end

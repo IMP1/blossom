@@ -14,7 +14,7 @@ class Procedure
     end
 
     def self.print
-        return Procedure.new("node", [:int]) do |evaluator, args|
+        return Procedure.new("print", [:int]) do |evaluator, args|
             puts args[0]
         end
     end
