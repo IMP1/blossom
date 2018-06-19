@@ -22,6 +22,7 @@ test_run = Test.run {
 test_run.ensure do |result|
 
     result_graph = result.value
+    puts result_graph
 
     assert(result_graph.nodes.size == 2, "Result graph should have two nodes.")
     assert(result_graph.edges.size == 1, "Result graph should have one edge.")

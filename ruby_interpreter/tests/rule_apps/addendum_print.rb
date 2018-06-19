@@ -33,7 +33,10 @@ result_graph = Graph.new(
 )
 addendum = ProcedureCall.new(
     Procedure.print,
-    [Literal.new(0)]
+    [FunctionCall.new(
+        Function.in,
+        [Literal.new(1)]
+    )]
 )
 rule = Rule.new("r1", {"x" => :string}, match_graph, result_graph, nil, addendum)
 #----------------#

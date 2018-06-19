@@ -272,11 +272,10 @@ class RuleApplication
         @log.trace("Resultant graph:")
         @log.trace(new_graph.to_s)
 
-
-
-        p @rule.addendum
-        p @rule.addendum.procedure
-        # TODO: execute addendum
+        if !@rule.addendum.nil?
+            executor = AddendumExecutor.new(@rule.addendum, @graph, id_mapping, variable_values)
+            executor.execute
+        end
 
         return new_graph
     end

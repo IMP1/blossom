@@ -28,7 +28,7 @@ class Function
         return Function.new("in", :int, [:int]) do |evaluator, args|
             rule_node_id = args[0]
             graph_node_id = evaluator.mapping[rule_node_id]
-            in_edges = evaluator,graph.edges.select { |e| e.target_id == graph_node_id }
+            in_edges = evaluator.graph.edges.select { |e| e.target_id == graph_node_id }
             in_edges.count
         end
     end
@@ -37,7 +37,7 @@ class Function
         return Function.new("out", :int, [:int]) do |evaluator, args|
             rule_node_id = args[0]
             graph_node_id = evaluator.mapping[rule_node_id]
-            out_edges = evaluator,graph.edges.select { |e| e.source_id == graph_node_id }
+            out_edges = evaluator.graph.edges.select { |e| e.source_id == graph_node_id }
             out_edges.count
         end
     end
@@ -46,7 +46,7 @@ class Function
         return Function.new("adj", :int, [:int]) do |evaluator, args|
             rule_node_id = args[0]
             graph_node_id = evaluator.mapping[rule_node_id]
-            adj_edges = evaluator,graph.edges.select { |e| e.source_id == graph_node_id || e.target_id == graph_node_id}
+            adj_edges = evaluator.graph.edges.select { |e| e.source_id == graph_node_id || e.target_id == graph_node_id}
             adj_edges.count
         end
     end

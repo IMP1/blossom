@@ -150,10 +150,6 @@ end
 
 class AddendumExecutor < ConditionEvaluator
 
-    attr_reader :mapping
-    attr_reader :graph
-    attr_reader :variables
-
     def initialize(addendum, graph, mapping, variables)
         @addendum = addendum
         @graph = graph
