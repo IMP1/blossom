@@ -12,12 +12,17 @@ class GraphFormatter
     end
 
     def self.blossom_graph(graph)
+        puts "Outputting Blossom Graph:"
+        p graph
         return ""
         # TODO: do
         # return graph.join("\n")
     end
 
     def self.dot_graph(graph)
+        puts "Outputting Blossom Graph:"
+        p graph
+        return ""
         # TODO: do
     end
 
