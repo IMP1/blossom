@@ -58,9 +58,11 @@ test_run = Test.run {
 
 test_run.ensure do |result|
 
-    assert(host_graph.nodes.size == 3, "Host graph should have three nodes.")
-    assert(host_graph.edges.size == 2, "Host graph should have two edges.")
+    result_graph = result.value
 
-    assert(host_graph.nodes.count {|n| !n.label.nil? && !n.label.value.nil? && n.label.value.value == 0 } > 0)
+    assert(result_graph.nodes.size == 3, "Host graph should have three nodes.")
+    assert(result_graph.edges.size == 2, "Host graph should have two edges.")
+
+    assert(result_graph.nodes.count {|n| !n.label.nil? && !n.label.value.nil? && n.label.value.value == 0 } > 0)
 
 end
