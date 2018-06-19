@@ -1,5 +1,13 @@
 require 'date'
 
+require_relative '../objects/graph'
+require_relative '../objects/node'
+require_relative '../objects/edge'
+require_relative '../objects/rule'
+require_relative '../objects/label'
+require_relative '../objects/label_value_expression'
+require_relative '../objects/rule_application'
+
 class Test
 
     class AssertionError < RuntimeError
@@ -97,6 +105,8 @@ class Test
             end
         end
     end
+
+    @precondition_failures = []
 
     def self.run(blocking=false, &block)
         test_run = TestRun.new(block)

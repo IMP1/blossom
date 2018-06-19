@@ -1,11 +1,5 @@
 require_relative '../test'
 
-require_relative '../../objects/graph'
-require_relative '../../objects/rule'
-require_relative '../../objects/label'
-require_relative '../../objects/label_value_expression'
-require_relative '../../objects/rule_application'
-
 #---------#
 # Arrange #
 #---------#
@@ -48,7 +42,9 @@ rule = Rule.new("r1", {}, match_graph, result_graph, nil, nil)
 #----------------#
 # Pre-Conditions #
 #----------------#
-assert(host_graph.edges.size == 2, "Host graph should have two edges.")
+Test.require do
+    assert(host_graph.edges.size == 2, "Host graph should have two edges.")
+end
 
 #-----#
 # Act #
@@ -63,6 +59,9 @@ test_run = Test.run(true) {
 #-----------------#
 # Post-Conditions #
 #-----------------#
-assert(host_graph.edges.size == 1, "Graph should now have one edge.")
+test_run.ensure do |result|
+    result_graph = result.value
 
-puts "Test completed."
+    assert(result_graph.edges.size == 1, "Graph should now have one edge.")
+
+end

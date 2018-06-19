@@ -1,11 +1,5 @@
 require_relative '../test'
 
-require_relative '../../objects/graph'
-require_relative '../../objects/rule'
-require_relative '../../objects/label'
-require_relative '../../objects/label_value_expression'
-require_relative '../../objects/rule_application'
-
 #---------#
 # Arrange #
 #---------#
@@ -14,7 +8,7 @@ host_graph = Graph.new(
         Node.new(1, Label.new(Literal.new(4), :int, [])),
         Node.new(2, Label.new(Literal.new(2), :int, [])),
         Node.new(3, Label.new(Literal.new(3), :int, [])),
-        Node.new(4, Label.new(Literal.new(1), :int, [])),
+        Node.new(4, Label.new(Literal.new(2), :int, [])),
     ], 
     [
     ],
@@ -33,8 +27,8 @@ match_graph  = Graph.new(
 expr = BinaryOperator.new(:PLUS, Variable.new("x", :int), Literal.new(1))
 result_graph = Graph.new(
     [
-        Node.new(1, Label.new(nil, nil, [])),
-        Node.new(2, Label.new(nil, nil, [])),
+        Node.new(1, Label.empty),
+        Node.new(2, Label.empty),
     ], 
     [], 
     {}
@@ -54,5 +48,9 @@ test_run = Test.run(true) {
 #-----------------#
 # Post-Conditions #
 #-----------------#
+test_run.ensure do |result|
+    result_graph = result.value
 
-puts "Test completed."
+    puts result_graph.nodes
+
+end
