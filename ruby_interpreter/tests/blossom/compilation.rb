@@ -4,12 +4,6 @@ require_relative '../../main'
 
 $verbose = true
 
-#---------#
-# Arrange #
-#---------#
-
-# dangling_condition
-
 PROG_TEXT = <<~HEREDOC
 rule foo    [ 1, 2 | 1->2 ]
          => [ 1 ]
@@ -19,13 +13,7 @@ HEREDOC
 
 GRAPH_TEXT = "[1, 2, 3 | 1->2, 2->3 ]"
 
-#-----#
-# Act #
-#-----#
 test_run = Test.run {
-
-    # ARGV = ["tmp.blsm", "\"#{GRAPH_TEXT}\""]
-    # require_relative 
 
     Runner.run(PROG_TEXT, GRAPH_TEXT, "test", "test")
 
