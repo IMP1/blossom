@@ -9,6 +9,7 @@ class Parser
 
     def initialize(tokens)
         @log = Log.new("Parser")
+        @log.set_level(Log::ALL) if $verbose
         @tokens = tokens
         @current = 0
 

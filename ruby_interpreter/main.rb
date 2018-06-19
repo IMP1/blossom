@@ -71,6 +71,7 @@ class Runner
 
     def self.run(prog_source, graph_source, prog_filename, graph_filename, log=nil)
         @@log = log || Log.new("Blossom")
+        @@log.set_level(Log::ALL) if $verbose
         @@compile_errors = []
         @@runtime_errors = []
 
@@ -95,6 +96,7 @@ class Runner
         @@log.trace("Programme:")
         @@log.trace(printer.print_programme)
 
+        @@log.trace("Interpreting...")
         interpreter = Interpreter.new(graph, programme)
         result_graph = interpreter.interpret
 

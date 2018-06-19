@@ -15,6 +15,7 @@ class Interpreter < Visitor
 
     def initialize(host_graph, statements)
         @log = Log.new("Interpreter")
+        @log.set_level(Log::ALL) if $verbose
         @host_graph = host_graph
         @statements = statements
         @current_graph = evaluate(host_graph)
@@ -25,12 +26,12 @@ class Interpreter < Visitor
 
     def interpret
         @log.trace("Host Graph:")
-        @log.trace(@current_graph.inspect)
+        @log.trace(@current_graph.to_s)
         begin
             @statements.each do |stmt| 
+                @log.trace("Executing statement:")
+                @log.trace(stmt.to_s)
                 @current_graph = execute(stmt) 
-                @log.trace("Current Graph:")
-                @log.trace(@current_graph.inspect)
             end
         rescue BlossomRuntimeError => e
             Runner.runtime_error(e)
