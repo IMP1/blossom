@@ -32,13 +32,10 @@ test_run = Test.run {
 }
 
 test_run.ensure do |result|
-    p result
 
     result_graph = result.value
 
     assert(result_graph.nodes.size == 2, "Result graph should have two nodes.")
     assert(result_graph.edges.size == 1, "Result graph should have one edge.")
-
-    assert(result_graph.nodes.count {|n| !n.label.nil? && !n.label.value.nil? && n.label.value.value == 0 } > 0)
 
 end
