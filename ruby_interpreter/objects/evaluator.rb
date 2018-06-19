@@ -14,6 +14,7 @@ class LabelEvaluator < Visitor
         if @label.nil?
             puts "Label is nil!!"
             puts caller
+            raise "Label is nil."
         end
         if @label.value.nil?
             return nil
@@ -71,3 +72,6 @@ class LabelEvaluator < Visitor
 
 
 end
+
+
+# TODO: add condition evaluator

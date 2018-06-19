@@ -350,7 +350,6 @@ class RuleApplication
     end
 
     def apply_node_change(rule_node_before, rule_node_after, graph_node_before, variables)
-        # make note of variable values before rule application
         graph_node_after = graph_node_before.clone
 
 
