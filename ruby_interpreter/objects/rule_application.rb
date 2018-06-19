@@ -308,7 +308,8 @@ class RuleApplication
         end
         if rule_label.value.variable?
             @log.trace("Checking type")
-            return rule_label.value.type == graph_label.type
+            return true if rule_label.type == :any
+            return rule_label.type == graph_label.type
         end
         if rule_label.value.is_a?(Literal)
             @log.trace("Checking values")

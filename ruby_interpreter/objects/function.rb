@@ -12,7 +12,7 @@ class Function
     end
 
     def call(evaluator, args)
-        @block.call(evaluator, args)
+        return @block.call(evaluator, args)
     end
 
     def self.node
@@ -50,6 +50,5 @@ class Function
             adj_edges.count
         end
     end
-
 
 end
