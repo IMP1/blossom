@@ -19,6 +19,13 @@ class RuleApplication
         if mappings.empty?
             @log.trace("No possible applications.")
             return Graph::INVALID
+        else
+            @log.trace("Final possible mappings:")
+            @log.trace(mappings.map { |pm| 
+                pm.map { |k, v| 
+                    "#{k.id} => #{v.id}" 
+                }.join(", ") 
+            }.join("\n"))
         end
 
         return apply(mappings.sample)
@@ -179,6 +186,14 @@ class RuleApplication
 
         # TODO: check rule condition (with possible mappings in order to further whittle down the 
         #       viable applications).
+
+        # @log.trace("Removed mappings that don't satisfy the rule's condition.")
+        # @log.trace("Remaining possible mappings:")
+        # @log.trace(possible_matches.map { |pm| 
+        #     pm.map { |k, v| 
+        #         "#{k.id} => #{v.id}" 
+        #     }.join(", ") 
+        # }.join("\n"))
 
         return possible_matches
     end

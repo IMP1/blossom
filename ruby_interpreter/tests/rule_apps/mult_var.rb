@@ -34,6 +34,7 @@ result_graph = Graph.new(
     {}
 )
 rule = Rule.new("r1", {"x" => :int}, match_graph, result_graph, nil, nil)
+# TODO: add to the condition of the rule, that the nodes 1 and 2 aren't the same.
 
 #-----#
 # Act #
@@ -51,6 +52,6 @@ test_run = Test.run(true) {
 test_run.ensure do |result|
     result_graph = result.value
 
-    puts result_graph.nodes
+    assert(result_graph.nodes.count { |n| n&.label&.value&.value == 2 } < 2)
 
 end
