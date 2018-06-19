@@ -41,8 +41,10 @@ rule = Rule.new("r1", {"x" => :string}, match_graph, result_graph, nil, nil)
 #----------------#
 # Pre-Conditions #
 #----------------#
-assert(host_graph.nodes.size == 2, "Host graph should have three nodes.")
-assert(host_graph.edges.size == 2, "Host graph should have two edges.")
+Test.require do
+    assert(host_graph.nodes.size == 2, "Host graph should have three nodes.")
+    assert(host_graph.edges.size == 2, "Host graph should have two edges.")
+end
 
 #-----#
 # Act #
@@ -54,7 +56,9 @@ test_run = Test.run do
 
 end
 
-test_run.assert do |result|
+test_run.ensure do |result|
+
     assert(host_graph.nodes.size == 2, "Host graph should have three nodes.")
     assert(host_graph.edges.size == 2, "Host graph should have two edges.")
+
 end
