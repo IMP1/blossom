@@ -174,8 +174,8 @@ class AddendumExecutor < ConditionEvaluator
     #------------#
 
     def visit_ProcedureCall(stmt)
-        # TODO: eval args
-        # TODO: call proc with args
+        args = stmt.arguments.map { |a| evaluate_expression(a) }
+        stmt.procedure.call(self, args)
     end
 
 end
