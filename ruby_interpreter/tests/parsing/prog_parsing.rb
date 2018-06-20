@@ -16,6 +16,8 @@ end
 p1! {r1, (p1 r1)} (r1 r1)
 if (r1 : r1 p1)
 try(p1 r1)
+noop
+invalid
 
 HEREDOC
 

@@ -37,15 +37,17 @@ literal_value   -> INTEGER_VALUE
 
 proc_def        -> "proc" IDENTIFER rule_app* ";"
 
-rule_app        -> "try" "(" rule_app  ")"                                      # try
-                |  "if" "(" rule_app ("," rule_app)? ("," rule_app)? ")"        # if
-                |  "with" "(" rule_app ("," rule_app)? ("," rule_app)? ")"      # with
-                |  "{" rule_app ("," rule_app)* "}"                             # choose
-                |  "(" rule_app ("," rule_app)* ")"                             # sequence (for grouping)
+rule_app        -> "try" "(" rule_seq  ")"                                      # try
+                |  "if" "(" rule_seq (":" rule_seq)? (":" rule_seq)? ")"        # if
+                |  "with" "(" rule_seq (":" rule_seq)? (":" rule_seq)? ")"      # with
+                |  "{" rule_seq ("," rule_seq)* "}"                             # choose
+                |  "(" rule_seq ")"                                             # sequence (for grouping)
                 |  rule_app "!"                                                 # loop
                 |  "noop"                                                       # noop
                 |  "invalid"                                                    # invalid
                 |  IDENTIFER                                                    # rule/proc
+
+rule_seq        -> rule_app+
 
 
 expression      -> func_call                                                    # builtin in/out/adj functions
