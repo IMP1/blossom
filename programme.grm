@@ -2,7 +2,7 @@
 #
 #   +   addition, concatenation
 #   -   subtraction, unary-minus
-#   *   multiplication
+#   *   multiplication, any-label-value
 #   /   division
 #   %   modulo
 #   ^   exponential
