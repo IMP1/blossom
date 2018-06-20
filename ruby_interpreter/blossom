@@ -90,7 +90,7 @@ output_graph = Runner.run(programme_source, host_graph, programme_filename, host
 
 output_file.write(GraphFormatter.format(output_graph, output_format))
 output_file.write("\n")
-
+output_file.close
 
 # Example Usage:
 
