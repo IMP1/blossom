@@ -65,9 +65,15 @@ class LabelEvaluator < Visitor
         when :MINUS
             return left - right
         when :PLUS
-            puts "+ operator (either add, concatenate or xor?) in label"
-            p left
-            p right
+            case expr.left.type
+            when :int
+                # TODO: type check the right value's type
+                return left + right
+            when :string
+                return left + right
+            when :bool
+                return left ^ right
+            end
             return left + right
         when :ASTERISK
             return left * right
@@ -98,6 +104,7 @@ class LabelEvaluator < Visitor
             return left >= right
 
         when :BEGINS_WITH
+            # TODO: type check the values are both strings
             return left.start_with?(right)
         when :ENDS_WITH
             return left.end_with?(right)
@@ -175,10 +182,15 @@ class ConditionEvaluator < Visitor
         when :MINUS
             return left - right
         when :PLUS
-            puts "+ operator (either add, concatenate or xor?) in condition"
-            p left
-            p right
-            return left + right
+            case expr.left.type
+            when :int
+                # TODO: type check the right value's type
+                return left + right
+            when :string
+                return left + right
+            when :bool
+                return left ^ right
+            end
         when :ASTERISK
             return left * right
         when :STROKE

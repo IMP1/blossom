@@ -107,6 +107,7 @@ class BinaryOperator < LabelValueExpression
     end
 
     def type
+        # TODO: switch on operator and operand types (less than is always bool, for example)
         return left.type
     end
 
