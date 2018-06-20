@@ -60,9 +60,7 @@ def print_results(results)
 end
 
 
-silent   = ARGV.delete("--silent") || ARGV.delete("-s")
-all_tests = ARGV.delete("--all") || ARGV.delete("-a")
-$debugging = !!(ARGV.delete("--debug") || ARGV.delete("-d"))
+silent = ARGV.delete("--silent") || ARGV.delete("-s")
 output = STDOUT
 
 if ARGV.include?("--output")
