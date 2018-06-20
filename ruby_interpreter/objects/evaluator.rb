@@ -45,25 +45,66 @@ class LabelEvaluator < Visitor
         puts "HRRRRRM"
     end
 
-    def visit_UnaryOperator(expr)
-        right = evaluate_expression(expr.operand)
+    def visit_UnaryOperatorExpression(expr)
+        right = to_string(expr.operand)
         case expr.operator
         when :MINUS
             return -right
-        # TODO: add other unary operators
+        when :NOT, :EXCLAMATION
+            return !right
         end
+        puts "Unrecognised unary operator"
+        p expr
+        raise "Unrecognised unary operator"
     end
 
-    def visit_BinaryOperator(expr)
-        left = evaluate_expression(expr.left)
-        right = evaluate_expression(expr.right)
+    def visit_BinaryOperatorExpression(expr)
+        left = to_string(expr.left)
+        right = to_string(expr.right)
         case expr.operator
         when :MINUS
             return left - right
         when :PLUS
             return left + right
-        # TODO: add other binary operators
+        when :ASTERISK
+            return left * right
+        when :STROKE
+            return left / right
+        when :PERCENT
+            return left % right
+        when :CARET
+            return left ** right
+
+        when :AMPERSAND, :AND
+            return left && right
+        when :PIPE, :OR
+            return left || right
+
+        when :EQUAL
+            return left == right
+        when :NOT_EQUAL
+            return left != right
+
+        when :LESS
+            return left < right
+        when :LESS_EQUAL
+            return left <= right
+        when :GREATER
+            return left > right
+        when :GREATER_EQUAL
+            return left >= right
+
+        when :BEGINS_WITH
+            return left.start_with?(right)
+        when :ENDS_WITH
+            return left.end_with?(right)
+        when :CONTAINS
+            return left.include?(right)
+
         end
+        puts "Unrecognised binary operator"
+        p expr
+        raise "Unrecognised binary operator"
     end
 
     def visit_Group(expr)
@@ -111,29 +152,66 @@ class ConditionEvaluator < Visitor
         return @variables[expr.name]
     end
 
-    def visit_UnaryOperator(expr)
-        right = evaluate_expression(expr.operand)
+    def visit_UnaryOperatorExpression(expr)
+        right = to_string(expr.operand)
         case expr.operator
         when :MINUS
             return -right
-        # TODO: add other unary operators
+        when :NOT, :EXCLAMATION
+            return !right
         end
+        puts "Unrecognised unary operator"
+        p expr
+        raise "Unrecognised unary operator"
     end
 
-    def visit_BinaryOperator(expr)
-        left = evaluate_expression(expr.left)
-        right = evaluate_expression(expr.right)
+    def visit_BinaryOperatorExpression(expr)
+        left = to_string(expr.left)
+        right = to_string(expr.right)
         case expr.operator
-        when :EQUAL
-            return left == right
-        when :NOT_EQUAL
-            return left != right
         when :MINUS
             return left - right
         when :PLUS
             return left + right
-        # TODO: add other binary operators
+        when :ASTERISK
+            return left * right
+        when :STROKE
+            return left / right
+        when :PERCENT
+            return left % right
+        when :CARET
+            return left ** right
+
+        when :AMPERSAND, :AND
+            return left && right
+        when :PIPE, :OR
+            return left || right
+
+        when :EQUAL
+            return left == right
+        when :NOT_EQUAL
+            return left != right
+
+        when :LESS
+            return left < right
+        when :LESS_EQUAL
+            return left <= right
+        when :GREATER
+            return left > right
+        when :GREATER_EQUAL
+            return left >= right
+
+        when :BEGINS_WITH
+            return left.start_with?(right)
+        when :ENDS_WITH
+            return left.end_with?(right)
+        when :CONTAINS
+            return left.include?(right)
+
         end
+        puts "Unrecognised binary operator"
+        p expr
+        raise "Unrecognised binary operator"
     end
 
     def visit_Group(expr)
