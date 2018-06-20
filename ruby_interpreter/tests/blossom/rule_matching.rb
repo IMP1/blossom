@@ -1,6 +1,9 @@
 # rule_matching
 
+require_relative '../test'
+
 TEMP_FILENAME = "temp.blsm"
+OUT_FILENAME = "temp-out.txt"
 
 prog_text = <<~HEREDOC
     rule foo    
@@ -11,18 +14,37 @@ prog_text = <<~HEREDOC
     foo
 HEREDOC
 
-File.open(TEMP_FILENAME, 'w') { |f| 
+File.open(TEMP_FILENAME, 'w') do |f| 
     f.write(prog_text)
-}
+end
+
+Test.require do
+
+    assert(File.exists?(TEMP_FILENAME))
+
+end
 
 graph_text = "[1 (2), 2 (1), 3(3) | 1->2, 2->3, 1->3 ]"
 
 
-# Reset ARGV for blossom:
+# Reset args
 ARGV.reject! {true}
 ARGV.push(TEMP_FILENAME)
 ARGV.push(graph_text)
+ARGV.push("--output")
+ARGV.push(OUT_FILENAME)
 
-load('./ruby_interpreter/blossom')
+test_run = Test.run do
+
+    load('./ruby_interpreter/blossom')
+
+end
+
+test_run.ensure do |result|
+
+    assert(File.exists?(OUT_FILENAME))
+
+end
 
 File.delete(TEMP_FILENAME)
+File.delete(OUT_FILENAME)
