@@ -59,7 +59,7 @@ def print_results(results)
     puts
 end
 
-
+$verbose = ARGV.delete("--verbose") || ARGV.delete("-v")
 silent = ARGV.delete("--silent") || ARGV.delete("-s")
 output = STDOUT
 

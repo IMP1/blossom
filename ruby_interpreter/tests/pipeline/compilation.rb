@@ -2,8 +2,6 @@ require_relative '../test'
 
 require_relative '../../main'
 
-$verbose = true
-
 PROG_TEXT = <<~HEREDOC
 rule foo    [ 1, 2 | 1->2 ]
          => [ 1 ]

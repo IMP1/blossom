@@ -8,7 +8,7 @@ class RuleApplication
 
     def initialize(rule, graph)
         @log = Log.new("RuleApplication")
-        @log.set_level(Log::ALL)
+        @log.set_level(Log::ALL) if $verbose
         @rule = rule
         @graph = graph
     end
