@@ -45,8 +45,8 @@ class LabelEvaluator < Visitor
         puts "HRRRRRM"
     end
 
-    def visit_UnaryOperatorExpression(expr)
-        right = to_string(expr.operand)
+    def visit_UnaryOperator(expr)
+        right = evaluate_expression(expr.operand)
         case expr.operator
         when :MINUS
             return -right
@@ -58,9 +58,9 @@ class LabelEvaluator < Visitor
         raise "Unrecognised unary operator"
     end
 
-    def visit_BinaryOperatorExpression(expr)
-        left = to_string(expr.left)
-        right = to_string(expr.right)
+    def visit_BinaryOperator(expr)
+        left = evaluate_expression(expr.left)
+        right = evaluate_expression(expr.right)
         case expr.operator
         when :MINUS
             return left - right
@@ -153,7 +153,7 @@ class ConditionEvaluator < Visitor
     end
 
     def visit_UnaryOperatorExpression(expr)
-        right = to_string(expr.operand)
+        right = evaluate_expression(expr.operand)
         case expr.operator
         when :MINUS
             return -right
@@ -166,12 +166,15 @@ class ConditionEvaluator < Visitor
     end
 
     def visit_BinaryOperatorExpression(expr)
-        left = to_string(expr.left)
-        right = to_string(expr.right)
+        left = evaluate_expression(expr.left)
+        right = evaluate_expression(expr.right)
         case expr.operator
         when :MINUS
             return left - right
         when :PLUS
+            puts "+ operator (either add, concatenate or xor?)"
+            p left
+            p right
             return left + right
         when :ASTERISK
             return left * right
