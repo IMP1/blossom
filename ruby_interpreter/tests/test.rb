@@ -87,6 +87,7 @@ class Test
             end
             failures.each { |msg| puts "  * " + msg }
             puts "\nTest " + (success ? "succeeded" : "failed") + "."
+            $last_test_result = result
         end
     end
 

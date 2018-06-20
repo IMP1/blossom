@@ -1,0 +1,94 @@
+#!/usr/bin/env ruby
+
+require_relative 'console_colours'
+
+def run_test(test_name, filepath, results)
+    puts ConsoleStyle::BOLD_ON + "Running test #{ConsoleStyle::FG_CYAN}#{test_name}" + ConsoleStyle::RESET
+
+    begin
+        load(filepath)
+    rescue Exception => e
+    end
+    p $last_test_result
+    success = $last_test_result.success
+    result = {
+        success: success,
+        test: test_name,
+        result: $last_test_result,
+    }
+    results.push(result)
+
+    puts
+    puts ConsoleStyle::BOLD_ON + "Completed test #{ConsoleStyle::FG_CYAN}#{test_name}#{ConsoleStyle::RESET} \nResult: " + result_colour(result) + (success ? "success" : "failure") + ConsoleStyle::RESET
+    puts
+end
+
+def result_colour(result)
+    if result[:success]
+        return ConsoleStyle::FG_GREEN
+    else
+        return ConsoleStyle::FG_RED
+    end
+end
+
+def print_results(results)
+    $stdout = STDOUT
+    puts
+    s = results.select{ |r| r[:success] }
+    f = results.select{ |r| !r[:success] }
+
+    l_title = "#{s.size} succeeded"
+    longest_named_test = s.max_by { |t| t[:test].length }
+    max_test_name_length = longest_named_test.nil? ? 0 : longest_named_test[:test].length
+    max_column_size = [max_test_name_length, l_title.length].max + 4
+
+    print "    "
+    print l_title.ljust(max_column_size)
+    print "              "
+    print "#{f.size} failed"
+    print "\n"
+
+    [s.size, f.size].max.times do |i|
+        print "    "
+        print (i < s.size ? "  * " + result_colour(s[i]) + s[i][:test] + ConsoleStyle::RESET : " ").ljust(max_column_size + (i < s.size ? 9 : 0))
+        print "              "
+        print i < f.size ?  "  * " + result_colour(f[i]) + f[i][:test] : ""
+        print ConsoleStyle::RESET
+        print "\n"
+    end
+    puts
+end
+
+
+silent   = ARGV.delete("--silent") || ARGV.delete("-s")
+all_tests = ARGV.delete("--all") || ARGV.delete("-a")
+$debugging = !!(ARGV.delete("--debug") || ARGV.delete("-d"))
+output = STDOUT
+
+if ARGV.include?("--output")
+    filename = ARGV.delete_at(ARGV.index("--output") + 1)
+    output = File.open(filename, 'w')
+    ARGV.delete("--output")
+end
+if ARGV.include?("-o")
+    filename = ARGV.delete_at(ARGV.index("-o") + 1)
+    output = File.open(filename, 'w')
+    ARGV.delete("-o")
+end
+
+$stdout = output
+
+if silent
+    $stdout = File.open(File::NULL, 'w')
+end
+
+
+results = []
+
+Dir['./ruby_interpreter/tests/*/**/*.rb'].each do |filepath| 
+    local_name = filepath.split('/')[3..-1].join('/')
+    
+    run_test(local_name, filepath, results)
+end
+
+print_results(results)
