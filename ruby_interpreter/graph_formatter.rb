@@ -20,6 +20,7 @@ class GraphFormatter
     end
 
     def self.dot_graph(graph)
+        # https://en.wikipedia.org/wiki/DOT_(graph_description_language)
         puts "Outputting Dot Graph:"
         p graph
         return ""
