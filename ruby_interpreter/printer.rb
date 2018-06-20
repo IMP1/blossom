@@ -103,15 +103,19 @@ class Printer < Visitor
     end
 
     def visit_NodeExpression(expr)
-        return expr.id + " " + to_string(expr.label)
+        return expr.id.to_s + " " + to_string(expr.label)
     end
 
     def visit_EdgeExpression(expr)
-        return expr.source_id + "->" + expr.target_id + " " +to_string(expr.label)
+        return expr.source_id.to_s + "->" + expr.target_id.to_s + " " +to_string(expr.label)
     end
 
     def visit_LabelExpression(expr)
         return to_string(expr.value) + " [" + expr.markset.map { |m| m.to_s }.join(", ") + "]"
+    end
+
+    def visit_EmptyLabelExpression(expr)
+        return "empty"
     end
 
     def visit_VoidLabelValueExpression(expr)
