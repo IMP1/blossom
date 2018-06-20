@@ -1,5 +1,7 @@
 # rule_matching
 
+TEMP_FILENAME = "temp.blsm"
+
 prog_text = <<~HEREDOC
     rule foo    
         <int x, y>
@@ -9,13 +11,18 @@ prog_text = <<~HEREDOC
     foo
 HEREDOC
 
-# TODO: save prog text into temp file
+File.open(TEMP_FILENAME, 'w') { |f| 
+    f.write(prog_text)
+}
 
 graph_text = "[1 (2), 2 (1), 3(3) | 1->2, 2->3, 1->3 ]"
 
 
-# TOD: Run blossom with temp file and graph text.
+# Reset ARGV for blossom:
+ARGV.reject! {true}
+ARGV.push(TEMP_FILENAME)
+ARGV.push(graph_text)
 
-./ruby_interpreter/blossom tmp.blsm ""
+load('./ruby_interpreter/blossom')
 
-# TODO: delete temp file
+File.delete(TEMP_FILENAME)
