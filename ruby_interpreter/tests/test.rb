@@ -147,8 +147,9 @@ class Test
 
 end
 
-def assert(expression, message="")
+def assert(expression, message=nil)
     if !expression
+        message ||= "Test Assertion Failed."
         raise Test::AssertionError.new(message)
     end
 end

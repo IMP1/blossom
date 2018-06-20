@@ -34,7 +34,7 @@ result_graph = Graph.new(
 addendum = ProcedureCall.new(
     Procedure.print,
     [FunctionCall.new(
-        Function.in,
+        Function.node,
         [Literal.new(1)]
     )]
 )
