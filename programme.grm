@@ -1,3 +1,52 @@
+# Used symbols
+#
+#   +   addition, concatenation
+#   -   subtraction, unary-minus
+#   *   multiplication
+#   /   division
+#   %   modulo
+#   ^   exponential
+#   !   not, rule-loop
+#   ¬   not, mark-absent
+#   [   graph-start
+#   ]   graph-end
+#   |   or, graph-separator
+#   &   and
+#   :   if/when-separator
+#   ;   rule/proc-end
+#   "   string-start, string-end
+#   #   mark-start
+#   {   choice-start
+#   }   choice-end
+#   (   group-start
+#   )   group-end
+#   ->  edge-arrow
+#   <-> edge-arrow
+#   =>  rule-application
+#   <   less-than, variable-start
+#   <=  less-than-equal
+#   >   greater-than, variable-end
+#   >=  greater-than-equal
+#   ^=  starts-with
+#   $=  ends-with
+#   ~=  contains
+# 
+# Unused symbols
+#
+#   ~
+#   $
+#   @
+#   ?
+#   `
+#   '
+#   ::
+#   |=
+#   ?=
+#   <<
+#   >>
+#   :=
+
+
 programme       -> declaration* EOF
 
 declaration     -> rule_def
@@ -67,7 +116,6 @@ expression      -> func_call                                                    
                 |  expression "and" expression
                 |  expression "|"   expression
                 |  expression "or"  expression
-                |  expression "^"   expression
                 |  expression "xor" expression
                 |  expression "^="  expression
                 |  expression "$="  expression
