@@ -20,7 +20,7 @@ class GraphFormatter
     end
 
     def self.dot_graph(graph)
-        puts "Outputting Blossom Graph:"
+        puts "Outputting Dot Graph:"
         p graph
         return ""
         # TODO: do
