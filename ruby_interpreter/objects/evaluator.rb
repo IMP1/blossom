@@ -65,6 +65,9 @@ class LabelEvaluator < Visitor
         when :MINUS
             return left - right
         when :PLUS
+            puts "+ operator (either add, concatenate or xor?) in label"
+            p left
+            p right
             return left + right
         when :ASTERISK
             return left * right
@@ -172,7 +175,7 @@ class ConditionEvaluator < Visitor
         when :MINUS
             return left - right
         when :PLUS
-            puts "+ operator (either add, concatenate or xor?)"
+            puts "+ operator (either add, concatenate or xor?) in condition"
             p left
             p right
             return left + right
