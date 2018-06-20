@@ -20,16 +20,19 @@ class Runner
     end
 
     def self.syntax_error(error)
+        setup if !self.class.class_variable_defined? :@@log
         @@compile_errors.push(error)
         report(error)
     end
 
     def self.compile_error(error)
+        setup if !self.class.class_variable_defined? :@@log
         @@compile_errors.push(error)
         report(error)
     end
 
     def self.runtime_error(error)
+        setup if !self.class.class_variable_defined? :@@log
         @@runtime_errors.push(error)
         report(error, true)
         exit(70)
@@ -69,11 +72,15 @@ class Runner
         puts caller
     end
 
-    def self.run(prog_source, graph_source, prog_filename, graph_filename, log=nil)
+    def self.setup(log=nil)
         @@log = log || Log.new("Blossom")
         @@log.set_level(Log::ALL) if $verbose
         @@compile_errors = []
         @@runtime_errors = []
+    end
+
+    def self.run(prog_source, graph_source, prog_filename, graph_filename, log=nil)
+        setup(log)
 
         tokeniser = Tokeniser.new(graph_source, graph_filename)
         graph_tokens = tokeniser.tokenise
