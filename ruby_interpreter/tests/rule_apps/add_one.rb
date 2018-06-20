@@ -31,7 +31,7 @@ result_graph = Graph.new(
     [], 
     {}
 )
-rule = Rule.new("r1", {"x" => :string}, match_graph, result_graph, nil, nil)
+rule = Rule.new("r1", {"x" => :int}, match_graph, result_graph, nil, nil)
 #----------------#
 # Pre-Conditions #
 #----------------#
