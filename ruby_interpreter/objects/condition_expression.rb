@@ -37,8 +37,10 @@ class Literal < LabelValueExpression
             return :rational
         when TrueClass, FalseClass
             return :bool
-        # TODO: add others
         end
+        puts "Unexpected value type:"
+        p self.value.class
+        raise "Unexpected value type"
     end
 
     def to_s

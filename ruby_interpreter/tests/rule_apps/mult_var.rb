@@ -33,8 +33,18 @@ result_graph = Graph.new(
     [], 
     {}
 )
+condition = BinaryOperator.new(
+    :NOT_EQUAL,
+    FunctionCall.new(
+        Function.node,
+        [Literal.new(1)]
+    ),
+    FunctionCall.new(
+        Function.node,
+        [Literal.new(2)]
+    )
+)
 rule = Rule.new("r1", {"x" => :int}, match_graph, result_graph, nil, nil)
-# TODO: add to the condition of the rule, that the nodes 1 and 2 aren't the same.
 
 #-----#
 # Act #
