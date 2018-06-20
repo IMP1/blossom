@@ -8,7 +8,10 @@ require_relative '../../printer'
 # Arrange #
 #---------#
 prog_text = <<~HEREDOC
-rule r1 [] => [];
+rule r1 [1] => [1];
+proc p1 
+    try(r1) r1! if(r1 : r1 r1 : r1)
+end
 HEREDOC
 
 tokeniser = Tokeniser.new(prog_text, "rule_parsing:prog_text")
@@ -28,5 +31,10 @@ test_run = Test.run {
 test_run.ensure do |result|
 
     assert(result.value)
+
+    puts result.error
+    puts result.error&.backtrace
+
+    puts result.value
 
 end
