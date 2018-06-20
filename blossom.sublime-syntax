@@ -22,10 +22,10 @@ contexts:
     # keyword.operator.logical
 
   conditional_operators:
-    - match: '(?:\=|!\=)'
+    - match: '(?:\=|!\=|\&|\||\>|\>\=|\<\=|<)'
       scope: keyword.operator.logical
   arithmetic_operators:
-    - match: '[\+\-\*\/\%]'
+    - match: '[\+\-\*\/\%\^]'
       scope: keyword.operator.arithmetic
 
   #-------#
@@ -200,4 +200,3 @@ contexts:
     - include: procedures
     - include: instructions
     - include: builtin_instructions
-    
