@@ -127,7 +127,7 @@ class Printer < Visitor
     end
 
     def visit_LiteralExpression(expr)
-        return expr.value
+        return expr.value.to_s
     end
 
     def visit_VariableExpression(expr)
