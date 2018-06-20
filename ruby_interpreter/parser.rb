@@ -282,19 +282,19 @@ class Parser
         if match_token(:TRY)
             keyword_token = previous
             consume_token(:LEFT_PAREN, "Expecting '(' before a try statement.")
-            attempt = sequence
+            attempt = SequenceStatement.new(previous, sequence)
             consume_token(:RIGHT_PAREN, "Expecting ')' after a try statment.")
             return TryStatement.new(keyword_token, attempt)
         end
         if match_token(:IF)
             keyword_token = previous
             consume_token(:LEFT_PAREN, "Expecting '(' before an if statement.")
-            condition = rule_application
+            condition = SequenceStatement.new(previous, sequence)
             consume_token(:COLON, "Expecting ':' after an if statement's condition.")
-            then_stmt = rule_application
+            then_stmt = SequenceStatement.new(previous, sequence)
             else_stmt = nil
             if match_token(:COLON)
-                else_stmt = rule_application
+                else_stmt = SequenceStatement.new(previous, sequence)
             end
             consume_token(:RIGHT_PAREN, "Expecting ')' after an if statment.")
             return IfStatement.new(keyword_token, condition, then_stmt, else_stmt)
@@ -302,12 +302,12 @@ class Parser
         if match_token(:WITH)
             keyword_token = previous
             consume_token( :LEFT_PAREN, "Expecting '(' before a with statement.", ")")
-            condition = rule_application
+            condition = SequenceStatement.new(previous, sequence)
             consume_token(:COLON, "Expecting ':' after a with statement's condition.")
-            then_stmt = rule_application
+            then_stmt = SequenceStatement.new(previous, sequence)
             else_stmt = nil
             if match_token(:COLON)
-                else_stmt = rule_application
+                else_stmt = SequenceStatement.new(previous, sequence)
             end
             consume_token(:RIGHT_PAREN, "Expecting ')' after a with statment.")
             return WithStatement.new(keyword_token, condition, then_stmt, else_stmt)
@@ -320,9 +320,13 @@ class Parser
         end
         if match_token(:LEFT_BRACE)
             paren_token = previous
-            applications = sequence
+            options = []
+            while !eof? && !check(:RIGHT_BRACE)
+                options.push(SequenceStatement.new(previous, sequence))
+                break if !match_token(:COMMA)
+            end
             consume_token(:RIGHT_BRACE, "Expecting '}' after a rule application set")
-            return ChoiceStatement.new(paren_token, applications)
+            return ChoiceStatement.new(paren_token, options)
         end
         if match_token(:NOOP)
             return NoopStatement.new(previous)
@@ -346,7 +350,11 @@ class Parser
 
     def sequence
         applications = []
-        while !eof? && !check(:RIGHT_PAREN)
+        while !eof? && !check(:RIGHT_PAREN) && 
+                       !check(:COMMA) && 
+                       !check(:COLON) && 
+                       !check(:RIGHT_BRACE) && 
+                       !check(:RIGHT_SQUARE)
             applications.push(rule_application)
         end
         return applications
