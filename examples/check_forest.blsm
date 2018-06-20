@@ -1,0 +1,15 @@
+rule remove_leaf
+    [ 1, 2 | 1->2 ]
+ => [ 1 ];
+
+rule loop?
+    [ 1 | 1->1 ]
+ => [ 1 | 1->1 ];
+
+rule edge?
+    [ 1, 2 | 1->2 ]
+ => [ 1, 2 | 1->2 ]
+
+proc not_null? {loop?, edge?}
+
+remove_leaf! if(not_null? : invalid)
