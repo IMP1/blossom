@@ -148,15 +148,6 @@ class Parser
             return VoidLabelValueExpression.new(token)
         else
             return expression
-        # elsif match_token(:IDENTIFIER)
-        #     token = previous
-        #     var_name = previous.lexeme
-        #     if parameters.has_key?(var_name)
-        #         type = parameters[var_name][:type_name]
-        #         return VariableExpression.new(token, var_name, type)
-        #     else
-        #         fault(token, "Unrecognised value for a label.")
-        #     end
         end
     end
 
