@@ -24,6 +24,7 @@ class Tokeniser
 
         'and'       => :AND,
         'or'        => :OR,
+        'xor'       => :XOR,
         'not'       => :NOT,
     }
 
