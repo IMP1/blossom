@@ -8,7 +8,7 @@ rule loop?
 
 rule edge?
     [ 1, 2 | 1->2 ]
- => [ 1, 2 | 1->2 ]
+ => [ 1, 2 | 1->2 ];
 
 proc not_null? {loop?, edge?};
 

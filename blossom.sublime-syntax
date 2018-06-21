@@ -1,202 +1,219 @@
 %YAML 1.2
 ---
-# See http://www.sublimetext.com/docs/3/syntax.html
-# See http://www.sublimetext.com/docs/3/scope_naming.html
 file_extensions:
   - blsm
 scope: source.blossom
 variables:
-  type:       '(?:int|string|colour|any)'
+  type:       '(?:int|string|bool|real|rational|any)'
   hexchar:    '[0-9A-F]'
   identifier: '[A-Za-z_][A-Za-z_0-9]*[\?]?'
   arrow:      '?:(->|<->)'
 contexts:
 
-  #----------------------#
-  # Arithmetic Operators #
-  #----------------------#
-    # keyword.operator
-    # keyword.operator.assignment
-    # keyword.operator.arithmetic
-    # keyword.operator.bitwise
-    # keyword.operator.logical
+  graph:
+    - meta_scope: meta.type.blossom
 
-  conditional_operators:
-    - match: '(?:\=|!\=|\&|\||\>|\>\=|\<\=|<)'
-      scope: keyword.operator.logical
-  arithmetic_operators:
-    - match: '[\+\-\*\/\%\^]'
-      scope: keyword.operator.arithmetic
+    - include: _edges
+    - include: _nodes
 
-  #-------#
-  # Rules #
-  #-------#
-  builtin_conditions:
-    - match: '\b(?:in|out|edge|adjacent|adj|incident)\b'
-      scope: support.function.blossom
-
-  builtin_instructions:
-    - match: '\b(?:print)\b'
-      scope: support.function.blossom    
-
-  condition:
-    - match: '\bwhere\b'
-      scope: keyword.control.blossom
-    - match: '\b(?:and|or|not)\b'
-      scope: keyword.operator.word.blossom
-    - include: conditional_operators
-    - include: arithmetic_operators
-
-  addendum:
-    - match: '\balso\b'
-      scope: keyword.control.blossom
-    - include: builtin_instructions
-
-  rule_signiture:
-    - match: '\b{{type}}\b'
-      scope: storage.type.blossom
-    - match: '\b{{identifier}}\b'
-      scope: variable.parameter.blossom
-    - match: '>'
+    - match: '\|'
+      scope: punctuation.separator.blossom
+    - match: '\]'
+      scope: punctuation.section.block.end.blossom
       pop: true
 
   rule:
     - meta_scope: meta.function.blossom
-    - meta_scope: debug.meta.rule
+
     - match: '<'
-      push: rule_signiture
-    - include: graphs
+      push: rule_variables
+
+    - match: '\['
+      scope: punctuation.section.block.begin.blossom
+      push: graph
+
     - match: '=>'
       scope: punctuation.accessor.blossom
-    - include: condition
-    - include: addendum
-    - include: builtin_conditions
+
+    - match: 'where'
+      scope: keyword.control.blossom
+      push: condition
+
+    - match: 'also'
+      scope: keyword.control.blossom
+      push: addendum
+
     - match: ';'
       scope: punctuation.terminator.blossom
       pop: true
+    - match: '\bend\b'
+      scope: keyword.control.blossom
+      pop: true
 
-  rules:
+
+  procedure:
+    - meta_scope: meta.function.blossom
+
+    - include: _instructions
+
+    - match: '\b(?:if|with|try)\b'
+      scope: keyword.control.conditional.blossom
+
+    - match: ';'
+      scope: punctuation.terminator.blossom
+      pop: true
+    - match: '\bend\b'
+      scope: keyword.control.blossom
+      pop: true
+      
+  label:
+    - meta_scope: meta.group.blossom
+
+    # Keywords
+    - match: 'empty'
+      scope: constant.other.blossom
+    - match: 'void'
+      scope: constant.other.blossom
+    - match: 'unmarked'
+      scope: constant.other.blossom
+    - match: '\*'
+      scope: constant.other.blossom
+
+    # Values
+    - match: '\d+'
+      scope: constant.numeric.blossom
+    - match: '"'
+      scope: punctuation.definition.string.begin.raven
+      push: string
+    - match: '\b{{identifier}}\b'
+      scope: variable.other.blossom
+      
+    # Marks
+    - match: '#\w+'
+      scope: constant.other.blossom
+    - match: '¬\w+'
+      scope: constant.other.blossom
+
+    - match: '\)'
+      scope: punctuation.section.group.end.blossom
+      pop: true
+
+
+  condition:
+    - include: _expressions
+
+    - match: '(?=;)'
+      scope: punctuation.terminator.blossom
+      pop: true
+    - match: '(?=(?:end))'
+      scope: keyword.control.blossom
+      pop: true
+
+  addendum:
+    - include: _statements
+    - match: '(?=;)'
+      scope: punctuation.terminator.blossom
+      pop: true
+    - match: '(?=(?:end))'
+      scope: keyword.control.blossom
+      pop: true
+
+
+  rule_variables:
+    - meta_scope: meta.function.parameters
+
+    - match: '{{type}}'
+      scope: storage.type.blossom
+    - match: '\b{{identifier}}\b'
+      scope: variable.parameter.blossom
+
+    - match: '>'
+      pop: true
+
+
+  string:
+    - meta_scope: string.quoted.double.raven
+    - match: '\\.'
+      scope: constant.character.escape.raven
+    - match: '(?!<\\)"'
+      scope: punctuation.definition.string.end.raven
+      pop: true
+      
+  line_comment:
+    - meta_scope: comment.line.blossom
+    - match: $
+      pop: true
+      
+
+  _nodes:
+    - match: '\d+'
+      scope: entity.name.label.blossom
+    - include: _labels
+
+  _edges:
+    - match: '(\d+)\s*({{arrow}})\s*(\d+)'
+      captures: 
+        1: entity.name.label.blossom
+        2: entity.name.label.blossom, punctuation.accessor.blossom
+        3: entity.name.label.blossom
+    - include: _labels
+
+  _labels:
+    - match: '\('
+      scope: punctuation.section.group.begin.blossom
+      push: label
+
+  _expressions:
+    - match: '(?:\=|!\=|\&|\||<|<=|>|>=)'
+      scope: keyword.operator.logical
+    - match: '[\+\-\*\/\%\^]'
+      scope: keyword.operator.arithmetic
+    - match: '\b(?:in|out|edge|adjacent|adj|incident)\b'
+      scope: support.function.blossom
+
+  _statements:
+    - include: _expressions
+    - match: '\b(?:print)\b'
+      scope: support.function.blossom
+
+  _instructions:
+    - meta_scope: meta.program.blossom
+
+    - match: '\b(?:if|with|try)\b'
+      scope: keyword.control.conditional.blossom
+    - match: '(?:!|:)'
+      scope: keyword.control.conditional.blossom
+
+    - match: '\b(?:invalid|noop)\b'
+      scope: support.function.blossom
+
+  _rules:
     - match: '\b(rule)\s*({{identifier}})'
       captures:
         1: keyword.control.blossom
         2: entity.name.function.blossom
       push: rule
 
-  #--------#
-  # Graphs #
-  #--------#
-  label:
-    - meta_scope: meta.group.blossom
-    - meta_scope: debug.meta.label
-    - match: '(empty)(\))'
-      captures:
-        1: constant.other.blossom
-        2: punctuation.section.group.end.blossom
-      pop: true
-    - match: '\)'
-      scope: punctuation.section.group.end.blossom
-      pop: true
-    - match: '\d+'
-      scope: constant.numeric.blossom
-    - match: '".*?(?<!\\)"'
-      scope: string.quoted.double.blossom
-    - match: '#\w+'
-      scope: constant.other.blossom
-    - match: '\*'
-      scope: constant.other.blossom
-    - match: '\b{{identifier}}\b'
-      scope: variable.other.blossom
-    - include: arithmetic_operators
-
-  edge_list:
-    - match: '(\d+)\s*({{arrow}})\s*(\d+)'
-      captures: 
-        1: entity.name.label.blossom
-        2: entity.name.label.blossom, punctuation.accessor.blossom
-        3: entity.name.label.blossom
-    - match: '\('
-      scope: punctuation.section.group.begin.blossom
-      push: label
-
-  node_list:
-    - match: '\d+'
-      scope: entity.name.label.blossom
-    - match: '\('
-      scope: punctuation.section.group.begin.blossom
-      push: label
-
-  graph:
-    - meta_scope: meta.type.blossom
-    - meta_scope: debug.meta.graph
-    - match: '\['
-      scope: punctuation.section.block.begin.blossom
-    - match: '\|'
-      scope: punctuation.separator.blossom
-    - include: edge_list
-    - include: node_list
-    - match: '\]'
-      scope: punctuation.section.block.end.blossom
-      pop: true
-
-  graphs:
+  _graphs:
     - match: '(?=\[)'
       push: graph
-
-  #------------#
-  # Procedures #
-  #------------#
-  procedure:
-    - meta_scope: meta.function.blossom
-    - meta_scope: debug.meta.procedure
-    - match: '\bend\b'
-      scope: keyword.control.blossom
-      pop: true
-    - match: '\b(?:if|with|try)\b'
-      scope: keyword.control.conditional.blossom
-
-  procedures:
+ 
+  _procedures:
     - match: '(proc)\s*({{identifier}})'
       captures:
         1: keyword.control.blossom
         2: entity.name.function.blossom
       push: procedure
 
-  #--------------#
-  # Instructions #
-  #--------------#
-  instructions:
-    - meta_scope: meta.program.blossom
-    - match: '\b(?:if|with|try)\b'
-      scope: keyword.control.conditional.blossom
-    - match: '\b(?:invalid|noop)\b'
-      scope: support.function.blossom
-    - match: '\d+'
-      scope: constant.numeric.blossom
-    - match: '".*?(?<!\\)"'
-      scope: string.quoted.double.blossom
-    - match: '#\w+'
-      scope: constant.other.blossom
-    - match: 'INVALID'
-      scope: constant.other.blossom
-
-
-  #----------#
-  # Comments #
-  #----------#
-  line_comment:
-    - meta_scope: comment.line.blossom
-    - match: $
-      pop: true
-
-  comments: 
+  _comments: 
     - match: '//'
       scope: punctuation.definition.comment.blossom
       push: line_comment
 
   main:
-    - include: comments
-    - include: graphs
-    - include: rules
-    - include: procedures
-    - include: instructions
-    - include: builtin_instructions
+    - include: _comments
+    - include: _graphs
+    - include: _rules
+    - include: _procedures
+    - include: _instructions
+    
