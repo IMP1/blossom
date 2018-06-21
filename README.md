@@ -1,198 +1,87 @@
 # Blossom
 
-Blossom is a Programming Languages for graphs.
-Heavily influenced by [GP2](https://www.cs.york.ac.uk/plasma/wiki/index.php?title=GP_(Graph_Programs)) ([Github](https://github.com/UoYCS-plasma/GP2)), 
-being developed at the University of York, Blossom shares many of the same features.
-
-## Blossom Syntax
-
-### Graphs
+Blossom is a programming language for programming on, and with, directed graphs (here on out referred to just as 'graphs').
+It was heavily influenced by [GP2](https://www.cs.york.ac.uk/plasma/wiki/index.php?title=GP_(Graph_Programs)) ([Github](https://github.com/UoYCS-plasma/GP2)), which is being developed at the University of York.
+Blossom shares many of the same core ideas.
 
 Blossom does not have classes, or arrays, or structs. Instead it has *graphs*. Graphs are made up of *nodes* and *edges*.
-Both nodes and edges can have labels, which are an optional *value*, and a set of *marks*.
-These values can contain be numbers (no signifier), strings (wrapped in quotation marks), or booleans (true/false).
-A mark is a flag, prefixed with a '#', and these can be turned on or off for a node or edge.
-A label may also contain the keyword 'unmarked', meaning the set of marks must be the empty set.
-If a node or edge's label is empty, then it has no value, and its list of marks is null.
+Both nodes and edges can have labels, which are an optional *value* (integer, booleans, or string for example) associated with that node/edge.
 
-```blossom
-// Graph Example:
-graph g [
-    // node-id [([node_value] [, node_mark [, ...]])]
-    1 ('top side', 
-    2 ('left island'),
-    3 ('right island', #red),
-    4 ('bottom side', #green),
-|
-    // source-id [<]-> target-id [(edge-label [, ...])]
-    1 <-> 2 (4),
-    1 <-> 2 (2),
-    2 <-> 3 (6),
-    2 <-> 3 (3),
-    1 <-> 4 (1),
-    2 <-> 4 (2),
-    3 <-> 4 (1), // the last comma is optional, but is totally allowed.
-]
-```
+Blossom also doesn't have functions or subroutines. Instead it has *rules*, and *rule applications*.
+A rule defines a matching graph, and a resultant graph. The application of a rule is dependent on the matching graph being 'found' in a given graph.
+The rule application then applies the changes between its matching graph and its resultant graph to the given graph.
 
-The '|' can be omitted if the graph contains no edges. Whitespace is not important.
+## Installation & Running
 
-### Rules
+### Installation
 
-Graphs are manipulated by *rules*, which are the most basic operators of Blossom. A rule has an *initial subgraph*, and a *resultant subgrah*. 
-These are both graphs. Applying a rule to a graph will search within that graph for a match of the rule's initial subgraph, 
-and will attempt to transform it into the resultant subgraph. If no match is found, or the resultant subgraph is invalid, then the rule application has failed.
+An interpreter for blossom is current still in development. 
+When it's in a more stable state it should be released more formally, with install instructions and the such.
+At the moment, however, in order to test the interpreter, you can clone this project, and run `./ruby_interpreter/blossom`, 
+passing it a blossom programme file, and a host graph on which to run the programme.
 
-Nodes in subgraphs of rules as well as having constant values in their label lists, can also variables. 
-These have a type (`int`, `real`, `string`, `bool`, `any`), which are specified in the rule's signiture. 
-
-#### Label Operations
-
-Various operations can be applied to labels of nodes and edges. These depend on the label's type.
-Integer operations include, in order or precedence:
-
- 1. `^` exponent
- 2. `/` division
- 3. `*` multiplication
- 4. `+` addition
- 5. `-` subtraction
- 6. `%` modulo
-
- 7. `=` equality check
- 8. `!=` inequality check
- 9. `<` less-than check
-10. `>=` greater-than-or-equal-to check
-
-Boolean operations include, in order of precedence:
-
- 1. `¬`/`not` not
- 2. `&`/`and` and
- 3. `|`/`or`  or
- 4. `^`/`xor` xor
- 5. `=` equality check
- 6. `!=` inequality check
-
-String functions include:
-
- 1. `+` concatenate
- 2. `*` repeat
- 3. `=` equality check
- 4. `!=` inequality check
- 5. `^=` begins with
- 6. `$=` ends with
- 7. `~=` contains
-
-<!-- 
-    sub(string text, int from [, int to]) -> string substring
-    replace(string text, string match, string replacement) -> string string_with_replacements
-    find(string text, string match) -> int position_of_match
-    find_last(string text, string match) -> int position_of_match
-
--->
-
-Rules can also be suffixed with a condition, using the `where` modifier. These conditions can use the inbuilt functions 
-
-  * `in(node_id) -> int`: returns the number of edges with the node specified by `node_id` as their target.
-  * `out(node_id) -> int`: returns the number of edges with the node specified by `node_id` as their source.
-  * `edge(source_id, target_id) -> int`: returns the number of edges from the node specified by `source_id` to the node specified be `target_id`.
-  * `adj(node_1_id, node_2_id) -> int`: returns the number of edges in either direction between the two nodes.
-
-Conditions can also query values of nodes, or the existence (or non-existence) of marks.
-Equality is done with a single equals (since there is no assignment operator to get confused with).
-These can be combined with the logical operators `and`, `or`, `xor`, and `not`, which use [Polish Notation](https://en.wikipedia.org/wiki/Polish_notation).
-
-If no label is specified in the initial graph of a rule, then it will match any label. To specify a node or edge with no value, use the `void` keyword, 
-and as mentioned above the `unmarked` keyword will match nodes and edges with no marks. You can search for a node or edge where its label does not contain a mark, with the `¬markname` syntax.
-If no label is specified for a node in the result graph of a rule, then it will retain its label from the initial graph. 
-If the node did not exist in the initial graph, then it will have an empty label.
-
-Despite the two previous points, it is advised to be explicit when using labels. 
-
-Note that edges are always destroyed and recreated, and so omitting a label in the result graph will not retain the label from the initial graph, as it will always be a new edge.
-
-As well as rule conditions, rules can also have an *addendum*. This is generally used for debugging or for file I/O. It uses the `also` keyword and executes the following statement when the rule application takes place. Any variable use values from before the rule application. See the [Turing Complete example](https://github.com/IMP1/blossom/tree/master/examples/turing_complete.blsm) for an example for this.
-
-```blossom
-// Rule Example:
-
-rule setup_tags <int: x, k> [ 1 (x), 2 (empty) | 1 -> 2 (k) ] => [  1 (x), 2 (x + k) | 1 -> 2 (k) ];
-
-rule reduce 
-    <int: x, y, k> 
-    [ 
-        1 (x), 
-        2 (y) 
-    | 
-        1 -> 2 (k) 
-    ]
-    =>
-    [ 
-        1 (x), 
-        2 (x + k) 
-    | 
-        1 -> 2 (k) 
-    ] 
-    where (x + k < y);
-```
-
-### Programmes
-
-A *procedure* is made up of rules. It can be a single rule, or sequential rule after rule, or a choice of rules. 
-It can be an if-statement, or a with-statement, or a try-statement. A programme is made up of one or more procedures, which are executed in sequence.
-
-Blossom is non-deterministic, which affects its feature-set.
-
-Choosing arbitrarily between procedure is simple: `{r1, r2}`. Either r1 or r2 is chosen non-deterministically (in theory). 
-
-Looping a procedure is based on a as-many-times-as-possible loop: `r1!`. This will apply r1 for as many times as it can be applied.
-
-To optionally apply a rule, there is the 'try' statement. `try(r1)` will attempt to apply r1, but if r1 fails the try will revert back to the graph before, 
-and return that, counting as a successful application of the try statement.
-
-If statements apply a procedure if the "condition" procedure terminates with a valid graph, and can have an optional else procedure: `if (r1, r2)` `if (r1, r2, r3)`
-If the else procedure is omittied, it can be thought of that an implicit NOOP takes its place.
-An if statement can return an invalid graph if the condition holds and the 'then' procedure fails, or if the condition fails, and the 'else' procedure fails.
-
-'With' statements are very similar to if statements. The difference is the result of the condition. 
-With an if statement, the changes to the graph made by the "condition" procedure are not kept before going on to either the 'then' or 'else' procedure, 
-whereas with a 'with' statement the 'then' procedure uses the result of the condition procedure: `with (r1, r2)` `with (r1, r2, r3)`
-
-Some special case procedures include `noop`, which performs no action, and `invalid`
-
-```blossom
-// Programme Example:
-
-rule setup_tags
-    <int: x, k>
-    [ 1 (x), 2 (empty) | 1 -> 2 (k) ] => [ 1 (x), 2 (x + k) | 1 -> 2 (k) ];
-rule reduce
-    <int: x, y, k>
-    [ 1 (x), 2 (y) | 1 -> 2 (k) ] => [ 1 (x), 2 (x + k) | 1 -> 2 (k) ]
-    where (x + k < y);
-
-setup_tags! reduce!
-```
-
-There are example programmes in the [Examples folder](https://github.com/IMP1/blossom/tree/master/examples) of the github project that show the syntax features.
-
-## Running Blossom
+### Running
 
 Programmes can be thought of as functions, that take a single input of a graph. As such, both the programme and a *host graph* need to be given to actually execute a programme.
 
-**Input**:
-By default blossom checks for any command line arguments that are a graph, and then checks whether any graph arguments have been piped to it. If you pass the -i flag, you can specify a file to be read containing a graph.
-
-`blossom connected_points -i "initial_graph"`
-
-`blossom connected_points "[ 1, 2, 3 | 1->2, 2->3, 3->1 ]"`
-
-`"[ 1, 2, 3 | 1->2, 2->3, 3->1 ]" | blossom connected_points`
-
 **Output**:
-By default, blossom outputs its output to the standard output. You can instead specify a file as the destination with the -o flag.
 
-`blossom connected_points -o "resultant_graph"`
+By default, blossom outputs the final resultant graph to the standard output. You can instead specify a file as the destination with the `-o`/`--output` flag.
 
-By default, blossom outputs a graph as text (or the special-case graph `invalid`). The text outputted is in the format blossom uses to represent graphs. You can pass certain flags to change the output format. For example, to output in the dot/graphviz output, you can pass the -dot flag.
+`blossom connected_points.blsm -o "resultant_graph.bg"`
 
-`blossom connected_points -i "some_filename" -dot`
+Blossom outputs a graph as text (or the special-case graph `invalid`). By default, this text is in the format blossom uses to represent graphs. 
+You can pass certain flags to change the output format. For example, to output in the dot/graphviz output, you can pass the `--dot` flag.
+
+`blossom connected_points.blsm -i "some_filename.dot" --dot`
+
+
+**Input**:
+By default blossom checks the first command line argument for a graph, and then checks whether any graph arguments have been piped to it. If you pass the -i flag, you can specify a file to be read containing a graph.
+
+`blossom connected_points.blsm -i "initial_graph.bg"`
+
+`blossom connected_points.blsm "[ 1, 2, 3 | 1->2, 2->3, 3->1 ]"`
+
+`"[ 1, 2, 3 | 1->2, 2->3, 3->1 ]" | blossom connected_points.blsm`
+
+
+## Examples
+
+This example shows a blossom programme for finding the minimum distances of each other node from a given node in a graph. 
+It expects a graph with an at least one node with a numbered label (usually 0 for the shortest-path problem), 
+and all edges to have numbered labels representing their distance. 
+It returns a graph with nodes' labels being their distance from this original node.
+
+```blossom
+rule init_tags 
+    <int x, k>
+    [ 1 (x), 2 (void) | 1->2 (k) ]
+ => [ 1 (x), 2 (x + k) | 1->2 (k) ];
+
+rule reduce
+    <int x, y, k>
+    [ 1 (x), 2 (y) | 1->2 (k) ]
+ => [ 1 (x), 2 (x + k) | 1->2 (k) ]
+where x + k < y;
+
+init_tags! reduce!
+```
+
+This examples highlights the expressive power of blossom. 
+Two rules are defined: one which makes sure the graph is in a state where the second can be applied, 
+by giving all nodes without a label an initial numeric value; 
+and the second rule reduces these nodes' labels values where possible.
+
+Running both of these rules for as long as they can be applied will find the minimum distance from the original node to each other node.
+
+## Documentation
+
+<!-- 
+    TODO: fix these links, and in the definitions case, add this page!
+-->
+
+For the syntax of blossom, take a look at the [Blossom Syntax](https://github.com/IMP1/blossom/) pages.
+
+For a more formal definition of blossom and its workings, take a look at [Blossom Definition](https://github.com/IMP1/blossom/) pages.
+
