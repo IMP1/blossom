@@ -7,6 +7,6 @@ rule reduce
     <int x, y, k>
     [ 1 (x), 2 (y) | 1->2 (k) ]
  => [ 1 (x), 2 (x + k) | 1->2 (k) ]
-where x + k < j;
+where x + k < y;
 
 init_tags! reduce!
