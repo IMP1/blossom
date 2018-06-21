@@ -15,6 +15,8 @@ end
 
 class Literal < LabelValueExpression
 
+    TYPES = [:int, :string, :real, :rational, :bool]
+
     attr_reader :value
 
     def initialize(value)

@@ -352,7 +352,7 @@ class Parser
     end
 
     def statement
-        return call # TODO: can statements be more complicated?
+        return call
     end
 
     def expression

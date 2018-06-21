@@ -45,18 +45,6 @@ class RuleApplication
     end
 
     def find_mappings
-        # TODO: decide on whether different rule match_graph nodes can be mapped to the same graph node.
-        #       rule r [ 1, 2 ] => [ 1, 2 | 1->2 ];
-        #       applying r on [ 1(3), 2(1) ]
-        #       could yield any of these:
-        #       [ 1(3), 2(1) | 1->2 ]
-        #       [ 1(3), 2(1) | 2->1 ]
-        #       [ 1(3), 2(1) | 1->1 ]    \_ Should these last two be valid? If so, should there be a way
-        #       [ 1(3), 2(1) | 2->2 ]    /  of specifying that they must be different (in the where condition maybe?)
-        #
-        #       What happens as a result of the code as it is?
-
-
         @log.trace("Attempting to apply a rule.")
 
         @log.trace("Current Host Graph:")
@@ -382,10 +370,14 @@ class RuleApplication
         new_markset.push(*added_marks)
         new_markset.uniq!
 
+        @log.trace("Updated markset")
+
         evaluator = LabelEvaluator.new(rule_node_after.label, variables)
         new_label_value = Literal.new(evaluator.evaluate)
 
         new_label = Label.new(new_label_value, new_label_value.type, new_markset)
+
+        @log.trace("Updated label")
 
         return Node.new(graph_node_before.id, new_label)
     end
