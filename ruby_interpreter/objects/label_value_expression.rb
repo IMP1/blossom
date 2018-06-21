@@ -37,8 +37,10 @@ class Literal < LabelValueExpression
             return :rational
         when TrueClass, FalseClass
             return :bool
-        # TODO: add others
         end
+        puts "Unrecognised type:"
+        p self.class
+        raise "Unrecognised type"
     end
 
     def to_s

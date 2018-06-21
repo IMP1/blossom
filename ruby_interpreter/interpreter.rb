@@ -119,6 +119,7 @@ class Interpreter < Visitor
     end
 
     def visit_ChoiceStatement(stmt, current_graph)
+        # TODO: do valid applications take priority?
         @log.trace("Choosing from #{stmt.statements.size}.")
         i = rand(stmt.statements.size)
         @log.trace("Chose #{i}.")
