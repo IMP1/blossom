@@ -37,6 +37,7 @@ You can pass certain flags to change the output format. For example, to output i
 
 
 **Input**:
+
 By default blossom checks the first command line argument for a graph, and then checks whether any graph arguments have been piped to it. If you pass the -i flag, you can specify a file to be read containing a graph.
 
 `blossom connected_points.blsm -i "initial_graph.bg"`
@@ -74,6 +75,10 @@ by giving all nodes without a label an initial numeric value;
 and the second rule reduces these nodes' labels values where possible.
 
 Running both of these rules for as long as they can be applied will find the minimum distance from the original node to each other node.
+
+<!-- 
+    TODO: add a graphical representation of the rules (and the programme in general) to show off.
+-->
 
 ## Documentation
 
