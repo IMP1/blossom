@@ -8,7 +8,7 @@ require_relative '../../printer'
 # Arrange #
 #---------#
 prog_text = <<~HEREDOC
-rule r1 [] => [];
+rule r1 <int x> [1(x)] => [1(x+1)];
 HEREDOC
 
 tokeniser = Tokeniser.new(prog_text, "rule_parsing:prog_text")

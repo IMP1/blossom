@@ -15,13 +15,11 @@ class GraphExpression < Expression
 
     attr_reader :nodes
     attr_reader :edges
-    attr_reader :parameters
 
-    def initialize(token, nodes, edges, parameters)
+    def initialize(token, nodes, edges)
         super(token)
         @nodes = nodes
         @edges = edges
-        @parameters = parameters
     end
 
 end
@@ -109,7 +107,7 @@ class VariableExpression < Expression
     attr_reader :name
     attr_reader :type
 
-    def initialize(token, name, type=nil)
+    def initialize(token, name, type)
         super(token)
         @name = name
         @type = type
@@ -152,6 +150,17 @@ class BinaryOperatorExpression < Expression
         @left = left
         @right = right
         @operator = operator
+    end
+
+end
+
+class FunctionExpression < Expression
+
+    attr_reader :name
+
+    def initialize(token, name)
+        super(token)
+        @name = name
     end
 
 end

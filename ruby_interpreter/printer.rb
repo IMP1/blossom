@@ -140,7 +140,7 @@ class Printer < Visitor
 
     def visit_UnaryOperatorExpression(expr)
         right = to_string(expr.operand)
-        case expr.operator
+        case expr.operator.name
         when :MINUS
             return "-" + right
         when :NOT, :EXCLAMATION
@@ -154,7 +154,7 @@ class Printer < Visitor
     def visit_BinaryOperatorExpression(expr)
         left = to_string(expr.left)
         right = to_string(expr.right)
-        case expr.operator
+        case expr.operator.name
         when :MINUS
             return left + " - " + right
         when :PLUS

@@ -114,6 +114,16 @@ class UnaryOperator < LabelValueExpression
         return operand.type
     end
 
+    def to_s
+        op = case @operator
+        when :MINUS
+            "-"
+        when :NOT
+            "¬"
+        end
+        return op + @operand.to_s
+    end
+
 end
 
 class BinaryOperator < LabelValueExpression
@@ -136,6 +146,50 @@ class BinaryOperator < LabelValueExpression
         return left.type
     end
 
+    def to_s
+        op = case @operator
+        when :MINUS
+            "-"
+        when :PLUS
+            "+"
+        when :ASTERISK
+            "*"
+        when :STROKE
+            "/"
+        when :PERCENT
+            "%"
+        when :CARET
+            "^"
+        when :AMPERSAND, :AND
+            "&"
+        when :PIPE, :OR
+            "|"
+
+        when :EQUAL
+            "="
+        when :NOT_EQUAL
+            "!="
+
+        when :LESS
+            "<"
+        when :LESS_EQUAL
+            "<="
+        when :GREATER
+            ">"
+        when :GREATER_EQUAL
+            ">="
+
+        when :BEGINS_WITH
+            "^="
+        when :ENDS_WITH
+            "$="
+        when :CONTAINS
+            "~="
+
+        end
+        return @left.to_s + " #{op} " + @right.to_s
+    end
+
 end
 
 class Group < LabelValueExpression
@@ -152,6 +206,10 @@ class Group < LabelValueExpression
 
     def type
         return expression.type
+    end
+
+    def to_s
+        return "(#{@expression.to_s})"
     end
 
 end

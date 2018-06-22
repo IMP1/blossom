@@ -21,7 +21,7 @@ class Interpreter < Visitor
         @current_graph = evaluate(host_graph)
         @rules = {}
         @procedures = {}
-        @variables = {}
+        @variables = nil
     end
 
     def interpret
@@ -57,10 +57,12 @@ class Interpreter < Visitor
 
     def visit_RuleDefinitionStatement(stmt, current_graph)
         @log.trace("Defining rule #{stmt.name}.")
+        @variables = stmt.parameters || {}
         match_graph = evaluate(stmt.match_graph)
         result_graph = evaluate(stmt.result_graph)
         condition = evaluate(stmt.condition) if !stmt.condition.nil?
         addendum = evaluate(stmt.addendum) if !stmt.addendum.nil?
+        @variables = nil
         @rules[stmt.name] = Rule.new(stmt.name, stmt.parameters, match_graph, result_graph, condition, addendum)
         return current_graph
     end
@@ -155,11 +157,9 @@ class Interpreter < Visitor
     #-------------#    
 
     def visit_GraphExpression(expr)
-        @variables = expr.parameters
         nodes = expr.nodes.map { |n| evaluate(n) }
         edges = expr.edges.map { |n| evaluate(n) }
-        @variables = {}
-        return Graph.new(nodes, edges, expr.parameters)
+        return Graph.new(nodes, edges)
     end
 
     def visit_NodeExpression(expr)
@@ -206,7 +206,7 @@ class Interpreter < Visitor
     end
 
     def visit_VariableExpression(expr)
-        type = @variables[expr.name][:type_name].to_sym
+        type = @variables[expr.name][:type_name]
         return Variable.new(expr.name, type)
     end
 
@@ -216,6 +216,11 @@ class Interpreter < Visitor
 
     def visit_GroupingExpression(expr)
         return evaluate(expr.expression)
+    end
+
+    def visit_UnaryOperatorExpression(expr)
+        operand = evaluate(expr.operand)
+        return UnaryOperator.new(expr.operator.name, operand)
     end
 
     def visit_BinaryOperatorExpression(expr)

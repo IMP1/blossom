@@ -1,3 +1,5 @@
+require_relative 'console_colours'
+
 class Log
 
     NONE    = 0
@@ -32,18 +34,22 @@ class Log
     end
 
     def fatal(message)
+        print ConsoleStyle::BOLD_ON + ConsoleStyle::FG_RED
         log(message, @source, FATAL)
     end
 
     def error(message)
+        print ConsoleStyle::BOLD_ON + ConsoleStyle::FG_RED
         log(message, @source, ERROR)
     end
 
     def warn(message)
+        print ConsoleStyle::BOLD_ON + ConsoleStyle::FG_YELLOW
         log(message, @source, WARNING)
     end
 
     def info(message)
+        print ConsoleStyle::BOLD_ON
         log(message, @source, INFO)
     end
 
@@ -59,7 +65,7 @@ class Log
         return if importance > @importance_level
         prefix = "[#{source}] "
         message = obj.to_s.gsub("\n", "\n" + (" " * prefix.length))
-        @output.puts prefix + message
+        @output.puts prefix + message + ConsoleStyle::RESET
     end
 
 end

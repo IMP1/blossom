@@ -109,8 +109,54 @@ class BinaryOperator < LabelValueExpression
     end
 
     def type
-        # TODO: switch on operator and operand types (less than is always bool, for example)
-        return left.type
+        case operator
+        when :MINUS
+            return @left.type
+        when :PLUS
+            return @left.type
+        when :ASTERISK
+            return @left.type
+        when :STROKE
+            if @left.type == :real || @right.type == :real
+                return :real
+            else
+                return :rational
+            end
+        when :PERCENT
+            return @left.type
+        when :CARET
+            return @left.type
+
+        when :AMPERSAND, :AND
+            return :bool
+        when :PIPE, :OR
+            return :bool
+
+        when :EQUAL
+            return :bool
+        when :NOT_EQUAL
+            return :bool
+
+        when :LESS
+            return :bool
+        when :LESS_EQUAL
+            return :bool
+        when :GREATER
+            return :bool
+        when :GREATER_EQUAL
+            return :bool
+
+        when :BEGINS_WITH
+            return :bool
+        when :ENDS_WITH
+            return :bool
+        when :CONTAINS
+            return :bool
+        end
+
+        puts "Unrecognised binary operator"
+        p expr
+        raise "Unrecognised binary operator"           
     end
 
 end
