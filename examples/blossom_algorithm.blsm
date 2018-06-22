@@ -9,4 +9,4 @@ rule augment_matching
     [ 1, 2, 3, 4 | 1->2 (#matching), 2->3 (¬matching), 3->4 ]
  => [ 1, 2, 3, 4 | 1->2 (#matching), 2->3 (¬matching), 3->4 (#matching) ];
 
-initial_matching augment_matching!
+initial_matching augment_matching

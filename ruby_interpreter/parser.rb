@@ -121,11 +121,15 @@ class Parser
             node_label = parse_label
             consume_token(:RIGHT_PAREN, "Expecting ')' after a node's label.")
         else
+            puts "No label given. Using default"
             if @matching
+                puts "Rule matching graph = any"
                 node_label_value = AnyLabelValueExpression.new(node_id_token)
             elsif @applying
+                puts "Rule resulting graph = keep"
                 node_label_value = MaintainLabelValueExpression.new(node_id_token)
             else
+                puts "normal graph = void"
                 node_label_value = VoidLabelValueExpression.new(node_id_token)
             end
             node_label = LabelExpression.new(node_id_token, node_label_value, [])

@@ -7,11 +7,12 @@ class LabelEvaluator < Visitor
 
     def initialize(label, old_label, variables)
         @label = label
-        @old_graph_label = old_label
+        @old_label = old_label
         @variables = variables
     end
 
     def evaluate
+        puts "Evaluating label"
         p @label
         p @label.value
         if @label.nil?
@@ -39,14 +40,23 @@ class LabelEvaluator < Visitor
 
     def visit_VariableLabelExpression(expr)
         if !@variables.has_key?(expr.name)
-            raise "unrecognised variable '#{expr.name}'."
+            raise "Unrecognised variable '#{expr.name}'."
         end
         return @variables[expr.name]
     end
 
     def visit_MatcherLabelExpression(expr)
-        return nil
-        # raise "A normal graph (one not in a rule) cannot have void/empty/unmarked keywords. Leave the label empty to achieve the same effect."
+        case expr.keyword
+        when :maintain
+            puts "returning old label value"
+            p @old_label
+            p evaluate_expression(@old_label.value)
+            return evaluate_expression(@old_label.value)
+        when :void
+            puts "Returning void label (nil)"
+            return nil
+        end
+        raise "A normal graph (one not in a rule) cannot have void/empty/unmarked keywords. Leave the label empty to achieve the same effect."
     end
 
     def visit_UnaryOperatorLabelExpression(expr)

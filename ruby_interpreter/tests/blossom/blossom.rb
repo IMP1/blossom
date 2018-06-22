@@ -12,16 +12,34 @@ Test.require do
 
 end
 
-graph_text = '[1 (2), 2 (1), 3(3) | 1->2, 2->3, 1->3 ]'
+graph_text = <<~HEREDOC
+    [
+        1 (2), 
+        2 (1), 
+        3,
+        4,
+        5,
+        6,
+        7,
+    | 
+        1->2, 
+        2->3, 
+        1->3,
+        3->4,
+        4->5,
+        5->6,
+        6->7,
+        7->4,
+    ]
+HEREDOC
 
 $verbose = true
 
 # Reset args
-ARGV.reject! {true}
-ARGV.push(PROG_FILENAME)
-ARGV.push(graph_text)
-ARGV.push("--output")
-ARGV.push(OUT_FILENAME)
+ARGV.insert(0, PROG_FILENAME)
+ARGV.insert(1, graph_text)
+ARGV.insert(2, "--output")
+ARGV.insert(3, OUT_FILENAME)
 
 test_run = Test.run do
 
@@ -32,6 +50,7 @@ end
 test_run.ensure do |result|
 
     assert(File.exists?(OUT_FILENAME))
+    puts File.read(OUT_FILENAME)
 
 end
 

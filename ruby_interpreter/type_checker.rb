@@ -127,7 +127,6 @@ class TypeChecker < Visitor
     end
 
     def visit_LiteralExpression(expr)
-        @log.trace("Type literal.")
         return expr.type
     end
 

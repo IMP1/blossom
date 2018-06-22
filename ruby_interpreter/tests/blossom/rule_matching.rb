@@ -25,7 +25,7 @@ Test.require do
 
 end
 
-graph_text = '[1 (2), 2 (1), 3(3) | 1->2, 2->3, 1->3 ]'
+graph_text = '[1 (2), 2 (1), 3 | 1->2, 2->3, 1->3 ]'
 
 $verbose = true
 
