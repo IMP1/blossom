@@ -1,10 +1,12 @@
 require_relative 'console_colours'
+require_relative 'exit_code'
 
 require_relative 'log'
 
 require_relative 'tokeniser'
 require_relative 'parser'
 require_relative 'printer'
+require_relative 'type_checker'
 require_relative 'interpreter'
 
 # Error Codes:
@@ -35,7 +37,7 @@ class Runner
         setup if !self.class.class_variable_defined? :@@log
         @@runtime_errors.push(error)
         report(error, true)
-        exit(70)
+        exit(ExitCode::SOFTWARE)
     end
 
     def self.compile_errors
@@ -69,7 +71,6 @@ class Runner
         else
             @@log.error(message)
         end
-        puts caller
     end
 
     def self.setup(log=nil)
@@ -96,6 +97,9 @@ class Runner
         parser = Parser.new(graph_tokens)
         graph = parser.parse_graph
 
+        type_checker = TypeChecker.new(nil)
+        type_checker.check_graph(graph)
+
         parser = Parser.new(programme_tokens)
         programme = parser.parse_programme
 
@@ -103,8 +107,17 @@ class Runner
         @@log.trace("Programme:")
         @@log.trace(printer.print_programme)
 
+        @@log.trace("Type Checking...")
+        type_checker = TypeChecker.new(programme)
+        type_checker.check_programme
+
+        if !@@compile_errors.empty?
+            exit(ExitCode::DATAERR)
+        end
+
         @@log.trace("Interpreting...")
         interpreter = Interpreter.new(graph, programme)
+
         result_graph = interpreter.interpret
 
         return result_graph
