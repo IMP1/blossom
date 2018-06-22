@@ -15,6 +15,8 @@ class Parser
 
         @rules = {}
         @procs = {}
+        @parameters = nil
+        @builtin_functions = ["node", "in", "out", "incident", "edge", "adj", "edge?", "adj?"]
     end
 
     #--------------------------------------------------------------------------#
@@ -55,10 +57,10 @@ class Parser
 
     def consume_token(type, error_message)
         return advance if check(type)
-        raise fault(peek, error_message)
+        raise error(peek, error_message)
     end
 
-    def fault(token, message)
+    def error(token, message)
         e = BlossomParseError.new(token, message)
         Runner.compile_error(e)
         return e
@@ -85,8 +87,7 @@ class Parser
         return statements
     end
 
-    def parse_graph(parameters=nil)
-        parameters ||= {}
+    def parse_graph
         open_bracket_token = consume_token(:LEFT_SQUARE, "Expecting '[' to start a graph.")
         nodes = []
         edges = []
@@ -101,7 +102,7 @@ class Parser
             end
         end
         consume_token(:RIGHT_SQUARE, "Expecting '[' to end a graph.")
-        return GraphExpression.new(open_bracket_token, nodes, edges, parameters)
+        return GraphExpression.new(open_bracket_token, nodes, edges)
     end
 
     #--------------------------------------------------------------------------#
@@ -156,9 +157,13 @@ class Parser
             return nil
         end
         set = []
-        while match_token(:MARK)
+        while match_token(:MARK, :NOT)
             token = previous
             value = previous.literal
+            if token.name == :NOT
+                consume_token(:IDENTIFIER, "Expecting mark name after '¬'.")
+                value = "¬" + previous.lexeme
+            end
             set.push(MarkExpression.new(token, value))
         end
         return set
@@ -207,14 +212,15 @@ class Parser
     def rule_definition
         rule_keyword_token = previous
         rule_name_token = consume_token(:IDENTIFIER, "Expecting a name for the rule.")
-        parameters = []
+        parameters = {}
         if match_token(:LESS)
             parameters = parameter_list
             consume_token(:GREATER, "Expecting '>' after the rule's parameters.")
         end
-        match_graph = parse_graph(parameters)
+        @parameters = parameters
+        match_graph = parse_graph
         consume_token(:RIGHT_ARROW, "Expecting => between the match graph and the result graph.")
-        result_graph = parse_graph(parameters)
+        result_graph = parse_graph
         condition = nil
         if match_token(:WHERE)
             where_keyword_token = previous
@@ -225,8 +231,9 @@ class Parser
             addendun_keyword_token = previous
             addendum_statement = statement
         end
+        @parameters = nil
         if !match_token(:SEMICOLON, :END)
-            raise fault(peek, "Expecting ';' or 'end' after a rule's definition.")
+            raise error(peek, "Expecting ';' or 'end' after a rule's definition.")
         end
         @rules[rule_name_token.lexeme] = rule_name_token
         return RuleDefinitionStatement.new(rule_name_token, parameters, match_graph, result_graph, condition, addendum)
@@ -240,7 +247,7 @@ class Parser
             statements.push(rule_application)
         end
         if !match_token(:SEMICOLON, :END)
-            raise fault(peek, "Expecting ';' or 'end' after a procedure's definition.")
+            raise error(peek, "Expecting ';' or 'end' after a procedure's definition.")
         end
         @procs[proc_name_token.lexeme] = proc_name_token
         return ProcedureDefinitionStatement.new(proc_name_token, statements)
@@ -254,7 +261,7 @@ class Parser
             while !eof? && !check(:SEMICOLON)
                 param_name_token = consume_token(:IDENTIFIER, "Expecting a name for this parameter.")
                 param_name = param_name_token.lexeme
-                params[param_name] = { name: param_name, token: param_name_token, type_name: param_type_name, type_token: param_type_token }
+                params[param_name] = { name: param_name, token: param_name_token, type_name: param_type_name.to_sym, type_token: param_type_token }
                 break if !match_token(:COMMA)
             end
         end
@@ -334,9 +341,9 @@ class Parser
             if @procs.has_key?(var_name_token.lexeme)
                 return ProcedureApplicationStatement.new(var_name_token, var_name_token.lexeme)
             end
-            raise fault(var_name_token, "No rule or procedure found called '#{var_name_token.lexeme}'.")
+            raise error(var_name_token, "No rule or procedure found called '#{var_name_token.lexeme}'.")
         end
-        raise fault(peek, "Expecting a rule application. Got '#{peek.lexeme}'.")
+        raise error(peek, "Expecting a rule application. Got '#{peek.lexeme}'.")
     end
 
     def sequence
@@ -344,8 +351,8 @@ class Parser
         while !eof? && !check(:RIGHT_PAREN) && 
                        !check(:COMMA) && 
                        !check(:COLON) && 
-                       !check(:RIGHT_BRACE) && 
-                       !check(:RIGHT_SQUARE)
+                       !check(:RIGHT_BRACE)
+            raise "it *is* possible for there to be a square bracket. Add another !check(...)" if check(:RIGHT_SQUARE)
             applications.push(rule_application)
         end
         return applications
@@ -482,7 +489,14 @@ class Parser
         end
 
         if match_token(:IDENTIFIER)
-            return VariableExpression.new(previous, previous.lexeme)
+            if @builtin_functions.include?(previous.lexeme)
+                return FunctionExpression.new(previous, previous.lexeme)
+            end
+            if !@parameters.has_key?(previous.lexeme)
+                error(previous, "Unrecognised variable name #{previous.lexeme}.")
+            end
+            type = @parameters[previous.lexeme][:type_name]
+            return VariableExpression.new(previous, previous.lexeme, type)
         end
 
         if match_token(:LEFT_PAREN)
@@ -492,7 +506,7 @@ class Parser
             return GroupingExpression.new(grouping_token, expr)
         end
 
-        fault(peek, "Expecting an expression. Got '#{peek.lexeme}'.")
+        error(peek, "Expecting an expression. Got '#{peek.lexeme}'.")
     end
 
     def primitive_literal(type, value, token)
