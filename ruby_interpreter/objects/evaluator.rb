@@ -169,18 +169,18 @@ class ConditionEvaluator < Visitor
     # Expressions #
     #-------------#
 
-    def visit_Literal(expr)
+    def visit_LiteralConditionExpression(expr)
         return expr.value
     end
 
-    def visit_Variable(expr)
+    def visit_VariableConditionExpression(expr)
         if !@variables.has_key?(expr.name)
             raise "unrecognised variable '#{expr.name}'."
         end
         return @variables[expr.name]
     end
 
-    def visit_UnaryOperator(expr)
+    def visit_UnaryOperatorConditionExpression(expr)
         right = evaluate_expression(expr.operand)
         case expr.operator
         when :MINUS
@@ -193,7 +193,7 @@ class ConditionEvaluator < Visitor
         raise "Unrecognised unary operator"
     end
 
-    def visit_BinaryOperator(expr)
+    def visit_BinaryOperatorConditionExpression(expr)
         left = evaluate_expression(expr.left)
         right = evaluate_expression(expr.right)
         case expr.operator
@@ -249,11 +249,11 @@ class ConditionEvaluator < Visitor
         raise "Unrecognised binary operator"
     end
 
-    def visit_Group(expr)
+    def visit_GroupConditionExpression(expr)
         return evaluate_expression(expr.expression)
     end
 
-    def visit_FunctionCall(expr)
+    def visit_FunctionCallConditionExpression(expr)
         args = expr.arguments.map { |a| evaluate_expression(a) }
         return expr.function.call(self, args)
     end
