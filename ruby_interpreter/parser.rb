@@ -17,6 +17,9 @@ class Parser
         @procs = {}
         @parameters = nil
         @builtin_functions = ["node", "in", "out", "incident", "edge", "adj", "edge?", "adj?"]
+
+        @matching = false
+        @applying = false
     end
 
     #--------------------------------------------------------------------------#
@@ -118,7 +121,14 @@ class Parser
             node_label = parse_label
             consume_token(:RIGHT_PAREN, "Expecting ')' after a node's label.")
         else
-            node_label = EmptyLabelExpression.new(node_id_token)
+            if @matching
+                node_label_value = AnyLabelValueExpression.new(node_id_token)
+            elsif @applying
+                node_label_value = MaintainLabelValueExpression.new(node_id_token)
+            else
+                node_label_value = VoidLabelValueExpression.new(node_id_token)
+            end
+            node_label = LabelExpression.new(node_id_token, node_label_value, [])
         end
         return NodeExpression.new(node_id_token, node_label)
     end
@@ -128,11 +138,19 @@ class Parser
         if match_token(:EMPTY)
             return EmptyLabelExpression.new(paren_token)
         end
-        value = parse_label_value
-        markset = []
-        if value.nil? || match_token(:COMMA)
-            markset = parse_markset
+        if check(:MARK) || check(:NOT)
+            if @matching
+                value = AnyLabelValueExpression.new(paren_token)
+            elsif @applying
+                value = MaintainLabelValueExpression.new(paren_token)
+            else
+                value = VoidLabelValueExpression.new(paren_token)
+            end
+        else
+            value = parse_label_value
+            match_token(:COMMA)
         end
+        markset = parse_markset
         return LabelExpression.new(paren_token, value, markset)
     end
 
@@ -218,9 +236,13 @@ class Parser
             consume_token(:GREATER, "Expecting '>' after the rule's parameters.")
         end
         @parameters = parameters
+        @matching = true
         match_graph = parse_graph
+        @matching = false
         consume_token(:RIGHT_ARROW, "Expecting => between the match graph and the result graph.")
+        @applying = true
         result_graph = parse_graph
+        @applying = false
         condition = nil
         if match_token(:WHERE)
             where_keyword_token = previous

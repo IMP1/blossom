@@ -13,7 +13,7 @@ class LabelValueExpression
 
 end
 
-class Literal < LabelValueExpression
+class LiteralLabelExpression < LabelValueExpression
 
     TYPES = [:int, :string, :real, :rational, :bool]
 
@@ -28,6 +28,7 @@ class Literal < LabelValueExpression
     end
 
     def type
+        return nil if self.value.nil?
         case self.value
         when Integer
             return :int
@@ -41,7 +42,9 @@ class Literal < LabelValueExpression
             return :bool
         end
         puts "Unrecognised type:"
+        p self
         p self.class
+        puts caller
         raise "Unrecognised type"
     end
 
@@ -51,7 +54,7 @@ class Literal < LabelValueExpression
 
 end
 
-class Variable < LabelValueExpression
+class VariableLabelExpression < LabelValueExpression
 
     attr_reader :name
 
@@ -74,7 +77,7 @@ class Variable < LabelValueExpression
 
 end
 
-class Matcher < LabelValueExpression
+class MatcherLabelExpression < LabelValueExpression
 
     attr_reader :keyword
 
@@ -96,7 +99,7 @@ class Matcher < LabelValueExpression
 
 end
 
-class UnaryOperator < LabelValueExpression
+class UnaryOperatorLabelExpression < LabelValueExpression
 
     attr_reader :operator
     attr_reader :operand
@@ -126,7 +129,7 @@ class UnaryOperator < LabelValueExpression
 
 end
 
-class BinaryOperator < LabelValueExpression
+class BinaryOperatorLabelExpression < LabelValueExpression
 
     attr_reader :left
     attr_reader :operator
@@ -192,7 +195,7 @@ class BinaryOperator < LabelValueExpression
 
 end
 
-class Group < LabelValueExpression
+class GroupLabelExpression < LabelValueExpression
 
     attr_reader :expression
 

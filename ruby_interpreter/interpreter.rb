@@ -194,20 +194,24 @@ class Interpreter < Visitor
     end
 
     def visit_VoidLabelValueExpression(expr)
-        return Matcher.new(:void)
+        return MatcherLabelExpression.new(:void)
+    end
+
+    def visit_MaintainLabelValueExpression(expr)
+        return MatcherLabelExpression.new(:maintain)
     end
 
     def visit_AnyLabelValueExpression(expr)
-        return Matcher.new(:any)
+        return MatcherLabelExpression.new(:any)
     end
 
     def visit_LiteralExpression(expr)
-        return Literal.new(expr.value)
+        return LiteralLabelExpression.new(expr.value)
     end
 
     def visit_VariableExpression(expr)
         type = @variables[expr.name][:type_name]
-        return Variable.new(expr.name, type)
+        return VariableLabelExpression.new(expr.name, type)
     end
 
     def visit_MarkExpression(expr)
@@ -220,13 +224,13 @@ class Interpreter < Visitor
 
     def visit_UnaryOperatorExpression(expr)
         operand = evaluate(expr.operand)
-        return UnaryOperator.new(expr.operator.name, operand)
+        return UnaryOperatorLabelExpression.new(expr.operator.name, operand)
     end
 
     def visit_BinaryOperatorExpression(expr)
         left = evaluate(expr.left)
         right = evaluate(expr.right)
-        return BinaryOperator.new(expr.operator.name, left, right)
+        return BinaryOperatorLabelExpression.new(expr.operator.name, left, right)
     end
 
     def visit_FunctionCallExpression(expr)
