@@ -138,11 +138,23 @@ class RuleApplication
         # HOWEVER, at the moment you can, and so the same variable cannot point to different values, which lowers
         # the possible matches it can have.
 
+        @variable_rule_nodes = {}
+        @rule.parameters.each do |name, type|
+            var_rule_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
+            if var_rule_node.nil?
+                @log.warn("Variable '#{name}' is never used.")
+            else
+                @variable_rule_nodes[name] = type
+            end
+        end
+
         possible_matches = possible_matches.select do |mapping|
             variable_values = {}
-            @rule.parameters.each do |name, type|
+            @variable_rule_nodes.each do |name, type|
                 var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
-                variable_values[name] = mapping[var_node].label.value.value
+                if !var_node.nil?
+                    variable_values[name] = mapping[var_node].label.value.value
+                end
             end
             @rule.match_graph.nodes.select { |node| node.label.value.is_a?(Variable) }.all? do |node| 
                 variable_values[node.label.value.name] == mapping[node].label.value.value
@@ -237,10 +249,14 @@ class RuleApplication
 
         variable_values = {}
         @log.trace("Variables:")
-        @rule.parameters.each do |name, type|
+        @variable_rule_nodes.each do |name, type|
             var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
-            variable_values[name] = application[var_node].label.value.value
-            @log.trace("#{name} (#{type}) = #{application[var_node].label.value.value}")
+            if var_node.nil?
+                @log.warn("Variable #{name} is never used.")
+            else
+                variable_values[name] = application[var_node].label.value.value
+                @log.trace("#{name} (#{type[:type_name]}) = #{application[var_node].label.value.value}")
+            end
         end
 
         persiting_rule_nodes = @rule.match_graph.nodes.select { |node| 
@@ -349,7 +365,7 @@ class RuleApplication
         mapping.each { |k, v| id_mapping[k.id] = v.id }
 
         variable_values = {}
-        @rule.parameters.each do |name, type|
+        @variable_rule_nodes.each do |name, type|
             var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
             variable_values[name] = mapping[var_node].label.value.value
         end
