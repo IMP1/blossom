@@ -21,7 +21,7 @@ class Interpreter < Visitor
         @current_graph = evaluate(host_graph)
         @rules = {}
         @procedures = {}
-        @variables = {}
+        @variables = nil
     end
 
     def interpret

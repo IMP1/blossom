@@ -189,12 +189,11 @@ class ConditionEvaluator < Visitor
         when :PLUS
             case expr.left.type
             when :int
-                # TODO: type check the right value's type
-                return left + right
+                return left + right # addition
             when :string
-                return left + right
+                return left + right # concatentation
             when :bool
-                return left ^ right
+                return left ^ right # xor
             end
         when :ASTERISK
             return left * right
