@@ -7,7 +7,7 @@ OUT_FILENAME = "temp-out.txt"
 
 prog_text = <<~HEREDOC
     rule foo    
-        <int x, y>
+        <int x, y; bool z>
         [ 1 (x), 2 (y) | 1->2 (void) ]
      => [ 1 (x), 2 (-y) | 1->2 (0) ]
         where node(1) != node(2);

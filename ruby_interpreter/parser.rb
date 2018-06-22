@@ -57,7 +57,7 @@ class Parser
 
     def consume_token(type, error_message)
         return advance if check(type)
-        raise error(peek, error_message)
+        raise error(peek, error_message + " Got #{peek}.")
     end
 
     def error(token, message)
@@ -267,6 +267,7 @@ class Parser
                 params[param_name] = { name: param_name, token: param_name_token, type_name: param_type_name.to_sym, type_token: param_type_token }
                 break if !match_token(:COMMA)
             end
+            break if !match_token(:SEMICOLON)
         end
         return params
     end
