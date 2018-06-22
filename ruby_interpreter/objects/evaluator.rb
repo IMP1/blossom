@@ -112,7 +112,6 @@ class LabelEvaluator < Visitor
             return left >= right
 
         when :BEGINS_WITH
-            # TODO: type check the values are both strings
             return left.start_with?(right)
         when :ENDS_WITH
             return left.end_with?(right)
