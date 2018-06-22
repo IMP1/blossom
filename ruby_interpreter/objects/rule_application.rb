@@ -298,7 +298,7 @@ class RuleApplication
             return graph_label.value == nil
         end
         if rule_label.value.variable?
-            @log.trace("Checking type")
+            @log.trace("Checking variable type")
             return true if rule_label.type == :any
             return rule_label.type == graph_label.type
         end

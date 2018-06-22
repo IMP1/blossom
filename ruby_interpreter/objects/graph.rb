@@ -7,10 +7,9 @@ class Graph
     attr_reader :edges
     attr_reader :variables
 
-    def initialize(nodes, edges, variables)
+    def initialize(nodes, edges)
         @nodes = nodes
         @edges = edges
-        @variables = variables
     end 
 
     def to_s
@@ -45,10 +44,9 @@ class Graph
         return Graph.new(
             @nodes.map { |node| node.clone },
             @edges.map { |node| node.clone },
-            @variables,
         )
     end
 
-    INVALID = Graph.new([], [], {})
+    INVALID = Graph.new([], [])
 
 end

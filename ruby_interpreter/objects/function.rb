@@ -42,13 +42,50 @@ class Function
         end
     end
 
-    def self.adj
-        return Function.new("adj", :int, [:int]) do |evaluator, args|
+    def self.incident
+        return Function.new("incident", :int, [:int]) do |evaluator, args|
             rule_node_id = args[0]
             graph_node_id = evaluator.mapping[rule_node_id]
-            adj_edges = evaluator.graph.edges.select { |e| e.source_id == graph_node_id || e.target_id == graph_node_id}
+            adj_edges = evaluator.graph.edges.select { |e| e.source_id == graph_node_id || e.target_id == graph_node_id }
             adj_edges.count
         end
     end
 
+    def self.edge
+        return Function.new("edge", :int, [:int, :int]) do |evaluator, args|
+            source_node_id = evaluator.mapping[args[0]]
+            target_node_id = evaluator.mapping[args[1]]
+            edge_count = evaluator.graph.edges.count { |e| e.source_id == source_node_id && e.target_id == target_node_id }
+            edge_count
+        end
+    end
+
+    def self.adj
+        return Function.new("adj", :int, [:int, :int]) do |evaluator, args|
+            source_node_id = evaluator.mapping[args[0]]
+            target_node_id = evaluator.mapping[args[1]]
+            edge_count = evaluator.graph.edges.count { |e| (e.source_id == source_node_id && e.target_id == target_node_id) ||
+                                                           (e.source_id == target_node_id && e.target_id == source_node_id) }
+            edge_count
+        end
+    end
+
+    def self.edge?
+        return Function.new("edge?", :int, [:int, :int]) do |evaluator, args|
+            source_node_id = evaluator.mapping[args[0]]
+            target_node_id = evaluator.mapping[args[1]]
+            edge_count = evaluator.graph.edges.count { |e| e.source_id == source_node_id && e.target_id == target_node_id }
+            edge_count > 0
+        end
+    end
+
+    def self.adj?
+        return Function.new("adj?", :int, [:int, :int]) do |evaluator, args|
+            source_node_id = evaluator.mapping[args[0]]
+            target_node_id = evaluator.mapping[args[1]]
+            edge_count = evaluator.graph.edges.count { |e| (e.source_id == source_node_id && e.target_id == target_node_id) ||
+                                                           (e.source_id == target_node_id && e.target_id == source_node_id) }
+            edge_count > 0
+        end
+    end
 end

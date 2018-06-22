@@ -42,7 +42,7 @@ class LabelEvaluator < Visitor
     end
 
     def visit_Matcher(expr)
-        puts "HRRRRRM"
+        raise "A normal graph (one not in a rule) cannot have void/empty/unmarked keywords. Leave the label empty to achieve the same effect."
     end
 
     def visit_UnaryOperator(expr)
@@ -66,15 +66,13 @@ class LabelEvaluator < Visitor
             return left - right
         when :PLUS
             case expr.left.type
-            when :int
-                # TODO: type check the right value's type
-                return left + right
             when :string
-                return left + right
+                return left + right # concatenate
             when :bool
-                return left ^ right
+                return left ^ right # xor
+            else # numeric
+                return left + right # addition
             end
-            return left + right
         when :ASTERISK
             return left * right
         when :STROKE
@@ -85,9 +83,19 @@ class LabelEvaluator < Visitor
             return left ** right
 
         when :AMPERSAND, :AND
-            return left && right
+            case expr.left.type
+            when :bool
+                return left && right # logical and
+            else
+                return left & right  # bitwise and
+            end
         when :PIPE, :OR
-            return left || right
+            case expr.left.type
+            when :bool
+                return left || right # logical or
+            else
+                return left | right  # bitwise or
+            end
 
         when :EQUAL
             return left == right
@@ -110,7 +118,6 @@ class LabelEvaluator < Visitor
             return left.end_with?(right)
         when :CONTAINS
             return left.include?(right)
-
         end
         puts "Unrecognised binary operator"
         p expr
@@ -120,8 +127,6 @@ class LabelEvaluator < Visitor
     def visit_Group(expr)
         return evaluate_expression(expr.expression)
     end
-
-
 
 end
 
@@ -162,7 +167,7 @@ class ConditionEvaluator < Visitor
         return @variables[expr.name]
     end
 
-    def visit_UnaryOperatorExpression(expr)
+    def visit_UnaryOperator(expr)
         right = evaluate_expression(expr.operand)
         case expr.operator
         when :MINUS
@@ -175,7 +180,7 @@ class ConditionEvaluator < Visitor
         raise "Unrecognised unary operator"
     end
 
-    def visit_BinaryOperatorExpression(expr)
+    def visit_BinaryOperator(expr)
         left = evaluate_expression(expr.left)
         right = evaluate_expression(expr.right)
         case expr.operator
