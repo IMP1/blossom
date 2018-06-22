@@ -5,7 +5,7 @@ require_relative 'exit_code'
 VERSION = "0.3.0"
 
 # Output file
-if ARGV.include?("-h") || ARGV.include?("--help")
+if ARGV.include?("-h") || ARGV.include?("--help") || ARGV.include?("help")
     puts "Blossom Interpreter v#{VERSION}"
     puts "Usage: "
     puts
