@@ -11,7 +11,6 @@ host_graph = Graph.new(
     ], 
     [
     ],
-    {}
 )
 
 match_graph  = Graph.new(
@@ -20,25 +19,23 @@ match_graph  = Graph.new(
         Node.new(2, Label.empty),
     ], 
     [], 
-    {}
 )
 result_graph = Graph.new(
     [
-        Node.new(1, Label.new(Literal.new(0), Literal.new(0).type, [])),
-        Node.new(2, Label.new(Literal.new(0), Literal.new(0).type, [])),
+        Node.new(1, Label.new(LiteralLabelExpression.new(0), LiteralLabelExpression.new(0).type, [])),
+        Node.new(2, Label.new(LiteralLabelExpression.new(0), LiteralLabelExpression.new(0).type, [])),
     ], 
     [], 
-    {}
 )
 condition = BinaryOperator.new(
     :NOT_EQUAL,
     FunctionCall.new(
         Function.node,
-        [Literal.new(1)]
+        [LiteralLabelExpression.new(1)]
     ),
     FunctionCall.new(
         Function.node,
-        [Literal.new(2)]
+        [LiteralLabelExpression.new(2)]
     )
 )
 rule = Rule.new("r1", {}, match_graph, result_graph, condition, nil)
