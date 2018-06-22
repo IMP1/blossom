@@ -261,6 +261,9 @@ class Parser
             while !eof? && !check(:SEMICOLON)
                 param_name_token = consume_token(:IDENTIFIER, "Expecting a name for this parameter.")
                 param_name = param_name_token.lexeme
+                if params.has_key?(param_name)
+                    error(param_name_token, "The parameter '#{param_name}' is used more than once.")
+                end
                 params[param_name] = { name: param_name, token: param_name_token, type_name: param_type_name.to_sym, type_token: param_type_token }
                 break if !match_token(:COMMA)
             end

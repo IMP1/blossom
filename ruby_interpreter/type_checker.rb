@@ -42,6 +42,9 @@ class TypeChecker < Visitor
     end
 
     def check_graph(graph)
+        graph.nodes.group_by { |n| n.id }.select { |id, nodes| nodes.size > 1 }.each do |id, nodes|
+            error(graph, "There were #{nodes.size} nodes with the ID #{id}. IDs must be unique within a graph.")
+        end
         graph.nodes.each { |n| check_expression(n) }
         graph.edges.each { |n| check_expression(n) }
     end
