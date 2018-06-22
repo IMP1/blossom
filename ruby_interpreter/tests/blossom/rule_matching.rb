@@ -8,8 +8,9 @@ OUT_FILENAME = "temp-out.txt"
 prog_text = <<~HEREDOC
     rule foo    
         <int x, y>
-        [ 1 (x), 2 (y) | 1->2 (empty) ]
-     => [ 1 (x), 2 (y) | 1->2 (0) ];
+        [ 1 (x), 2 (y) | 1->2 (void) ]
+     => [ 1 (x), 2 (-y) | 1->2 (0) ]
+        where node(1) != node(2);
 
     foo
 HEREDOC
@@ -24,8 +25,9 @@ Test.require do
 
 end
 
-graph_text = "[1 (2), 2 (1), 3(3) | 1->2, 2->3, 1->3 ]"
+graph_text = '[1 (2), 2 (1), 3(3) | 1->2, 2->3, 1->3 ]'
 
+$verbose = true
 
 # Reset args
 ARGV.reject! {true}

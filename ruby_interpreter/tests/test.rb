@@ -29,6 +29,8 @@ class Test
             @start_time = nil
             @result = nil
             @thread = nil
+            @log = Log.new("Test")
+            @log.set_level(Log::ALL) if $verbose
         end
         def started?
             return !@start_time.nil?
@@ -44,6 +46,8 @@ class Test
                     result_value = @block.call(*args)
                     success = true
                 rescue StandardError => e
+                    @log.error(e)
+                    @log.error(e.backtrace.first)
                     result_value = e
                     success = false
                 end
