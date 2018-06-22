@@ -46,7 +46,7 @@ rule = Rule.new("r1", {"x" => :int}, match_graph, result_graph, nil, nil)
 #-----#
 # Act #
 #-----#
-test_run = Test.run(true) {
+test_run = Test.run {
 
     application = RuleApplication.new(rule, host_graph)
     application.attempt

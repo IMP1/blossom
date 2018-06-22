@@ -40,7 +40,7 @@ end
 #-----#
 # Act #
 #-----#
-test_run = Test.run(true) {
+test_run = Test.run {
 
     application = RuleApplication.new(rule, host_graph)
     application.attempt

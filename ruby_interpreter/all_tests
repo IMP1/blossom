@@ -9,7 +9,6 @@ def run_test(test_name, filepath, results)
         load(filepath)
     rescue Exception => e
     end
-    p $last_test_result
     success = $last_test_result.success
     result = {
         success: success,

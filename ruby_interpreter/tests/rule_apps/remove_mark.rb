@@ -38,7 +38,7 @@ assert(host_graph.edges.size == 2, "Host graph should have two edges.")
 #-----#
 # Act #
 #-----#
-test_run = Test.run(true) {
+test_run = Test.run {
 
     application = RuleApplication.new(rule, host_graph)
     application.attempt
