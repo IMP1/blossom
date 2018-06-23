@@ -10,7 +10,7 @@ require_relative '../objects/procedure'
 require_relative '../objects/label_value_expression'
 require_relative '../objects/condition_expression'
 require_relative '../objects/addendum_statement'
-require_relative '../objects/rule_application'
+require_relative '../rule_application'
 
 class Test
 

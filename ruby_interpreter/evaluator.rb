@@ -1,7 +1,7 @@
-require_relative '../visitor'
+require_relative 'visitor'
 
-require_relative 'label'
-require_relative 'label_value_expression'
+require_relative 'objects/label'
+require_relative 'objects/label_value_expression'
 
 class LabelEvaluator < Visitor
 

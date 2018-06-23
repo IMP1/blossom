@@ -1,6 +1,6 @@
-require_relative '../log'
-require_relative 'graph'
-require_relative 'edge'
+require_relative 'log'
+require_relative 'objects/graph'
+require_relative 'objects/edge'
 
 require_relative 'evaluator'
 

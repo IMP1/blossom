@@ -1,6 +1,7 @@
 require_relative 'main'
 require_relative 'error'
 require_relative 'visitor'
+require_relative 'rule_application'
 
 require_relative 'objects/graph'
 require_relative 'objects/node'
@@ -9,7 +10,6 @@ require_relative 'objects/label'
 require_relative 'objects/label_value_expression'
 # require_relative 'objects/rule_condition_expression'
 require_relative 'objects/rule'
-require_relative 'objects/rule_application'
 
 class TypeChecker < Visitor
 

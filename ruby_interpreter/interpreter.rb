@@ -9,7 +9,7 @@ require_relative 'objects/label'
 require_relative 'objects/label_value_expression'
 # require_relative 'objects/rule_condition_expression'
 require_relative 'objects/rule'
-require_relative 'objects/rule_application'
+require_relative 'rule_application'
 
 class Interpreter < Visitor
 
