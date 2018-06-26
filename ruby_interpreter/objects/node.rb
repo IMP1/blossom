@@ -14,4 +14,8 @@ class Node
         return str
     end
 
+    def clone
+        return Node.new(@id, @label&.clone)
+    end
+
 end

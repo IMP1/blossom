@@ -4,7 +4,7 @@ require_relative '../test'
 
 OUT_FILENAME = "temp-out.txt"
 
-PROG_FILENAME = "./examples/blossom_algorithm.blsm"
+PROG_FILENAME = "examples/blossom_algorithm.blsm"
 
 Test.require do
 

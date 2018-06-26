@@ -8,6 +8,7 @@ def run_test(test_name, filepath, results)
     begin
         load(filepath)
     rescue Exception => e
+        puts e
     end
     success = $last_test_result.success
     result = {
