@@ -39,7 +39,7 @@ class Printer < Visitor
     end
 
     def visit_ProcedureDefinitionStatement(stmt)
-        return "proc " + stmt.name + " (" + stmt.statments.map { |stmt| to_string(stmt) }.join(" ") + ")"
+        return "proc " + stmt.name + " (" + stmt.statements.map { |stmt| to_string(stmt) }.join(" ") + ")"
     end
 
     def visit_LoopStatement(stmt)
