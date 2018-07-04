@@ -1,6 +1,6 @@
-require_relative '../log'
-require_relative 'graph'
-require_relative 'edge'
+require_relative 'log'
+require_relative 'objects/graph'
+require_relative 'objects/edge'
 
 require_relative 'evaluator'
 
@@ -140,7 +140,7 @@ class RuleApplication
 
         @variable_rule_nodes = {}
         @rule.parameters.each do |name, type|
-            var_rule_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
+            var_rule_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
             if var_rule_node.nil?
                 @log.warn("Variable '#{name}' is never used.")
             else
@@ -151,14 +151,18 @@ class RuleApplication
         possible_matches = possible_matches.select do |mapping|
             variable_values = {}
             @variable_rule_nodes.each do |name, type|
-                var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
+                var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
+                var_node ||= @rule.match_graph.edge.find { |edge| edge.label.value.is_a?(VariableLabelExpression) && edge.label.value.name == name }
                 if !var_node.nil?
                     variable_values[name] = mapping[var_node].label.value.value
                 end
             end
-            @rule.match_graph.nodes.select { |node| node.label.value.is_a?(Variable) }.all? do |node| 
+            @rule.match_graph.nodes.select { |node| node.label.value.is_a?(VariableLabelExpression) }.all? do |node| 
                 variable_values[node.label.value.name] == mapping[node].label.value.value
-            end
+            end && 
+            @rule.match_graph.edges.select { |edge| edge.label.value.is_a?(VariableLabelExpression) }.all? do |edge| 
+                variable_values[edge.label.value.name] == mapping[edge].label.value.value
+            end  
         end
 
         @log.trace("Removed mappings with conflicting variable usage.")
@@ -209,6 +213,18 @@ class RuleApplication
             "#{k.id} => #{v.id}" 
         }.join(", "))
 
+        variable_values = {}
+        @log.trace("Variables:")
+        @variable_rule_nodes.each do |name, type|
+            var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
+            if var_node.nil?
+                @log.warn("Variable #{name} is never used.")
+            else
+                variable_values[name] = application[var_node].label.value.value
+                @log.trace("#{name} (#{type[:type_name]}) = #{application[var_node].label.value.value}")
+            end
+        end
+
         new_graph = @graph.clone # TODO: make a clone method for a graph?
         added_node_mappings = {}
 
@@ -241,23 +257,22 @@ class RuleApplication
         @rule.result_graph.edges.each do |rule_edge|
             source_id = id_mapping[rule_edge.source_id]
             target_id = id_mapping[rule_edge.target_id]
-            graph_edge = Edge.new(source_id, target_id, rule_edge.label)
+
+            evaluator = LabelEvaluator.new(rule_edge.label, nil, variable_values)
+            label_value = evaluator.evaluate
+            if label_value.nil?
+                label_value = MatcherLabelExpression.new(:void)
+            else
+                label_value = LiteralLabelExpression.new(label_value)
+                label_type = label_value.type
+            end
+            new_label = Label.new(label_value, label_type, rule_edge.label.markset)
+
+            graph_edge = Edge.new(source_id, target_id, new_label)
             new_graph.edges.push(graph_edge)
         end
 
         @log.trace("Added edges.")
-
-        variable_values = {}
-        @log.trace("Variables:")
-        @variable_rule_nodes.each do |name, type|
-            var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
-            if var_node.nil?
-                @log.warn("Variable #{name} is never used.")
-            else
-                variable_values[name] = application[var_node].label.value.value
-                @log.trace("#{name} (#{type[:type_name]}) = #{application[var_node].label.value.value}")
-            end
-        end
 
         persiting_rule_nodes = @rule.match_graph.nodes.select { |node| 
             @rule.result_graph.nodes.any? { |n| node.id == n.id }
@@ -305,11 +320,14 @@ class RuleApplication
     def label_value_match?(rule_label, graph_label)
         return true if rule_label.value.nil?
 
-        if rule_label.value.is_a?(Matcher) && rule_label.value.keyword == :empty
+        if rule_label.value.is_a?(MatcherLabelExpression) && rule_label.value.keyword == :any
+            return true
+        end
+        if rule_label.value.is_a?(MatcherLabelExpression) && rule_label.value.keyword == :empty
             @log.trace("Checking for empty")
             return graph_label == nil
         end
-        if rule_label.value.is_a?(Matcher) && rule_label.value.keyword == :void
+        if rule_label.value.is_a?(MatcherLabelExpression) && rule_label.value.keyword == :void
             @log.trace("Checking for void")
             return graph_label.value == nil
         end
@@ -318,7 +336,7 @@ class RuleApplication
             return true if rule_label.type == :any
             return rule_label.type == graph_label.type
         end
-        if rule_label.value.is_a?(Literal)
+        if rule_label.value.is_a?(LiteralLabelExpression)
             @log.trace("Checking values")
             @log.trace(rule_label.value.value.inspect)
             @log.trace(graph_label.value.inspect)
@@ -366,7 +384,7 @@ class RuleApplication
 
         variable_values = {}
         @variable_rule_nodes.each do |name, type|
-            var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(Variable) && node.label.value.name == name }
+            var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
             variable_values[name] = mapping[var_node].label.value.value
         end
 
@@ -388,10 +406,20 @@ class RuleApplication
 
         @log.trace("Updated markset")
 
-        evaluator = LabelEvaluator.new(rule_node_after.label, variables)
-        new_label_value = Literal.new(evaluator.evaluate)
+        evaluator = LabelEvaluator.new(rule_node_after.label, graph_node_before.label, variables)
+        new_label_value = evaluator.evaluate
+        new_label_type = nil
 
-        new_label = Label.new(new_label_value, new_label_value.type, new_markset)
+        if new_label_value.nil?
+            new_label_value = MatcherLabelExpression.new(:void)
+        else
+            new_label_value = LiteralLabelExpression.new(new_label_value)
+            new_label_type = new_label_value.type
+        end
+
+        new_label = Label.new(new_label_value, new_label_type, new_markset)
+        @log.trace("Updated label:")
+        @log.trace(new_label.inspect)
 
         @log.trace("Updated label")
 

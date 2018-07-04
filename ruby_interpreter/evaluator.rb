@@ -1,16 +1,20 @@
-require_relative '../visitor'
+require_relative 'visitor'
 
-require_relative 'label'
-require_relative 'label_value_expression'
+require_relative 'objects/label'
+require_relative 'objects/label_value_expression'
 
 class LabelEvaluator < Visitor
 
-    def initialize(label, variables)
+    def initialize(label, old_label, variables)
         @label = label
+        @old_label = old_label
         @variables = variables
     end
 
     def evaluate
+        puts "Evaluating label"
+        p @label
+        p @label.value
         if @label.nil?
             puts "Label is nil!!"
             puts caller
@@ -30,22 +34,32 @@ class LabelEvaluator < Visitor
     # Expressions #
     #-------------#
 
-    def visit_Literal(expr)
+    def visit_LiteralLabelExpression(expr)
         return expr.value
     end
 
-    def visit_Variable(expr)
+    def visit_VariableLabelExpression(expr)
         if !@variables.has_key?(expr.name)
-            raise "unrecognised variable '#{expr.name}'."
+            raise "Unrecognised variable '#{expr.name}'."
         end
         return @variables[expr.name]
     end
 
-    def visit_Matcher(expr)
+    def visit_MatcherLabelExpression(expr)
+        case expr.keyword
+        when :maintain
+            puts "returning old label value"
+            p @old_label
+            p evaluate_expression(@old_label.value)
+            return evaluate_expression(@old_label.value)
+        when :void
+            puts "Returning void label (nil)"
+            return nil
+        end
         raise "A normal graph (one not in a rule) cannot have void/empty/unmarked keywords. Leave the label empty to achieve the same effect."
     end
 
-    def visit_UnaryOperator(expr)
+    def visit_UnaryOperatorLabelExpression(expr)
         right = evaluate_expression(expr.operand)
         case expr.operator
         when :MINUS
@@ -58,7 +72,7 @@ class LabelEvaluator < Visitor
         raise "Unrecognised unary operator"
     end
 
-    def visit_BinaryOperator(expr)
+    def visit_BinaryOperatorLabelExpression(expr)
         left = evaluate_expression(expr.left)
         right = evaluate_expression(expr.right)
         case expr.operator
@@ -123,7 +137,7 @@ class LabelEvaluator < Visitor
         raise "Unrecognised binary operator"
     end
 
-    def visit_Group(expr)
+    def visit_GroupLabelExpression(expr)
         return evaluate_expression(expr.expression)
     end
 
@@ -155,18 +169,18 @@ class ConditionEvaluator < Visitor
     # Expressions #
     #-------------#
 
-    def visit_Literal(expr)
+    def visit_LiteralConditionExpression(expr)
         return expr.value
     end
 
-    def visit_Variable(expr)
+    def visit_VariableConditionExpression(expr)
         if !@variables.has_key?(expr.name)
             raise "unrecognised variable '#{expr.name}'."
         end
         return @variables[expr.name]
     end
 
-    def visit_UnaryOperator(expr)
+    def visit_UnaryOperatorConditionExpression(expr)
         right = evaluate_expression(expr.operand)
         case expr.operator
         when :MINUS
@@ -179,7 +193,7 @@ class ConditionEvaluator < Visitor
         raise "Unrecognised unary operator"
     end
 
-    def visit_BinaryOperator(expr)
+    def visit_BinaryOperatorConditionExpression(expr)
         left = evaluate_expression(expr.left)
         right = evaluate_expression(expr.right)
         case expr.operator
@@ -235,11 +249,11 @@ class ConditionEvaluator < Visitor
         raise "Unrecognised binary operator"
     end
 
-    def visit_Group(expr)
+    def visit_GroupConditionExpression(expr)
         return evaluate_expression(expr.expression)
     end
 
-    def visit_FunctionCall(expr)
+    def visit_FunctionCallConditionExpression(expr)
         args = expr.arguments.map { |a| evaluate_expression(a) }
         return expr.function.call(self, args)
     end

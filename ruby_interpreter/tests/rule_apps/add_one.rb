@@ -5,14 +5,13 @@ require_relative '../test'
 #---------#
 host_graph = Graph.new(
     [
-        Node.new(1, Label.new(Literal.new(4), :int, [])),
-        Node.new(2, Label.new(Literal.new(2), :int, [])),
+        Node.new(1, Label.new(LiteralLabelExpression.new(4), :int, [])),
+        Node.new(2, Label.new(LiteralLabelExpression.new(2), :int, [])),
     ], 
     [
         Edge.new(1, 2, Label.empty),
         Edge.new(2, 1, Label.empty),
     ],
-    {}
 )
 
 
@@ -21,15 +20,13 @@ match_graph  = Graph.new(
         Node.new(1, Label.new(Variable.new("x", :int), :int, [])),
     ], 
     [], 
-    {"x" => :int}
 )
-expr = BinaryOperator.new(:PLUS, Variable.new("x", :int), Literal.new(1))
+expr = BinaryOperator.new(:PLUS, Variable.new("x", :int), LiteralLabelExpression.new(1))
 result_graph = Graph.new(
     [
         Node.new(1, Label.new(expr, :int, [])),
     ], 
     [], 
-    {}
 )
 rule = Rule.new("r1", {"x" => :int}, match_graph, result_graph, nil, nil)
 #----------------#

@@ -15,7 +15,6 @@ host_graph = Graph.new(
         Edge.new(1, 2, Label.empty),
         Edge.new(2, 3, Label.empty),
     ], 
-    {}
 )
 
 match_graph  = Graph.new(
@@ -26,7 +25,6 @@ match_graph  = Graph.new(
     [
         Edge.new(1, 2, Label.empty),
     ], 
-    {}
 )
 result_graph  = Graph.new(
     [
@@ -35,7 +33,6 @@ result_graph  = Graph.new(
     ], 
     [
     ], 
-    {}
 )
 rule = Rule.new("r1", {}, match_graph, result_graph, nil, nil)
 
@@ -49,7 +46,7 @@ end
 #-----#
 # Act #
 #-----#
-test_run = Test.run(true) {
+test_run = Test.run {
 
     application = RuleApplication.new(rule, host_graph)
     application.attempt

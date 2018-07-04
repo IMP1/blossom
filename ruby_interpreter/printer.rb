@@ -20,6 +20,7 @@ class Printer < Visitor
     end
 
     def to_string(obj)
+        puts caller if obj.nil?
         obj.accept(self)
     end
 
@@ -111,7 +112,8 @@ class Printer < Visitor
     end
 
     def visit_LabelExpression(expr)
-        return to_string(expr.value) + " [" + expr.markset.map { |m| m.to_s }.join(", ") + "]"
+        value = expr.value.nil? ? "" : to_string(expr.value)
+        return "(" + value + " [" + expr.markset.map { |m| to_string(m) }.join(", ") + "])"
     end
 
     def visit_EmptyLabelExpression(expr)
@@ -128,6 +130,10 @@ class Printer < Visitor
 
     def visit_MissingLabelValueExpression(expr)
         return "<missing>"
+    end
+    
+    def visit_MaintainLabelValueExpression(expr)
+        return "="
     end
 
     def visit_LiteralExpression(expr)

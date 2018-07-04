@@ -86,6 +86,14 @@ if output_index
 end
 
 
+# Debugging
+if ARGV.count {|a| a == "--step" } > 1
+    puts "Multiple debug arguments were included (--step). Exiting."
+    exit(ExitCode::USAGE)
+end
+stepping = ARGV.delete("--step")
+
+
 # Output Format
 if ARGV.count {|a| a == "--dot" || a == "--graphML" } > 1
     puts "Multiple output formats were included (--dot and/or --graphML). Exiting."
@@ -124,7 +132,7 @@ else
     host_graph = gets.chomp
 end
 
-output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename)
+output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, stepping)
 
 output_file.write(GraphFormatter.format(output_graph, output_format))
 output_file.write("\n")

@@ -97,6 +97,14 @@ class AnyLabelValueExpression < Expression
 
 end
 
+class MaintainLabelValueExpression < Expression
+
+    def initialize(token)
+        super(token)
+    end
+    
+end
+
 class LiteralExpression < Expression
 
     attr_reader :value

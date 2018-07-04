@@ -1,6 +1,7 @@
 require_relative 'main'
 require_relative 'error'
 require_relative 'visitor'
+require_relative 'rule_application'
 
 require_relative 'objects/graph'
 require_relative 'objects/node'
@@ -9,7 +10,6 @@ require_relative 'objects/label'
 require_relative 'objects/label_value_expression'
 # require_relative 'objects/rule_condition_expression'
 require_relative 'objects/rule'
-require_relative 'objects/rule_application'
 
 class TypeChecker < Visitor
 
@@ -19,6 +19,7 @@ class TypeChecker < Visitor
         @instructions = instructions
         @variables = nil
         @matching = false
+        @applying = false
     end
 
     def type_check(type, *types)
@@ -74,7 +75,9 @@ class TypeChecker < Visitor
     end
 
     def check_result_graph(graph)
+        @applying = true
         check_graph(graph)
+        @applying = false
     end
 
     def check_expression(expr)
@@ -117,6 +120,9 @@ class TypeChecker < Visitor
     def visit_VoidLabelValueExpression(expr)
     end
 
+    def visit_MaintainLabelValueExpression(expr)
+    end
+
     def visit_AnyLabelValueExpression(expr)
     end
 
@@ -124,7 +130,6 @@ class TypeChecker < Visitor
     end
 
     def visit_LiteralExpression(expr)
-        @log.trace("Type literal.")
         return expr.type
     end
 
@@ -139,10 +144,10 @@ class TypeChecker < Visitor
     end
 
     def visit_MarkExpression(expr)
-        # if !@matching
+        # if !(@matching || @applying)
             # error(expr, "Cannot have marks in a normal graph")
         # end
-        if !@matching && expr.value[0] == '¬'
+        if !(@matching || @applying) && expr.value[0] == '¬'
             error(expr, "Cannot have negative marks in a normal graph")
         end
     end

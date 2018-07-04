@@ -13,7 +13,7 @@ class ConditionExpression
 
 end
 
-class Literal < LabelValueExpression
+class LiteralConditionExpression < ConditionExpression
 
     attr_reader :value
 
@@ -40,6 +40,7 @@ class Literal < LabelValueExpression
         end
         puts "Unexpected value type:"
         p self.value.class
+        puts caller
         raise "Unexpected value type"
     end
 
@@ -49,7 +50,7 @@ class Literal < LabelValueExpression
 
 end
 
-class Variable < LabelValueExpression
+class VariableConditionExpression < ConditionExpression
 
     attr_reader :name
 
@@ -72,7 +73,7 @@ class Variable < LabelValueExpression
 
 end
 
-class UnaryOperator < LabelValueExpression
+class UnaryOperatorConditionExpression < ConditionExpression
 
     attr_reader :operator
     attr_reader :operand
@@ -92,7 +93,7 @@ class UnaryOperator < LabelValueExpression
 
 end
 
-class BinaryOperator < LabelValueExpression
+class BinaryOperatorConditionExpression < ConditionExpression
 
     attr_reader :left
     attr_reader :operator
@@ -161,7 +162,7 @@ class BinaryOperator < LabelValueExpression
 
 end
 
-class Group < LabelValueExpression
+class GroupConditionExpression < ConditionExpression
 
     attr_reader :expression
 
@@ -179,7 +180,7 @@ class Group < LabelValueExpression
 
 end
 
-class FunctionCall < ConditionExpression
+class FunctionCallConditionExpression < ConditionExpression
 
     attr_reader :function
     attr_reader :arguments

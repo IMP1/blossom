@@ -10,7 +10,7 @@ require_relative '../objects/procedure'
 require_relative '../objects/label_value_expression'
 require_relative '../objects/condition_expression'
 require_relative '../objects/addendum_statement'
-require_relative '../objects/rule_application'
+require_relative '../rule_application'
 
 class Test
 
@@ -74,7 +74,10 @@ class Test
                 begin
                     uncaught_assert(expr, message)
                 rescue AssertionError => e
-                    location = e.backtrace_locations.find {|loc| loc.to_s.include?("<main>") }
+                    loc_index = e.backtrace_locations.find_index { |loc| 
+                        loc.to_s.include?("block in ensure") 
+                    } + 1
+                    location = e.backtrace_locations[loc_index]
                     line     = location.lineno - 1
                     filename = location.absolute_path
                     assertion = File.readlines(filename)[line][/#{method_name}\((.+)\)/, 1]
@@ -84,13 +87,14 @@ class Test
             instance_exec(result, &block)
             alias assert uncaught_assert
 
-            success = result&.success
+            success = true
             if !failures.empty?
                 success = false
                 puts "Failed Assertions:"
             end
             failures.each { |msg| puts "  * " + msg }
             puts "\nTest " + (success ? "succeeded" : "failed") + "."
+            result.success = success
             $last_test_result = result
         end
     end
@@ -99,7 +103,7 @@ class Test
 
         attr_reader :start_time
         attr_reader :end_time
-        attr_reader :success
+        attr_accessor :success
         attr_reader :error
         attr_reader :value
 
@@ -117,7 +121,7 @@ class Test
 
     @precondition_failures = []
 
-    def self.run(blocking=false, &block)
+    def self.run(&block)
         test_run = TestRun.new(block)
         if !@precondition_failures.empty?
             puts "Failed Pre-Conditions:"
@@ -125,7 +129,6 @@ class Test
             return TestRun::INVALID
         end
         test_run.run
-        test_run.thread.join if blocking
         @precondition_failures.clear
         return test_run
     end
