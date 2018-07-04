@@ -126,6 +126,10 @@ class Printer < Visitor
         return "*"
     end
 
+    def visit_MissingLabelValueExpression(expr)
+        return "<missing>"
+    end
+
     def visit_LiteralExpression(expr)
         return expr.value.to_s
     end
@@ -144,7 +148,7 @@ class Printer < Visitor
         when :MINUS
             return "-" + right
         when :NOT, :EXCLAMATION
-            return "¬" + right
+            return "!" + right
         end
         puts "Unrecognised unary operator"
         p expr

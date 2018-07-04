@@ -125,7 +125,7 @@ class Tokeniser
         when '%'
             add_token(:PERCENT)
         when '¬'
-            add_token(:NOT)
+            add_token(:UNMARK)
         when '&'
             add_token(:AMPERSAND)
         when '|'

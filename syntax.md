@@ -109,7 +109,7 @@ Integer operations include, in order or precedence:
 
 Boolean operations include, in order of precedence:
 
- 1. `¬`/`not` not
+ 1. `!`/`not` not
  2. `&`/`and` and
  3. `|`/`or`  or
  4. `^`/`xor` xor
