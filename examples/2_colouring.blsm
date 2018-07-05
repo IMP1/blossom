@@ -12,16 +12,16 @@
 // two nodes of the same colour, then the graph is not 2-colourable.
 
 rule init 
-    [ 1 (empty) ]
+    [ 1 (unmarked) ]
  => [ 1 (#red) ];
 
 rule colour_red 
-    [ 1 (#blue), 2 (empty) ]
+    [ 1 (#blue), 2 (¬red) ]
  => [ 1 (#blue), 2 (#red) ]
 where adj?(1, 2);
 
 rule colour_blue 
-    [ 1 (#red), 2 (empty) ]
+    [ 1 (#red), 2 (¬blue) ]
  => [ 1 (#red), 2 (#blue) ]
 where adj?(1, 2);
 
