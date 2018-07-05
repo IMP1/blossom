@@ -155,7 +155,7 @@ class Parser
     end
 
     def parse_label_value
-        if check(:MARK) || check(:UNMARK) || check(:RIG)
+        if check(:MARK) || check(:UNMARK) || check(:UNMARKED)
             return MissingLabelValueExpression.new(previous)
         end
         if match_token(:ASTERISK)
@@ -186,6 +186,7 @@ class Parser
                 value = "¬" + previous.lexeme
             end
             set.push(MarkExpression.new(token, value))
+            match_token(:COMMA)
         end
         return set
     end

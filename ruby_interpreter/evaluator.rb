@@ -12,9 +12,6 @@ class LabelEvaluator < Visitor
     end
 
     def evaluate
-        puts "Evaluating label"
-        p @label
-        p @label.value
         if @label.nil?
             puts "Label is nil!!"
             puts caller
@@ -48,7 +45,6 @@ class LabelEvaluator < Visitor
     def visit_MatcherLabelExpression(expr)
         case expr.keyword
         when :void
-            puts "Returning void label (nil)"
             return nil
         end
         raise "A normal graph (one not in a rule) cannot have void/empty/unmarked keywords. Leave the label empty to achieve the same effect."

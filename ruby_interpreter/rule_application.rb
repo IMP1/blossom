@@ -7,7 +7,7 @@ require_relative 'evaluator'
 class RuleApplication
 
     def initialize(rule, graph)
-        @log = Log.new("RuleApplication")
+        @log = Log.new("RuleApplication:#{rule.name}")
         @log.set_level(Log::ALL) if $verbose
         @rule = rule
         @graph = graph
@@ -18,6 +18,9 @@ class RuleApplication
 
         if mappings.empty?
             @log.trace("No possible applications.")
+            if $tracing
+                puts "Could not applying #{rule.name}. No matches."
+            end
             return Graph::INVALID
         else
             @log.trace("Final possible mappings:")
@@ -28,8 +31,26 @@ class RuleApplication
             }.join("\n"))
         end
 
-        return apply(mappings.sample)
+        # TODO: should all of the mappings return a valid graph?
 
+        mapping = mappings.sample
+        if $tracing
+            puts "Applying #{@rule.name}."
+            puts mapping.map { |k, v| 
+                "#{k.id} => #{v.id}" 
+            }.join(", ")
+        end
+        if $tracing
+            puts "Before: "
+            puts @graph
+        end
+        new_graph = apply(mapping)
+        if $tracing
+            puts "After: "
+            puts new_graph
+        end
+
+        return new_graph
     end
 
     def added_rule_nodes 
@@ -349,11 +370,12 @@ class RuleApplication
     end
 
     def markset_match?(rule_label, graph_label)
-        return true if rule_label.markset.empty?
-
         if rule_label.markset.nil?
             return graph_label.markset.empty?
         end
+        
+        return true if rule_label.markset.empty?
+
         if rule_label.markset.select { |m| m[0] == "#" }
                              .any? { |m| !graph_label.markset.include?(m) }
             return false

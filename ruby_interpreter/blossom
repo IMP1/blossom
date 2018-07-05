@@ -14,7 +14,7 @@ if ARGV.include?("--help") || ARGV.include?("help")
     puts "  blossom <path/to/programme/file.blsm> "
     puts "          {--input <path/to/input/graph/file.bg> | \"<graph text>\"}"
     puts "          [--output <path/to/output/graph/file.bg>]"
-    puts "  (unimp) [--trace]"
+    puts "          [--trace]"
     puts "  (unimp) [--trace-dir <path/to/trace/directory>]"
     puts "  (unimp) [--ignore-colours | --merge-colours]"
     puts "  (unimp) [--keep-rationals]"
@@ -28,7 +28,7 @@ if ARGV.include?("--help") || ARGV.include?("help")
     puts "  version        : Prints the current version."
     puts "  input          : Specify a file to use for a initial graph."
     puts "  output         : Specify a file to print the resultant graph to."
-    puts "  trace          : Creates interim graph files throughout the execution of the programme."  # TODO
+    puts "  trace          : Creates interim graph files throughout the execution of the programme."
     puts "  trace-dir      : Specify a directory for the trace graphcs to be created in."             # TODO
     puts "  ignore-colours : Don't add any colour styling to nodes/edges with colour-valued marks."   # TODO
     puts "  merge-colours  : Have a node/edge be the average of any colour-valued marks it has."      # TODO
@@ -147,6 +147,12 @@ if ARGV.count {|a| a == "--debug" } > 1
 end
 $verbose ||= ARGV.delete("--debug")
 
+if ARGV.count {|a| a == "--trace" } > 1
+    puts "Multiple debug arguments were included (--trace). Exiting."
+    exit(ExitCode::USAGE)
+end
+$tracing ||= ARGV.delete("--trace")
+
 if ARGV.count {|a| a == "--dry-run" } > 1
     puts "Multiple debug arguments were included (--dry-run). Exiting."
     exit(ExitCode::USAGE)
@@ -196,6 +202,7 @@ else
 end
 
 output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, dry_run)
+$stdout.flush
 
 output_file.write(GraphFormatter.format(output_graph, output_format))
 output_file.write("\n")
