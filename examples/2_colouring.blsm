@@ -13,8 +13,7 @@
 
 rule init 
     [ 1 (empty) ]
- => [ 1 (void, #red) ];
-
+ => [ 1 (#red) ];
 
 rule colour_red 
     [ 1 (#blue), 2 (empty) ]

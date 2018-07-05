@@ -47,11 +47,6 @@ class LabelEvaluator < Visitor
 
     def visit_MatcherLabelExpression(expr)
         case expr.keyword
-        when :maintain
-            puts "returning old label value"
-            p @old_label
-            p evaluate_expression(@old_label.value)
-            return evaluate_expression(@old_label.value)
         when :void
             puts "Returning void label (nil)"
             return nil

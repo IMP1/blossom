@@ -5,20 +5,74 @@ require_relative 'exit_code'
 VERSION = "0.3.0"
 
 # Output file
-if ARGV.include?("-h") || ARGV.include?("--help") || ARGV.include?("help")
+if ARGV.include?("--help") || ARGV.include?("help")
     puts "Blossom Interpreter v#{VERSION}"
-    puts "Usage: "
+    puts "Usage:"
+    puts
+    puts "  blossom {--help | --version}"
     puts
     puts "  blossom <path/to/programme/file.blsm> "
     puts "          {--input <path/to/input/graph/file.bg> | \"<graph text>\"}"
     puts "          [--output <path/to/output/graph/file.bg>]"
-    puts "          [--dot | --graphML]"
+    puts "  (unimp) [--trace]"
+    puts "  (unimp) [--trace-dir <path/to/trace/directory>]"
+    puts "  (unimp) [--ignore-colours | --merge-colours]"
+    puts "  (unimp) [--keep-rationals]"
+    puts "          [--dot | --graphML | --blossom]"
+    puts "          [--debug]"
+    puts "          [--dry-run]"
     puts
-    puts "Example:"
+    puts "Arguments:"
     puts
-    puts "  blossom examples/simple_dijkstra.blsm \"[1(0), 2, 3, 4, 5 | 1->2(3), 1->3(5), 2->3(1), 2->4(4), 3->5(2), 4->5(2) ]\""
+    puts "  help           : Prints this help message."
+    puts "  version        : Prints the current version."
+    puts "  input          : Specify a file to use for a initial graph."
+    puts "  output         : Specify a file to print the resultant graph to."
+    puts "  trace          : Creates interim graph files throughout the execution of the programme."  # TODO
+    puts "  trace-dir      : Specify a directory for the trace graphcs to be created in."             # TODO
+    puts "  ignore-colours : Don't add any colour styling to nodes/edges with colour-valued marks."   # TODO
+    puts "  merge-colours  : Have a node/edge be the average of any colour-valued marks it has."      # TODO
+    puts "  keep-rationals : Keep any rational numeric values as fractions in the resultant graph."   # TODO
+    puts "  dot            : Output the resultant graph in the dot format."
+    puts "  graphML        : Output the resultant graph in the GraphML format."
+    puts "  blossom        : Output the resultant graph in the blossom format (this is the default)."
+    puts "  debug          : Prints detailed logging information."
+    puts "  dry-run        : Parses the programme and graph, but doesn't execute."
+    puts
+    puts "  (unimp) = NOT YET IMPLEMENTED"
+    puts
+    puts "Examples:"
+    puts
+    puts "  ./blossom examples/simple_dijkstra.blsm \"[1(0), 2, 3, 4 | 1->2(3), 1->3(5), 2->3(1), 2->4(4), 3->5(2), 4->5(2) ]\""
+    puts "  ./blossom examples/2_colouring.blsm --input examples/3x3grid"
     puts
     puts "Report any problems, ask questions, or browse the source at https://github.com/IMP1/blossom"
+    exit(ExitCode::OK)
+end
+
+if ARGV.include?("-h")
+    puts "Blossom Interpreter v#{VERSION}"
+    puts "Usage:"
+    puts
+    puts "  blossom {--help | --version}"
+    puts
+    puts "  blossom <path/to/programme/file.blsm> "
+    puts "          {--input <path/to/input/graph/file.bg> | \"<graph text>\"}"
+    puts "          [--output <path/to/output/graph/file.bg>]"
+    puts "  (unimp) [--trace]"
+    puts "  (unimp) [--trace-dir <path/to/trace/directory>]"
+    puts "  (unimp) [--ignore-colours | --merge-colours]"
+    puts "  (unimp) [--keep-rationals]"
+    puts "          [--dot | --graphML | --blossom]"
+    puts "          [--debug]"
+    puts "          [--dry-run]"
+    puts
+    puts "Report any problems, ask questions, or browse the source at https://github.com/IMP1/blossom"
+    exit(ExitCode::OK)
+end
+
+if ARGV.include?("--version")
+    puts "blossom version #{VERSION}"
     exit(ExitCode::OK)
 end
 
@@ -87,16 +141,22 @@ end
 
 
 # Debugging
-if ARGV.count {|a| a == "--step" } > 1
-    puts "Multiple debug arguments were included (--step). Exiting."
+if ARGV.count {|a| a == "--debug" } > 1
+    puts "Multiple debug arguments were included (--debug). Exiting."
     exit(ExitCode::USAGE)
 end
-stepping = ARGV.delete("--step")
+$verbose ||= ARGV.delete("--debug")
+
+if ARGV.count {|a| a == "--dry-run" } > 1
+    puts "Multiple debug arguments were included (--dry-run). Exiting."
+    exit(ExitCode::USAGE)
+end
+dry_run ||= ARGV.delete("--dry-run")
 
 
 # Output Format
-if ARGV.count {|a| a == "--dot" || a == "--graphML" } > 1
-    puts "Multiple output formats were included (--dot and/or --graphML). Exiting."
+if ARGV.count {|a| a == "--dot" || a == "--graphML" || a == "--blossom" } > 1
+    puts "Multiple output formats were included (--dot, --graphML and/or --blossom). Exiting."
     exit(ExitCode::USAGE)
 end
 
@@ -104,12 +164,15 @@ output_format = nil
 if ARGV.count {|a| a == "--dot" } == 1
     output_format = :dot
     ARGV.delete("--dot")
-end
-if ARGV.count {|a| a == "--graphML" } == 1
+elsif ARGV.count {|a| a == "--graphML" } == 1
     output_format = :graph_ml
     ARGV.delete("--graphML")
+elsif ARGV.count {|a| a == "--blossom" } == 1
+    output_format = :blossom
+    ARGV.delete("--blossom")
+else
+    output_format = :blossom
 end
-output_format ||= :blossom
 
 # Programme Filename
 if ARGV.size > 0
@@ -124,15 +187,19 @@ end
 programme_file = File.open(programme_filename, 'r')
 programme_source = programme_file.read
 
-if ARGV.size > 0
-    host_graph = ARGV.delete_at(0)
-elsif host_graph_file != $stdin
+p host_graph_file
+p $stdin
+if host_graph_file != $stdin
     host_graph = host_graph_file.read
+elsif ARGV.size > 0
+    host_graph = ARGV.delete_at(0)
 else
     host_graph = gets.chomp
 end
 
-output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, stepping)
+puts "Here we go!"
+
+output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, dry_run)
 
 output_file.write(GraphFormatter.format(output_graph, output_format))
 output_file.write("\n")

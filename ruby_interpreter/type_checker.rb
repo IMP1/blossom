@@ -120,9 +120,6 @@ class TypeChecker < Visitor
     def visit_VoidLabelValueExpression(expr)
     end
 
-    def visit_MaintainLabelValueExpression(expr)
-    end
-
     def visit_AnyLabelValueExpression(expr)
     end
 

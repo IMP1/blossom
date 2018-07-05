@@ -100,7 +100,7 @@ class Printer < Visitor
     #-------------#
 
     def visit_GraphExpression(expr)
-        return "[" + expr.nodes.map { |n| to_string(n) }.join(", ") + "|" + expr.edges.map {|e| to_string(e) }.join(", ") + "]"
+        return "[\n" + expr.nodes.map { |n| to_string(n) }.join(",\n") + "\n|\n" + expr.edges.map {|e| to_string(e) }.join(",\n") + "\n]"
     end
 
     def visit_NodeExpression(expr)
@@ -130,10 +130,6 @@ class Printer < Visitor
 
     def visit_MissingLabelValueExpression(expr)
         return "<missing>"
-    end
-    
-    def visit_MaintainLabelValueExpression(expr)
-        return "="
     end
 
     def visit_LiteralExpression(expr)

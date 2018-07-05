@@ -201,10 +201,6 @@ class Interpreter < Visitor
         return MatcherLabelExpression.new(:void)
     end
 
-    def visit_MaintainLabelValueExpression(expr)
-        return MatcherLabelExpression.new(:maintain)
-    end
-
     def visit_AnyLabelValueExpression(expr)
         return MatcherLabelExpression.new(:any)
     end

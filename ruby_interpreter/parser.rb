@@ -126,8 +126,8 @@ class Parser
                 puts "Rule matching graph = any"
                 node_label_value = AnyLabelValueExpression.new(node_id_token)
             elsif @applying
-                puts "Rule resulting graph = keep"
-                node_label_value = MaintainLabelValueExpression.new(node_id_token)
+                puts "Rule resulting graph = void"
+                node_label_value = VoidLabelValueExpression.new(node_id_token)
             else
                 puts "normal graph = void"
                 node_label_value = VoidLabelValueExpression.new(node_id_token)
@@ -142,11 +142,11 @@ class Parser
         if match_token(:EMPTY)
             return EmptyLabelExpression.new(paren_token)
         end
-        if check(:MARK) || check(:NOT)
+        if check(:MARK) || check(:UNMARK) || check(:UNMARKED)
             if @matching
                 value = AnyLabelValueExpression.new(paren_token)
             elsif @applying
-                value = MaintainLabelValueExpression.new(paren_token)
+                value = VoidLabelValueExpression.new(paren_token)
             else
                 value = VoidLabelValueExpression.new(paren_token)
             end
