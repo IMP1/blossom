@@ -122,7 +122,7 @@ class UnaryOperatorLabelExpression < LabelValueExpression
         when :MINUS
             "-"
         when :NOT
-            "¬"
+            "!"
         end
         return op + @operand.to_s
     end

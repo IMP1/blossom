@@ -58,8 +58,12 @@ class Interpreter < Visitor
     def visit_RuleDefinitionStatement(stmt, current_graph)
         @log.trace("Defining rule #{stmt.name}.")
         @variables = stmt.parameters || {}
+        @match_graph = true
         match_graph = evaluate(stmt.match_graph)
+        @match_graph = nil
+        @result_graph = true
         result_graph = evaluate(stmt.result_graph)
+        @result_graph = nil
         condition = evaluate(stmt.condition) if !stmt.condition.nil?
         addendum = evaluate(stmt.addendum) if !stmt.addendum.nil?
         @variables = nil
@@ -203,6 +207,16 @@ class Interpreter < Visitor
 
     def visit_AnyLabelValueExpression(expr)
         return MatcherLabelExpression.new(:any)
+    end
+
+    def visit_MissingLabelValueExpression(expr)
+        if @match_graph
+            return Matcher.new(:any)
+        end
+        if @result_graph
+            return Matcher.new(:void)
+        end
+        return nil
     end
 
     def visit_LiteralExpression(expr)

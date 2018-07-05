@@ -126,6 +126,9 @@ class TypeChecker < Visitor
     def visit_AnyLabelValueExpression(expr)
     end
 
+    def visit_MissingLabelValueExpression(expr)
+    end
+
     def visit_LiteralExpression(expr)
         return expr.type
     end

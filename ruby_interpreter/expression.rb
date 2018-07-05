@@ -81,6 +81,14 @@ class VoidLabelValueExpression < Expression
 
 end
 
+class MissingLabelValueExpression < Expression
+
+    def initialize(token)
+        super(token)
+    end
+    
+end
+
 class AnyLabelValueExpression < Expression
 
     def initialize(token)

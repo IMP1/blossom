@@ -109,7 +109,7 @@ Integer operations include, in order or precedence:
 
 Boolean operations include, in order of precedence:
 
- 1. `¬`/`not` not
+ 1. `!`/`not` not
  2. `&`/`and` and
  3. `|`/`or`  or
  4. `^`/`xor` xor
@@ -140,10 +140,12 @@ Rules can also be suffixed with a condition, using the `where` modifier. These c
   * `out(node_id) -> int`: returns the number of edges with the node specified by `node_id` as their source.
   * `edge(source_id, target_id) -> int`: returns the number of edges from the node specified by `source_id` to the node specified be `target_id`.
   * `adj(node_1_id, node_2_id) -> int`: returns the number of edges in either direction between the two nodes.
+  * `edge?(source_id, target_id) -> bool`: returns whether there is at least one edge from the source node to the target node.
+  * `adj?(node_1_id, node_2_id) -> bool`: returns whether there is at least one edge in either direction between the nodes. This is also known as the nodes being *adjacent*.
 
 Conditions can also query values of nodes, or the existence (or non-existence) of marks.
 Equality is done with a single equals (since there is no assignment operator to get confused with).
-These can be combined with the logical operators `and`, `or`, `xor`, and `not`, which use [Polish Notation](https://en.wikipedia.org/wiki/Polish_notation).
+These can be combined with the logical operators `and`, `or`, `xor`, and `not`.
 
 If no label is specified in the initial graph of a rule, then it will match any label. To specify a node or edge with no value, use the `void` keyword, 
 and as mentioned above the `unmarked` keyword will match nodes and edges with no marks. You can search for a node or edge where its label does not contain a mark, with the `¬markname` syntax.
@@ -154,7 +156,9 @@ Despite the two previous points, it is advised to be explicit when using labels.
 
 Note that edges are always destroyed and recreated, and so omitting a label in the result graph will not retain the label from the initial graph, as it will always be a new edge.
 
-As well as rule conditions, rules can also have an *addendum*. This is generally used for debugging or for file I/O. It uses the `also` keyword and executes the following statement when the rule application takes place. Any variable use values from before the rule application. See the [Turing Complete example](https://github.com/IMP1/blossom/tree/master/examples/turing_complete.blsm) for an example for this.
+As well as rule conditions, rules can also have an *addendum*. This is generally used for debugging or for file I/O. It uses the `also` keyword and executes the following statement when the rule application takes place. Any variable use values from before the rule application. See the [Turing Complete example](https://github.com/IMP1/blossom/tree/master/examples/turing_complete.blsm) for an example for this. The inbuilt functions are available in addendums, as well as the following procedures:
+
+  * `print(any_val)`: converts the argument to a string and prints it to stdout, followed by a newline.
 
 ```blossom
 // Rule Example:

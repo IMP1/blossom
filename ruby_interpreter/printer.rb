@@ -40,7 +40,7 @@ class Printer < Visitor
     end
 
     def visit_ProcedureDefinitionStatement(stmt)
-        return "proc " + stmt.name + " (" + stmt.statments.map { |stmt| to_string(stmt) }.join(" ") + ")"
+        return "proc " + stmt.name + " (" + stmt.statements.map { |stmt| to_string(stmt) }.join(" ") + ")"
     end
 
     def visit_LoopStatement(stmt)
@@ -128,6 +128,10 @@ class Printer < Visitor
         return "*"
     end
 
+    def visit_MissingLabelValueExpression(expr)
+        return "<missing>"
+    end
+    
     def visit_MaintainLabelValueExpression(expr)
         return "="
     end
@@ -150,7 +154,7 @@ class Printer < Visitor
         when :MINUS
             return "-" + right
         when :NOT, :EXCLAMATION
-            return "¬" + right
+            return "!" + right
         end
         puts "Unrecognised unary operator"
         p expr

@@ -159,6 +159,9 @@ class Parser
     end
 
     def parse_label_value
+        if check(:MARK) || check(:UNMARK) || check(:RIG)
+            return MissingLabelValueExpression.new(previous)
+        end
         if match_token(:ASTERISK)
             return AnyLabelValueExpression.new(previous)
         end
@@ -179,10 +182,10 @@ class Parser
             return nil
         end
         set = []
-        while match_token(:MARK, :NOT)
+        while match_token(:MARK, :UNMARK)
             token = previous
             value = previous.literal
-            if token.name == :NOT
+            if token.name == :UNMARK
                 consume_token(:IDENTIFIER, "Expecting mark name after '¬'.")
                 value = "¬" + previous.lexeme
             end
