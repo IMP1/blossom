@@ -1,0 +1,119 @@
+
+programme       =  1*( declaration )
+
+declaration     =  rule-def / proc-def / rule-app
+
+rule-def        =  "rule" ws identifier ws [var-list] ws graph-def ws "=>" ws graph-def ws [condition] ws [addendum] ws (";" / "end")
+
+var-list        =  "<" ws *(type ws ":" ws identifier *("," ws identifier) [","]) ws ">"
+condition       =  "where" ws expression
+addendum        =  "also" ws statement
+
+graph-def       =  "[" ws [node-def] ws *("," node-def) ws [","] ws ["|" ws [edge-def] *("," edge-def) [","]] ws "]"
+
+node-def        =  node-id ws [label]
+edge-def        =  node-id ws ["<"] "->" ws node-id ws [label]
+
+node-id         =  integer
+
+label           =  %x28 ws value ws ["," ws markset] ws [","] ws %x29
+label           =/ %x28 ws [markset] ws [","] ws %x29
+
+value           =  literal-value
+value           =/ identifier                                                                       ; only in rule graphs
+value           =/ expression                                                                       ; only in RHS graphs 
+
+markset         =  mark ws *( "," ws mark )
+markset         =/ "unmarked"
+
+mark            =  (%x23 / %xAC) identifier
+
+literal-value   =  number / string / boolean
+
+number          =  ["-"] (integer / rational / real)
+
+type            = "int" / "real" / "rational" / "string" / "bool" / "any"
+
+integer         =  1*(DIGIT)
+rational        =  integer "/" integer
+real            =  integer "." integer
+
+string          =  %x22 *(basic-char) %x22
+
+boolean         =  "true" / "false"
+
+basic-char      =  unescaped / escaped
+unescaped       =  %x20-21 / %x23-5B / %x5D-7E / %x80-10FFFF
+escaped         =  escape escape-seq-char
+
+escape          =  %x5C                                                                             ; \
+escape-seq-char =  %x22                                                                             ; "    quotation mark  U+0022
+escape-seq-char =/ %x5C                                                                             ; \    reverse solidus U+005C
+escape-seq-char =/ %x2F                                                                             ; /    solidus         U+002F
+escape-seq-char =/ %x62                                                                             ; b    backspace       U+0008
+escape-seq-char =/ %x66                                                                             ; f    form feed       U+000C
+escape-seq-char =/ %x6E                                                                             ; n    line feed       U+000A
+escape-seq-char =/ %x72                                                                             ; r    carriage return U+000D
+escape-seq-char =/ %x74                                                                             ; t    tab             U+0009
+escape-seq-char =/ %x75 4HEXDIG                                                                     ; uXXXX                U+XXXX
+escape-seq-char =/ %x55 8HEXDIG                                                                     ; UXXXXXXXX            U+XXXXXXXX
+
+
+proc-def        = "proc" ws identifier ws *(rule-app) ws (";" / "end")
+
+rule-app        =  "try"  ws "(" ws rule-seq ws ")"                                                 ; try
+rule-app        =/ "if"   ws "(" ws rule-seq ws [":" ws rule-seq] ws [":" ws rule-seq] ws ")"       ; if
+rule-app        =/ "with" ws "(" ws rule-seq ws [":" ws rule-seq] ws [":" ws rule-seq] ws ")"       ; with
+rule-app        =/ "{" ws rule-seq ws *("," ws rule-seq) ws "}"                                     ; choose
+rule-app        =/ "(" ws rule-seq ws ")"                                                           ; sequence (for grouping)
+rule-app        =/ rule-app "!"                                                                     ; loop
+rule-app        =/ "noop"                                                                           ; noop
+rule-app        =/ "invalid"                                                                        ; invalid
+rule-app        =/ identifier                                                                        ; rule/proc
+
+rule-seq        = 1*(rule-app ws)
+
+
+expression      =  func-call                                                                        ; builtin in/out/adj functions
+expression      =/ expression ws "^"   ws expression
+expression      =/ expression ws "/"   ws expression
+expression      =/ expression ws "*"   ws expression
+expression      =/ expression ws "+"   ws expression
+expression      =/ expression ws "-"   ws expression
+expression      =/ expression ws "%"   ws expression
+expression      =/ expression ws "="   ws expression
+expression      =/ expression ws "!="  ws expression
+expression      =/ expression ws "<"   ws expression
+expression      =/ expression ws "<="  ws expression
+expression      =/ expression ws ">"   ws expression
+expression      =/ expression ws ">="  ws expression
+expression      =/ expression ws "&"   ws expression
+expression      =/ expression ws "and" ws expression
+expression      =/ expression ws "|"   ws expression
+expression      =/ expression ws "or"  ws expression
+expression      =/ expression ws "xor" ws expression
+expression      =/ expression ws "^="  ws expression
+expression      =/ expression ws "$="  ws expression
+expression      =/ expression ws "~="  ws expression
+expression      =/ "-"   expression
+expression      =/ "!"   expression
+expression      =/ "not" ws expression
+expression      =/ identifier
+expression      =/ literal-value
+
+func-call       =  identifier "(" ws [func-args] ws ")"
+func-args       =  expression ws *( "," ws expression )
+
+statement       = func-call                                                                         ; builtin print/debug procedures
+
+
+identifier      =  1*( ALPHA / DIGIT / %x5F )                                                       ; A-Z / a-z / 0-9 / _
+
+
+;; Whitespace
+
+ws = *wschar
+wschar =  %x20      ; Space
+wschar =/ %x09      ; Horizontal tab
+wschar =/ %x0A      ; LF
+wschar =/ %x0D.0A   ; CRLF
