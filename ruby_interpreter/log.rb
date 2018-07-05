@@ -57,6 +57,16 @@ class Log
         log(message, @source, DEBUG)
     end
 
+    # FG_BLACK   = "\33[30m" # set foreground color to black
+    # FG_RED     = "\33[31m" # set foreground color to red
+    # FG_GREEN   = "\33[32m" # set foreground color to green
+    # FG_YELLOW  = "\33[33m" # set foreground color to yellow
+    # FG_BLUE    = "\33[34m" # set foreground color to blue
+    # FG_MAGENTA = "\33[35m" # set foreground color to magenta (purple)
+    # FG_CYAN    = "\33[36m" # set foreground color to cyan
+    # FG_WHITE   = "\33[37m" # set foreground color to white
+    # FG_DEFAULT = "\33[39m" # set foreground color to default (white)
+
     def trace(message)
         log(message, @source, TRACE)
     end

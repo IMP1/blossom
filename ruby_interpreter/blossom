@@ -187,8 +187,6 @@ end
 programme_file = File.open(programme_filename, 'r')
 programme_source = programme_file.read
 
-p host_graph_file
-p $stdin
 if host_graph_file != $stdin
     host_graph = host_graph_file.read
 elsif ARGV.size > 0
@@ -196,8 +194,6 @@ elsif ARGV.size > 0
 else
     host_graph = gets.chomp
 end
-
-puts "Here we go!"
 
 output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, dry_run)
 

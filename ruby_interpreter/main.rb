@@ -120,6 +120,7 @@ class Runner
         end
 
         if dont_execute
+            puts "Dry run successful."
             exit(ExitCode::OK)
         end
 
@@ -129,12 +130,6 @@ class Runner
         result_graph = interpreter.interpret
 
         return result_graph
-    end
-
-    def self.pause
-        print "\n> "
-        continue = gets
-        exit(0) if continue.start_with?('q')
     end
 
 end

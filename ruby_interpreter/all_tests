@@ -60,7 +60,7 @@ def print_results(results)
 end
 
 $verbose = ARGV.delete("--verbose") || ARGV.delete("-v")
-silent = ARGV.delete("--silent") || ARGV.delete("-s")
+quiet = ARGV.delete("--quiet") || ARGV.delete("-q")
 output = STDOUT
 
 if ARGV.include?("--output")
@@ -76,7 +76,7 @@ end
 
 $stdout = output
 
-if silent
+if quiet
     $stdout = File.open(File::NULL, 'w')
 end
 
