@@ -88,7 +88,7 @@ class GraphFormatter
                  xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns 
                                      http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
         HEREDOC
-        header += Literal::TYPES.map do |value_type|
+        header += LiteralLabelExpression::TYPES.map do |value_type|
             type = case value_type
             when :int
                 "int"

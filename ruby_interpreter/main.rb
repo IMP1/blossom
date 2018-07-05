@@ -80,8 +80,8 @@ class Runner
         @@runtime_errors = []
     end
 
-    def self.run(prog_source, graph_source, prog_filename, graph_filename, log=nil)
-        setup(log)
+    def self.run(prog_source, graph_source, prog_filename, graph_filename, step=false)
+        setup
 
         tokeniser = Tokeniser.new(graph_source, graph_filename)
         graph_tokens = tokeniser.tokenise
@@ -90,9 +90,11 @@ class Runner
         programme_tokens = tokeniser.tokenise
 
         @@log.trace("Graph Tokens:")
-        @@log.trace(graph_tokens.map {|t| "\t<#{t.to_s}>"}.join("\n"))
+        @@log.trace(graph_tokens.map {|t| "<#{t.to_s}>"}.join("\n"))
         @@log.trace("Programme Tokens:")
-        @@log.trace(programme_tokens.map {|t| "\t<#{t.to_s}>"}.join("\n"))
+        @@log.trace(programme_tokens.map {|t| "<#{t.to_s}>"}.join("\n"))
+
+        pause if step
 
         parser = Parser.new(graph_tokens)
         graph = parser.parse_graph
@@ -103,9 +105,17 @@ class Runner
         parser = Parser.new(programme_tokens)
         programme = parser.parse_programme
 
-        printer = Printer.new(programme)
+        puts programme.map {|s| s.inspect}.join("\n\n")
+        pause if step
+
+        @@log.trace("Graph:")
+        printer = Printer.new(graph)
+        @@log.trace(printer.print_graph)
         @@log.trace("Programme:")
+        printer = Printer.new(programme)
         @@log.trace(printer.print_programme)
+
+        pause if step
 
         @@log.trace("Type Checking...")
         type_checker = TypeChecker.new(programme)
@@ -115,12 +125,20 @@ class Runner
             exit(ExitCode::DATAERR)
         end
 
+        pause if step
+
         @@log.trace("Interpreting...")
         interpreter = Interpreter.new(graph, programme)
 
         result_graph = interpreter.interpret
 
         return result_graph
+    end
+
+    def self.pause
+        print "\n> "
+        continue = gets
+        exit(0) if continue.start_with?('q')
     end
 
 end

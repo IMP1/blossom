@@ -7,9 +7,9 @@ OUT_FILENAME = "temp-out.txt"
 
 prog_text = <<~HEREDOC
     rule foo    
-        <int x, y; bool z>
-        [ 1 (x), 2 (y) | 1->2 (void) ]
-     => [ 1 (x), 2 (-y) | 1->2 (0) ]
+        <int x, y; bool x>
+        [ 1 (x), 2 (y) | 1->2 ]
+     => [ 1 (x), 2 (y) | 1->2 ]
         where node(1) != node(2);
 
     foo
@@ -25,7 +25,7 @@ Test.require do
 
 end
 
-graph_text = '[1 (2), 2 (1), 3 | 1->2, 2->3, 1->3 ]'
+graph_text = '[1 (2), 2 (1), 3 (3) | 1->2, 2->3, 1->3 ]'
 
 $verbose = true
 
@@ -38,13 +38,17 @@ ARGV.push(OUT_FILENAME)
 
 test_run = Test.run do
 
-    load('./ruby_interpreter/blossom')
+    begin
+        load('./ruby_interpreter/blossom')
+    rescue SystemExit => e
+        # Stop the exit from an invalid parse
+    end
 
 end
 
 test_run.ensure do |result|
 
-    assert(File.exists?(OUT_FILENAME))
+    assert(Runner.compile_errors.count {|e| e.is_a?(BlossomParseError) } > 0)
 
 end
 

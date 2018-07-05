@@ -5,15 +5,14 @@ require_relative '../test'
 #---------#
 host_graph = Graph.new(
     [
-        Node.new(1, Label.new(Literal.new(4), :int, [])),
-        Node.new(2, Label.new(Literal.new(2), :int, [])),
-        Node.new(3, Label.new(Literal.new("a str"), :string, [])),
+        Node.new(1, Label.new(LiteralLabelExpression.new(4), :int, [])),
+        Node.new(2, Label.new(LiteralLabelExpression.new(2), :int, [])),
+        Node.new(3, Label.new(LiteralLabelExpression.new("a str"), :string, [])),
     ], 
     [
         Edge.new(1, 2, Label.empty),
         Edge.new(2, 3, Label.empty),
     ],
-    {}
 )
 
 
@@ -22,14 +21,12 @@ match_graph  = Graph.new(
         Node.new(1, Label.new(Variable.new("x", :string), :string, [])),
     ], 
     [], 
-    {"x" => :string}
 )
 result_graph = Graph.new(
     [
-        Node.new(1, Label.new(Literal.new(0), Literal.new(0).type, [])),
+        Node.new(1, Label.new(LiteralLabelExpression.new(0), LiteralLabelExpression.new(0).type, [])),
     ], 
     [], 
-    {}
 )
 rule = Rule.new("r1", {"x" => :string}, match_graph, result_graph, nil, nil)
 #----------------#
@@ -41,7 +38,7 @@ assert(host_graph.edges.size == 2, "Host graph should have two edges.")
 #-----#
 # Act #
 #-----#
-test_run = Test.run(true) {
+test_run = Test.run {
 
     application = RuleApplication.new(rule, host_graph)
     application.attempt

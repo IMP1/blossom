@@ -12,8 +12,7 @@ host_graph = Graph.new(
     [
         Edge.new(1, 2, Label.empty),
         Edge.new(2, 3, Label.empty),
-    ],
-    {}
+    ]
 )
 
 
@@ -21,15 +20,13 @@ match_graph  = Graph.new(
     [
         Node.new(1, Label.empty),
     ], 
-    [], 
-    {}
+    []
 )
 result_graph = Graph.new(
     [
-        Node.new(1, Label.new(Literal.new(0), Literal.new(0).type, ["#foo"])),
+        Node.new(1, Label.new(LiteralLabelExpression.new(0), LiteralLabelExpression.new(0).type, ["#foo"])),
     ], 
-    [], 
-    {}
+    []
 )
 rule = Rule.new("r1", {}, match_graph, result_graph, nil, nil)
 #----------------#
