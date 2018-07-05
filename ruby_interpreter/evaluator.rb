@@ -132,10 +132,17 @@ class LabelEvaluator < Visitor
         return evaluate_expression(expr.expression)
     end
 
+    def visit_FunctionLabelExpression(expr)
+        puts "evaluator::visit_FunctionCallConditionExpression"
+        p expr
+        args = expr.args.map { |a| evaluate_expression(a) }
+        return expr.function.call(self, args)
+    end
+
 end
 
 
-class ConditionEvaluator < Visitor
+class ConditionEvaluator < LabelEvaluator
 
     attr_reader :mapping
     attr_reader :graph
@@ -245,6 +252,8 @@ class ConditionEvaluator < Visitor
     end
 
     def visit_FunctionCallConditionExpression(expr)
+        puts "evaluator::visit_FunctionCallConditionExpression"
+        p expr
         args = expr.arguments.map { |a| evaluate_expression(a) }
         return expr.function.call(self, args)
     end

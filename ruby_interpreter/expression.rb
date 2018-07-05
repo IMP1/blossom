@@ -176,9 +176,11 @@ end
 class FunctionCallExpression < Expression
 
     attr_reader :args
+    attr_reader :callee
 
     def initialize(callee, args)
         super(callee.token)
+        @callee = callee
         @args = args
     end
 

@@ -88,4 +88,10 @@ class Function
             edge_count > 0
         end
     end
+
+    def self.str
+        return Function.new("str", :string, [:any]) do |evaluator, args|
+            args[0].to_s
+        end
+    end
 end

@@ -216,3 +216,27 @@ class GroupLabelExpression < LabelValueExpression
     end
 
 end
+
+class FunctionLabelExpression < LabelValueExpression
+
+    attr_reader :function
+    attr_reader :args
+
+    def initialize(function, args)
+        @function = function
+        @args = args
+    end
+
+    def variable?
+        return @args.any? { |a| a.variable? }
+    end
+
+    def type
+        return @function.return_type
+    end
+
+    def to_s
+        return @function.name + "(" + @args.map { |a| a.to_s }.join(", ") + ")"
+    end
+
+end

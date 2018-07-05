@@ -16,7 +16,9 @@ class Parser
         @rules = {}
         @procs = {}
         @parameters = nil
-        @builtin_functions = ["node", "in", "out", "incident", "edge", "adj", "edge?", "adj?"]
+        @builtin_functions = [
+            "node", "in", "out", "incident", "edge", "adj", "edge?", "adj?", "str"
+        ]
 
         @matching = false
         @applying = false
@@ -250,12 +252,12 @@ class Parser
         condition = nil
         if match_token(:WHERE)
             where_keyword_token = previous
-            where_condition = expression
+            condition = expression
         end
         addendum = nil
         if match_token(:ALSO)
             addendun_keyword_token = previous
-            addendum_statement = statement
+            addendum = statement
         end
         @parameters = nil
         if !match_token(:SEMICOLON, :END)

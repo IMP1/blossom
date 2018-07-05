@@ -246,14 +246,29 @@ class RuleApplication
             end
         end
 
-        new_graph = @graph.clone # TODO: make a clone method for a graph?
+        new_graph = @graph.clone
         added_node_mappings = {}
 
         added_rule_nodes.each do |rule_node|
-            added_node = new_graph.add_node(rule_node)
+            evaluator = LabelEvaluator.new(rule_node.label, nil, variable_values)
+            node_label_value = evaluator.evaluate
+
+            if node_label_value.nil?
+                node_label_value = MatcherLabelExpression.new(:void)
+                node_label_type = nil
+            else
+                node_label_value = LiteralLabelExpression.new(node_label_value)
+                node_label_type = node_label_value.type
+            end
+
+            # TODO: get markset.
+            new_label = Label.new(node_label_value, node_label_type, rule_node.label&.markset)
+
+            added_node = new_graph.add_node(new_label)
             added_node_mappings[rule_node.id] = added_node.id
         end
         @log.trace("Added new nodes.")
+        # TODO: make sure edges to new nodes are correctly mapped.
 
         removed_rule_nodes.each do |rule_node|
             new_graph.remove_node(application[rule_node].id)
@@ -262,6 +277,7 @@ class RuleApplication
 
         id_mapping = {}
         application.each { |k, v| id_mapping[k.id] = v.id }
+        added_node_mappings.each { |k, v| id_mapping[k] = v }
 
         @rule.match_graph.edges.each do |rule_edge|
             source_id = id_mapping[rule_edge.source_id]
@@ -401,12 +417,14 @@ class RuleApplication
 
     def condition_holds?(mapping)
         return true if @rule.condition.nil?
+        @log.trace("Checking rule's condition")
         id_mapping = {}
         mapping.each { |k, v| id_mapping[k.id] = v.id }
 
         variable_values = {}
         @variable_rule_nodes.each do |name, type|
-            var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
+            # var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
+            var_node = @rule.match_graph.nodes.find { |node| node.label.value.variable? && node.label.value.name == name }
             variable_values[name] = mapping[var_node].label.value.value
         end
 
@@ -430,6 +448,10 @@ class RuleApplication
 
         evaluator = LabelEvaluator.new(rule_node_after.label, graph_node_before.label, variables)
         new_label_value = evaluator.evaluate
+
+        puts "Evaluated label value:"
+        p new_label_value
+
         new_label_type = nil
 
         if new_label_value.nil?

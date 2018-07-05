@@ -109,7 +109,7 @@ class Runner
         @@log.trace(printer.print_graph)
         @@log.trace("Programme:")
         printer = Printer.new(programme)
-        # @@log.trace(printer.print_programme)
+        @@log.trace(printer.print_programme)
 
         @@log.trace("Type Checking...")
         type_checker = TypeChecker.new(programme)

@@ -42,7 +42,7 @@ class GraphFormatter
     end
 
     def self.blossom_label(label)
-        return label.value.to_s
+        return [label.value.to_s, *label.markset].join(", ")
     end
 
     #----------------#

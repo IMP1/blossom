@@ -8,7 +8,7 @@ require_relative 'objects/node'
 require_relative 'objects/edge'
 require_relative 'objects/label'
 require_relative 'objects/label_value_expression'
-# require_relative 'objects/rule_condition_expression'
+require_relative 'objects/function'
 require_relative 'objects/rule'
 
 class TypeChecker < Visitor
@@ -312,9 +312,7 @@ class TypeChecker < Visitor
     end
 
     def visit_FunctionCallExpression(expr)
-        puts "TypeChecker::visit_FunctionCallExpression"
-        p expr
-        return expr
+        return Function.send(expr.callee.name).return_type
     end
 
 end
