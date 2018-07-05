@@ -1,3 +1,4 @@
+;; Using http://instaparse.mojombo.com to test this.
 
 programme       =  1*( declaration )
 
@@ -107,7 +108,7 @@ func-args       =  expression ws *( "," ws expression )
 statement       = func-call                                                                         ; builtin print/debug procedures
 
 
-identifier      =  1*( ALPHA / DIGIT / %x5F )                                                       ; A-Z / a-z / 0-9 / _
+identifier      =  1*( ALPHA / DIGIT / %x5F ) ["?"]                                                 ; A-Z / a-z / 0-9 / _
 
 
 ;; Whitespace
