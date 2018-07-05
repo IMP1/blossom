@@ -113,7 +113,7 @@ class Printer < Visitor
 
     def visit_LabelExpression(expr)
         value = expr.value.nil? ? "" : to_string(expr.value)
-        return "(" + value + " [" + expr.markset.map { |m| to_string(m) }.join(", ") + "])"
+        return "(" + value + " [" + expr.markset.to_a.map { |m| to_string(m) }.join(", ") + "])"
     end
 
     def visit_EmptyLabelExpression(expr)
