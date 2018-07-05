@@ -97,9 +97,9 @@ class Interpreter < Visitor
     def visit_IfStatement(stmt, current_graph)
         next_graph = execute(stmt.condition, current_graph)
         if valid?(next_graph)
-            return execute(stmt.then_stmt)
+            return execute(stmt.then_stmt, current_graph)
         elsif !stmt.else_stmt.nil?
-            return execute(stmt.else_stmt)
+            return execute(stmt.else_stmt, current_graph)
         else
             return current_graph
         end
@@ -125,11 +125,11 @@ class Interpreter < Visitor
     end
 
     def visit_ChoiceStatement(stmt, current_graph)
-        # TODO: do valid applications take priority?
-        @log.trace("Choosing from #{stmt.statements.size}.")
-        i = rand(stmt.statements.size)
-        @log.trace("Chose #{i}.")
-        return execute(stmt.statements[i], current_graph)
+        stmt.statements.shuffle.each do |s|
+            next_graph = execute(s, current_graph)
+            return next_graph if valid?(next_graph)
+        end
+        return Graph::INVALID
     end
 
     def visit_NoopStatement(stmt, current_graph)
