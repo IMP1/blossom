@@ -4,23 +4,28 @@ require_relative 'exit_code'
 
 VERSION = "0.3.0"
 
+USAGE = <<~END
+Usage:
+    
+  blossom {--help | --version}
+    
+  blossom <path/to/programme/file.blsm> 
+          {--input <path/to/input/graph/file.bg> | \"<graph text>\"}
+          [--output <path/to/output/graph/file.bg>]
+          [--trace]
+  (unimp) [--trace-dir <path/to/trace/directory>]
+  (unimp) [--ignore-colours | --merge-colours]
+  (unimp) [--keep-rationals]
+          [--dot | --graphML | --blossom]
+          [--debug]
+  (unimp) [--validate]
+END
+
 # Output file
 if ARGV.include?("--help") || ARGV.include?("help")
     puts "Blossom Interpreter v#{VERSION}"
-    puts "Usage:"
     puts
-    puts "  blossom {--help | --version}"
-    puts
-    puts "  blossom <path/to/programme/file.blsm> "
-    puts "          {--input <path/to/input/graph/file.bg> | \"<graph text>\"}"
-    puts "          [--output <path/to/output/graph/file.bg>]"
-    puts "          [--trace]"
-    puts "  (unimp) [--trace-dir <path/to/trace/directory>]"
-    puts "  (unimp) [--ignore-colours | --merge-colours]"
-    puts "  (unimp) [--keep-rationals]"
-    puts "          [--dot | --graphML | --blossom]"
-    puts "          [--debug]"
-    puts "          [--dry-run]"
+    puts USAGE
     puts
     puts "Arguments:"
     puts
@@ -37,7 +42,7 @@ if ARGV.include?("--help") || ARGV.include?("help")
     puts "  graphML        : Output the resultant graph in the GraphML format."
     puts "  blossom        : Output the resultant graph in the blossom format (this is the default)."
     puts "  debug          : Prints detailed logging information."
-    puts "  dry-run        : Parses the programme and graph, but doesn't execute."
+    puts "  validate       : Parses the programme and graph, doesn't execute, but outputs any errors." # TODO
     puts
     puts "  (unimp) = NOT YET IMPLEMENTED"
     puts
@@ -51,21 +56,10 @@ if ARGV.include?("--help") || ARGV.include?("help")
 end
 
 if ARGV.include?("-h")
+    # TODO Update this to just have 
     puts "Blossom Interpreter v#{VERSION}"
-    puts "Usage:"
     puts
-    puts "  blossom {--help | --version}"
-    puts
-    puts "  blossom <path/to/programme/file.blsm> "
-    puts "          {--input <path/to/input/graph/file.bg> | \"<graph text>\"}"
-    puts "          [--output <path/to/output/graph/file.bg>]"
-    puts "  (unimp) [--trace]"
-    puts "  (unimp) [--trace-dir <path/to/trace/directory>]"
-    puts "  (unimp) [--ignore-colours | --merge-colours]"
-    puts "  (unimp) [--keep-rationals]"
-    puts "          [--dot | --graphML | --blossom]"
-    puts "          [--debug]"
-    puts "          [--dry-run]"
+    puts USAGE
     puts
     puts "Report any problems, ask questions, or browse the source at https://github.com/IMP1/blossom"
     exit(ExitCode::OK)
@@ -153,11 +147,11 @@ if ARGV.count {|a| a == "--trace" } > 1
 end
 $tracing ||= ARGV.delete("--trace")
 
-if ARGV.count {|a| a == "--dry-run" } > 1
-    puts "Multiple debug arguments were included (--dry-run). Exiting."
+if ARGV.count {|a| a == "--validate" } > 1
+    puts "Multiple debug arguments were included (--validate). Exiting."
     exit(ExitCode::USAGE)
 end
-dry_run ||= ARGV.delete("--dry-run")
+validate ||= ARGV.delete("--validate")
 
 
 # Output Format
@@ -180,6 +174,13 @@ else
     output_format = :blossom
 end
 
+valid = true
+ARGV.select {|a| a[0] == "-" }.each do |a|
+    puts "Unrecognised option '#{a}'."
+    valid = false
+end
+exit(ExitCode::USAGE) if !valid
+
 # Programme Filename
 if ARGV.size > 0
     programme_filename = ARGV.delete_at(0)
@@ -201,7 +202,7 @@ else
     host_graph = gets.chomp
 end
 
-output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, dry_run)
+output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, validate)
 $stdout.flush
 
 output_file.write(GraphFormatter.format(output_graph, output_format))

@@ -80,8 +80,8 @@ class Runner
         @@runtime_errors = []
     end
 
-    def self.run(prog_source, graph_source, prog_filename, graph_filename, dont_execute=false)
-        # TODO: 
+    def self.run(prog_source, graph_source, prog_filename, graph_filename, only_validate=false)
+        # TODO: if only_validate, output errors more programme-friendly (eg. remove colours)
         setup
 
         tokeniser = Tokeniser.new(graph_source, graph_filename)
@@ -119,8 +119,8 @@ class Runner
             exit(ExitCode::DATAERR)
         end
 
-        if dont_execute
-            puts "Dry run successful."
+        if only_validate
+            puts "Validation successful."
             exit(ExitCode::OK)
         end
 
