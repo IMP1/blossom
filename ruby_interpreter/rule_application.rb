@@ -50,6 +50,15 @@ class RuleApplication
             puts new_graph
         end
 
+        # TODO: tidy up new graph (have only literal label values - replace void with nil, and empty labels with Label.empty - (check the parser for examples))
+
+        # new_graph.nodes.each do |n| 
+        #     p n.label.value.class
+        # end
+        # new_graph.edges.each do |n| 
+        #     p n.label.value.class
+        # end
+
         return new_graph
     end
 
@@ -161,30 +170,39 @@ class RuleApplication
         # HOWEVER, at the moment you can, and so the same variable cannot point to different values, which lowers
         # the possible matches it can have.
 
-        @variable_rule_nodes = {}
+        @variable_types = {}
         @rule.parameters.each do |name, type|
             var_rule_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
-            if var_rule_node.nil?
+            var_rule_edge = @rule.match_graph.edges.find { |edge| edge.label.value.is_a?(VariableLabelExpression) && edge.label.value.name == name }
+            if var_rule_node.nil? && var_rule_edge.nil?
                 @log.warn("Variable '#{name}' is never used.")
             else
-                @variable_rule_nodes[name] = type
+                @variable_types[name] = type
             end
         end
 
         possible_matches = possible_matches.select do |mapping|
             variable_values = {}
-            @variable_rule_nodes.each do |name, type|
+            @variable_types.each do |name, type|
                 var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
-                var_node ||= @rule.match_graph.edge.find { |edge| edge.label.value.is_a?(VariableLabelExpression) && edge.label.value.name == name }
                 if !var_node.nil?
                     variable_values[name] = mapping[var_node].label.value.value
+                else
+                    var_edge = @rule.match_graph.edges.find { |edge| edge.label.value.is_a?(VariableLabelExpression) && edge.label.value.name == name }
+                    if !var_edge.nil?
+                        # TODO: get a possible value for the variable? What if there are lots?
+                        #       it seems like this should expand the options, before it cuts them down again.
+                        # variable_values[name] = mapping[var_edge].label.value.value
+                    end
                 end
             end
             @rule.match_graph.nodes.select { |node| node.label.value.is_a?(VariableLabelExpression) }.all? do |node| 
                 variable_values[node.label.value.name] == mapping[node].label.value.value
             end && 
-            @rule.match_graph.edges.select { |edge| edge.label.value.is_a?(VariableLabelExpression) }.all? do |edge| 
-                variable_values[edge.label.value.name] == mapping[edge].label.value.value
+            @rule.match_graph.edges.select { |edge| edge.label.value.is_a?(VariableLabelExpression) }.all? do |edge|
+                # TODO: include edge variable values in working out what values a variable can be.
+                # variable_values[edge.label.value.name] == mapping[edge].label.value.value
+                true
             end  
         end
 
@@ -238,7 +256,7 @@ class RuleApplication
 
         variable_values = {}
         @log.trace("Variables:")
-        @variable_rule_nodes.each do |name, type|
+        @variable_types.each do |name, type|
             var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
             if var_node.nil?
                 @log.warn("Variable #{name} is never used.")
@@ -246,6 +264,7 @@ class RuleApplication
                 variable_values[name] = application[var_node].label.value.value
                 @log.trace("#{name} (#{type[:type_name]}) = #{application[var_node].label.value.value}")
             end
+            # TODO: get value from edges if need be.
         end
 
         new_graph = @graph.clone
@@ -427,7 +446,7 @@ class RuleApplication
         mapping.each { |k, v| id_mapping[k.id] = v.id }
 
         variable_values = {}
-        @variable_rule_nodes.each do |name, type|
+        @variable_types.each do |name, type|
             # var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
             var_node = @rule.match_graph.nodes.find { |node| node.label.value.variable? && node.label.value.name == name }
             variable_values[name] = mapping[var_node].label.value.value
