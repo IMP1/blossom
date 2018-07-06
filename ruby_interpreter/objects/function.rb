@@ -94,4 +94,23 @@ class Function
             args[0].to_s
         end
     end
+
+    def self.head
+        return Function.new("head", :string, [:string]) do |evaluator, args|
+            args[0][0]
+        end
+    end
+
+    def self.tail
+        return Function.new("tail", :string, [:string]) do |evaluator, args|
+            args[0][1..-1]
+        end
+    end
+
+    def self.len
+        return Function.new("len", :int, [:string]) do |evaluator, args|
+            args[0].length
+        end
+    end
+
 end
