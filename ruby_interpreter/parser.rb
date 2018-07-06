@@ -106,7 +106,7 @@ class Parser
                 break if !match_token(:COMMA)
             end
         end
-        consume_token(:RIGHT_SQUARE, "Expecting '[' to end a graph.")
+        consume_token(:RIGHT_SQUARE, "Expecting ']' to end a graph.")
         return GraphExpression.new(open_bracket_token, nodes, edges)
     end
 
