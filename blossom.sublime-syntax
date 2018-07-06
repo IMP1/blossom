@@ -102,11 +102,11 @@ contexts:
   condition:
     - include: _expressions
 
+    - match: '(?=(?:also))'
+      pop: true
     - match: '(?=;)'
-      scope: punctuation.terminator.blossom
       pop: true
     - match: '(?=(?:end))'
-      scope: keyword.control.blossom
       pop: true
 
   addendum:
