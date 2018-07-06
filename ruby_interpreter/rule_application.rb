@@ -19,7 +19,7 @@ class RuleApplication
         if mappings.empty?
             @log.trace("No possible applications.")
             if $tracing
-                puts "Could not applying #{rule.name}. No matches."
+                puts "Could not applying #{@rule.name}. No matches."
             end
             return Graph::INVALID
         else
@@ -85,8 +85,6 @@ class RuleApplication
             node_matches = @graph.nodes.select do |graph_node| 
                 nodes_match?(rule_node, graph_node, @rule.match_graph.edges, @graph.edges) 
             end
-            puts "Node Matches: "
-            p node_matches
             possible_matches = possible_matches.map { |existing_match|
                 node_matches.map { |matched_node| 
                     new_match = existing_match.clone

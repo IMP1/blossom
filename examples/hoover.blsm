@@ -1,0 +1,18 @@
+// Delete the entire input graph.
+
+rule delete_edge
+    [ 1, 2 | 1->2 ] 
+ => [ 1, 2 | ]
+end
+
+// rule deleteLoop(a,b:list) 
+//     [ (n0, a) | (e0, n0, n0, b # any) ] 
+//  => [ (n0, a) | ]
+// end
+
+rule delete_node
+    [ 1 ] 
+ => []
+end
+
+delete_edge! delete_node!
