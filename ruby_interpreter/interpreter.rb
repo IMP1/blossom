@@ -245,8 +245,6 @@ class Interpreter < Visitor
 
     def visit_FunctionCallExpression(expr)
         args = expr.args.map { |a| evaluate(a) }
-        puts "Function"
-        p args
         return FunctionLabelExpression.new(Function.send(expr.callee.name), args)
     end
 

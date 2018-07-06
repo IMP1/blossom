@@ -85,6 +85,8 @@ class RuleApplication
             node_matches = @graph.nodes.select do |graph_node| 
                 nodes_match?(rule_node, graph_node, @rule.match_graph.edges, @graph.edges) 
             end
+            puts "Node Matches: "
+            p node_matches
             possible_matches = possible_matches.map { |existing_match|
                 node_matches.map { |matched_node| 
                     new_match = existing_match.clone
@@ -93,6 +95,8 @@ class RuleApplication
                 }.flatten
             }.flatten
         end
+
+        return [] if possible_matches.empty?
 
         @log.trace("Initial possible mappings:")
         @log.trace(possible_matches.map { |pm| 
@@ -355,6 +359,9 @@ class RuleApplication
     # Graph node labels have, as their value, either nil (for `void`) or a literal value. 
     # They may also have nil for their whole label if it is not given (for `empty`).
     def label_value_match?(rule_label, graph_label)
+        @log.trace("Checking label equality")
+        @log.trace(rule_label.inspect)
+        @log.trace(graph_label.inspect)
         return true if rule_label.value.nil?
 
         if rule_label.value.is_a?(MatcherLabelExpression) && rule_label.value.keyword == :any
@@ -375,9 +382,9 @@ class RuleApplication
         end
         if rule_label.value.is_a?(LiteralLabelExpression)
             @log.trace("Checking values")
-            @log.trace(rule_label.value.value.inspect)
+            @log.trace(rule_label.value.inspect)
             @log.trace(graph_label.value.inspect)
-            return rule_label.value.value == graph_label.value
+            return rule_label.value.value == graph_label.value.value
         end
         puts "Unaccounted-for label value pairing: "
         p rule_label
@@ -449,8 +456,8 @@ class RuleApplication
         evaluator = LabelEvaluator.new(rule_node_after.label, graph_node_before.label, variables)
         new_label_value = evaluator.evaluate
 
-        puts "Evaluated label value:"
-        p new_label_value
+        # puts "Evaluated label value:"
+        # p new_label_value
 
         new_label_type = nil
 

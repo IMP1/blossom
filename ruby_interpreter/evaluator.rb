@@ -133,8 +133,6 @@ class LabelEvaluator < Visitor
     end
 
     def visit_FunctionLabelExpression(expr)
-        puts "evaluator::visit_FunctionCallConditionExpression"
-        p expr
         args = expr.args.map { |a| evaluate_expression(a) }
         return expr.function.call(self, args)
     end
@@ -252,8 +250,6 @@ class ConditionEvaluator < LabelEvaluator
     end
 
     def visit_FunctionCallConditionExpression(expr)
-        puts "evaluator::visit_FunctionCallConditionExpression"
-        p expr
         args = expr.arguments.map { |a| evaluate_expression(a) }
         return expr.function.call(self, args)
     end

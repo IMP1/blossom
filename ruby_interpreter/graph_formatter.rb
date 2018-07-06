@@ -1,4 +1,5 @@
 require_relative 'objects/label_value_expression'
+require_relative 'objects/graph'
 
 class GraphFormatter
 
@@ -20,6 +21,7 @@ class GraphFormatter
     #---------#
 
     def self.blossom_graph(graph)
+        return "[INVALID]" if graph == Graph::INVALID
         nodes = graph.nodes.map { |n| "\t" + blossom_node(n) }.join(",\n")
         edges = graph.edges.map { |e| "\t" + blossom_edge(e) }.join(",\n")
         return "[\n" + nodes + "\n|\n" + edges + "\n]"
