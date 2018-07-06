@@ -1,0 +1,40 @@
+// https://codegolf.stackexchange.com/questions/138547/mix-pi-and-e-to-make-pie
+// NOT YET WORKING. RuleApplication::find_mappings lines ~182-208
+// See issue 22: https://github.com/IMP1/blossom/issues/22
+
+rule split 
+    <string x>
+    [ 1 (x) ]
+ => [ 1 (head(x)), 2 (tail(x)) | 1->2 ]
+where len(x) > 1;
+
+rule init
+    []
+ => [ 1 (str(ℯ)), 2 (str(τ / 2)) ];
+
+rule start
+    [ 1 ("3"), 2 ("."), 3 ("2"), 4 (".") | 1->2, 3->4 ]
+ => [ 1 ("3"), 2 ("."), 3 ("2"), 4 (".") | 1->2 (1), 3->4 (2) ];
+
+rule order
+    <int x>
+    [ 1, 2, 3 | 1->2 (x), 2->3 ]
+ => [ 1, 2, 3 | 1->2 (x), 2->3 (x+2) ];
+    
+rule get_n
+    <int n, x>
+    [ 1 (n), 2, 3 (x) | 2->3 (n) ]
+ => []
+where incident(1) = 0
+also print(x);
+
+init split! start order! get_n
+
+// Minimised:
+
+// rule s<string x>[1(x)]=>[1(head(x)),2(tail(x))|1->2]where len(x)>1;
+// rule i[]=>[1(str(ℯ)),2(str(π))];
+// rule t[1("3"),2("."),3("2"),4(".")|1->2,3->4]=>[1("3"),2("."),3("2"),4(".")|1->2(1),3->4(2)];
+// rule o<int x>[1,2,3|1->2(x),2->3]=>[1,2,3|1->2(x),2->3(x+2)];
+// rule n<int n,x>[1(n),2,3(x)|2->3(n)]=>[]where incident(1)=0 also print(x);
+// i s!t o!n
