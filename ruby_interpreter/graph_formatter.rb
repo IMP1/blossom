@@ -44,7 +44,9 @@ class GraphFormatter
     end
 
     def self.blossom_label(label)
-        return [label.value.to_s, *label.markset].join(", ")
+        val = label.value.to_s
+        val = '"' + val + '"' if label.value.type == :string
+        return [val, *label.markset].join(", ")
     end
 
     #----------------#
