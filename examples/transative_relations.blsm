@@ -5,16 +5,16 @@
 rule join_equals_1  <int x, y>
                     [ 1 (x), 2 (y), 3 (x), 4 (y) | 1->2 ]
                  => [ 1 (x), 2 (y), 3 (x), 4 (y) | 1->2, 3->4 ]
-                    where not edge(3, 4);
+                    where not edge?(3, 4);
 
 rule join_equals_2 <int x, y>
                    [ 1 (x), 2 (y), 3 (x) | 1->2 ]
                 => [ 1 (x), 2 (y), 3 (x) | 1->2, 3->2 ]
-                   where not edge(3, 2); // and in(2) > 0;
+                   where not edge?(3, 2); // and in(2) > 0;
 
 rule non_transative? <int x, y, z>
                      [ 1 (x), 2 (y), 3 (z) | 1->2, 2->3 ]
                   => [ 1 (x), 2 (y), 3 (z) | 1->2, 2->3 ]
-                     where not edge(1, 3);
+                     where not edge?(1, 3);
 
 join_equals_1! join_equals_2! if(non_transative?: invalid)

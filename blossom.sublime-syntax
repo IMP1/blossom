@@ -168,7 +168,7 @@ contexts:
       scope: keyword.operator.logical
     - match: '[\+\-\*\/\%\^]'
       scope: keyword.operator.arithmetic
-    - match: '\b(?:in|out|edge|adjacent|adj|incident)\b'
+    - match: '\b(?:in|out|incident|edge\??|adj\??)\b'
       scope: support.function.blossom
 
   _statements:

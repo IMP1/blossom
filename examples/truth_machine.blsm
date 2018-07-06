@@ -7,8 +7,8 @@
 
 // This uses the builtin `print` function, which performs a noop on the graph and prints out the arguments it's passed.
 
-// blossom truth_machine "[1 (1)]"
-// blossom truth_machine "[1 (0)]"
+// blossom truth_machine.blsm "[1 (1)]"
+// blossom truth_machine.blsm "[1 (0)]"
 
 rule zero? [ 1 (0) ]
         => [ 1 (0) ];
@@ -22,5 +22,5 @@ if (zero? : print_0 : print_1!)
 // All unnecessary whitespace has been removed, and rule/procedure names have been shorteded.
 // It is not very readable, but illustrates what syntax is actually necessary.
 
-// rule a[1(0)]=>[1];if(a,print(0),print(1)!)
-// Number of characters: 42
+// rule z[1(0)]=>[]also print(0);rule o[1(1)]=>[1(1)]also print(1);{z,o}!
+// Number of characters: 70
