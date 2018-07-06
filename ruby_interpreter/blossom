@@ -56,7 +56,7 @@ if ARGV.include?("--help") || ARGV.include?("help")
 end
 
 if ARGV.include?("-h")
-    # TODO Update this to just have 
+    # TODO: Update this to just have 
     puts "Blossom Interpreter v#{VERSION}"
     puts
     puts USAGE
