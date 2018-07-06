@@ -2,6 +2,9 @@ require_relative 'log'
 require_relative 'main'
 require_relative 'error'
 
+require_relative 'objects/function'
+require_relative 'objects/procedure'
+
 require_relative 'expression'
 require_relative 'statement'
 
@@ -16,9 +19,6 @@ class Parser
         @rules = {}
         @procs = {}
         @parameters = nil
-        @builtin_functions = [
-            "node", "in", "out", "incident", "edge", "adj", "edge?", "adj?", "str"
-        ]
 
         @matching = false
         @applying = false
@@ -163,13 +163,13 @@ class Parser
         if match_token(:ASTERISK)
             return AnyLabelValueExpression.new(previous)
         end
-        if match_token(:BOOLEAN_LITERAL, :INTEGER_LITERAL, :RATIONAL_LITERAL, :REAL_LITERAL, :STRING_LITERAL)
-            token = previous
-            value = previous.literal
-            return LiteralExpression.new(token, value, token.name)
-        elsif match_token(:VOID)
+        if match_token(:VOID)
             token = previous
             return VoidLabelValueExpression.new(token)
+        # elsif match_token(:BOOLEAN_LITERAL, :INTEGER_LITERAL, :RATIONAL_LITERAL, :REAL_LITERAL, :STRING_LITERAL)
+            # token = previous
+            # value = previous.literal
+            # return LiteralExpression.new(token, value, token.name)
         else
             return expression
         end
@@ -521,8 +521,11 @@ class Parser
         end
 
         if match_token(:IDENTIFIER)
-            if @builtin_functions.include?(previous.lexeme)
+            if Function.methods(false).include?(previous.lexeme.to_sym)
                 return FunctionExpression.new(previous, previous.lexeme)
+            end
+            if Procedure.methods(false).include?(previous.lexeme.to_sym)
+                return ProcedureStatement.new(previous, previous.lexeme)
             end
             if !@parameters.has_key?(previous.lexeme)
                 error(previous, "Unrecognised variable name #{previous.lexeme}.")

@@ -49,7 +49,7 @@ class LiteralLabelExpression < LabelValueExpression
     end
 
     def to_s
-        return @value.inspect
+        return @value.to_s
     end
 
 end

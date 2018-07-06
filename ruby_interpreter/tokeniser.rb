@@ -193,6 +193,13 @@ class Tokeniser
         when '"'
             string
 
+        when 'τ'
+            add_token(:REAL_LITERAL, Math::PI * 2)
+        when 'π'
+            add_token(:REAL_LITERAL, Math::PI)
+        when 'ℯ'
+            add_token(:REAL_LITERAL, Math::E)
+
         when /\d/
             number
 

@@ -144,6 +144,19 @@ class RuleApplicationStatement < Statement
 
 end
 
+
+class ProcedureStatement < Statement
+
+    attr_reader :name
+
+    def initialize(token, name)
+        super(token)
+        @name = name
+    end
+
+end
+
+
 class ProcedureApplicationStatement < Statement
 
     attr_reader :name

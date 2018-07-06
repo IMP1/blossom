@@ -312,7 +312,12 @@ class TypeChecker < Visitor
     end
 
     def visit_FunctionCallExpression(expr)
-        return Function.send(expr.callee.name).return_type
+        case expr.callee
+        when FunctionExpression
+            return Function.send(expr.callee.name).return_type
+        when ProcedureStatement
+            return nil
+        end
     end
 
 end

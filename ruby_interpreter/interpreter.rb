@@ -7,7 +7,7 @@ require_relative 'objects/node'
 require_relative 'objects/edge'
 require_relative 'objects/label'
 require_relative 'objects/label_value_expression'
-# require_relative 'objects/rule_condition_expression'
+require_relative 'objects/addendum_statement'
 require_relative 'objects/rule'
 require_relative 'rule_application'
 
@@ -245,7 +245,12 @@ class Interpreter < Visitor
 
     def visit_FunctionCallExpression(expr)
         args = expr.args.map { |a| evaluate(a) }
-        return FunctionLabelExpression.new(Function.send(expr.callee.name), args)
+        case expr.callee
+        when FunctionExpression
+            return FunctionLabelExpression.new(Function.send(expr.callee.name), args)
+        when ProcedureStatement
+            return ProcedureCall.new(Procedure.send(expr.callee.name), args)
+        end
     end
 
 end
