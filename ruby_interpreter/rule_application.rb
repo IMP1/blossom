@@ -15,14 +15,14 @@ class RuleApplication
     end
 
     def attempt
-        @tracer&.append("[Rule::#{@rule.name}] Attempted.")
+        @tracer&.push("[Rule::#{@rule.name}] Attempted.")
         @tracer&.save_graph(@graph)
 
         mappings = find_mappings
 
         if mappings.empty?
             @log.trace("No possible applications.")
-            @tracer&.append("[Rule::#{@rule.name}] Failed. No matches.")
+            @tracer&.pop("[Rule::#{@rule.name}] Failed. No matches.")
             return Graph::INVALID
         else
             @log.trace("Final possible mappings:")
@@ -62,7 +62,7 @@ class RuleApplication
         #     p n.label.value.class
         # end
 
-        @tracer&.append("[Rule::#{@rule.name}] Completed.")
+        @tracer&.pop("[Rule::#{@rule.name}] Completed.")
         @tracer&.save_graph(new_graph)
         return new_graph
     end

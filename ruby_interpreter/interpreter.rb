@@ -83,11 +83,14 @@ class Interpreter < Visitor
     end
 
     def visit_LoopStatement(stmt, current_graph)
+        # TODO: include source of loop in trace string.
+        @tracer&.push("[Loop::#{''}] Begun.")
         next_graph = execute(stmt.statement, current_graph)
         while valid?(next_graph)
             current_graph = next_graph
             next_graph = execute(stmt.statement, current_graph)
         end
+        @tracer&.pop("[Loop::#{''}] Ended.")
         return current_graph
     end
 
