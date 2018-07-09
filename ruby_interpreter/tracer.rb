@@ -7,8 +7,7 @@ class Tracer
         tracing_directory ||= DEFAULT_DIRECTORY
         @tracing_directory = tracing_directory
         @saved_graph_count = 0
-
-        # TODO: create directory and empty overview file.
+        @depth = 0
     end
 
     def save_graph(graph)
@@ -22,9 +21,20 @@ class Tracer
 
     def append(action)
         filename = File.join(@tracing_directory, OVERVIEW_FILENAME)
+        indent = "\t" * @depth
         File.open(filename, 'a') do |file|
-            file.puts(action)
+            file.puts(indent + action)
         end
+    end
+
+    def push(action)
+        append(action)
+        @depth += 1
+    end
+
+    def pop(action=nil)
+        @depth -= 1
+        append(action) if !action.nil?
     end
 
 end

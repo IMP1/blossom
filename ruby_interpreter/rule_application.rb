@@ -32,22 +32,24 @@ class RuleApplication
                 }.join(", ") 
             }.join("\n"))
             @tracer&.append("[Rule::#{@rule.name}] Matched.")
-            @tracer&.append("[Rule::#{@rule.name}] Possible Mappings: ")
+            @tracer&.push("[Rule::#{@rule.name}] Possible Mappings: ")
             mappings.each do |m|
-                @tracer&.append "\t" + m.map { |k, v| 
+                @tracer&.append m.map { |k, v| 
                     "#{k.id} => #{v.id}" 
                 }.join(", ")
             end
+            @tracer&.pop
         end
 
         # TODO: should all of the mappings return a valid graph?
 
         mapping = mappings.sample
 
-        @tracer&.append("[Rule::#{@rule.name}] Chosen Mapping: ")
-        @tracer&.append "\t" + mapping.map { |k, v| 
+        @tracer&.push("[Rule::#{@rule.name}] Chosen Mapping: ")
+        @tracer&.append mapping.map { |k, v| 
             "#{k.id} => #{v.id}" 
         }.join(", ")
+        @tracer&.pop
 
         new_graph = apply(mapping)
 
