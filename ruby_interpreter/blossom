@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'fileutils'
+
 require_relative 'exit_code'
 
 VERSION = "0.4.0"
@@ -173,8 +175,13 @@ if trace_index
         puts "A path must be supplied as a trace directory."
         exit(ExitCode::USAGE)
     end
+end
+
+if tracing
+    trace_directory ||= Tracer::DEFAULT_DIRECTORY
     begin
-        Dir.mkdir(trace_directory)
+        FileUtils.rm_rf(trace_directory)
+        FileUtils.mkdir(trace_directory)
     rescue SystemCallError => e
         p e
         puts e.class
@@ -226,8 +233,19 @@ if !File.exists?(programme_filename)
     puts "Could not find programme file '#{programme_filename}'. Exiting."
     exit(ExitCode::NOINPUT)
 end
-programme_file = File.open(programme_filename, 'r')
-programme_source = programme_file.read
+begin
+    programme_file = File.open(programme_filename, 'r')
+    programme_source = programme_file.read
+rescue SystemCallError => e
+    p e
+    puts e.class
+    
+    # TODO: handle system errors and return appropriate exit codes.
+    # http://blog.honeybadger.io/understanding-rubys-strange-errno-exceptions/
+
+    puts "You don't have sufficient permissions to access the programme file."
+    exit(ExitCode::NOPERM)
+end
 
 if host_graph_file != $stdin
     host_graph = host_graph_file.read
