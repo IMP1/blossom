@@ -3,6 +3,8 @@ require_relative 'exit_code'
 
 require_relative 'log'
 
+require_relative 'tracer'
+
 require_relative 'tokeniser'
 require_relative 'parser'
 require_relative 'printer'
@@ -80,8 +82,13 @@ class Runner
         @@runtime_errors = []
     end
 
-    def self.run(prog_source, graph_source, prog_filename, graph_filename, only_validate=false)
-        # TODO: if only_validate, output errors more programme-friendly (eg. remove colours)
+    # options
+    #     only_validate:   boolean
+    #     tracing:         boolean
+    #     trace_dir:       string (path)
+    def self.run(prog_source, graph_source, prog_filename, graph_filename, options=nil)
+        options ||= {}
+        # TODO: if options[:only_validate], output errors more programme-friendly (eg. remove colours)
         setup
 
         tokeniser = Tokeniser.new(graph_source, graph_filename)
@@ -119,13 +126,20 @@ class Runner
             exit(ExitCode::DATAERR)
         end
 
-        if only_validate
+        if options[:only_validate]
             puts "Validation successful."
             exit(ExitCode::OK)
         end
 
+        if options[:tracing]
+            trace_location = options[:trace_dir]
+            tracer = Tracer.new(trace_location)
+        else
+            tracer = nil
+        end
+
         @@log.trace("Interpreting...")
-        interpreter = Interpreter.new(graph, programme)
+        interpreter = Interpreter.new(graph, programme, tracer)
 
         result_graph = interpreter.interpret
 

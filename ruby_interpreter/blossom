@@ -13,11 +13,10 @@ Usage:
           {--input <path/to/input/graph/file.bg> | \"<graph text>\"}
           [--output <path/to/output/graph/file.bg>]
           [--trace]
-  (unimp) [--trace-dir <path/to/trace/directory>]
+          [--trace-dir <path/to/trace/directory>]
   (unimp) [--ignore-colours | --merge-colours]
   (unimp) [--keep-rationals]
           [--dot | --graphML | --blossom]
-          [--debug]
   (unimp) [--validate]
 END
 
@@ -33,16 +32,15 @@ if ARGV.include?("--help") || ARGV.include?("help")
     puts "  version        : Prints the current version."
     puts "  input          : Specify a file to use for a initial graph."
     puts "  output         : Specify a file to print the resultant graph to."
+    puts "  validate       : Parses the programme and graph, doesn't execute, but outputs any errors." # TODO
     puts "  trace          : Creates interim graph files throughout the execution of the programme."
-    puts "  trace-dir      : Specify a directory for the trace graphcs to be created in."             # TODO
-    puts "  ignore-colours : Don't add any colour styling to nodes/edges with colour-valued marks."   # TODO
-    puts "  merge-colours  : Have a node/edge be the average of any colour-valued marks it has."      # TODO
-    puts "  keep-rationals : Keep any rational numeric values as fractions in the resultant graph."   # TODO
+    puts "  trace-dir      : Specify a directory for the trace graphs to be created in."
+    puts "  ignore-colours : Don't add any colour styling to nodes/edges with colour-valued marks."    # TODO
+    puts "  merge-colours  : Have a node/edge be the average of any colour-valued marks it has."       # TODO
+    puts "  keep-rationals : Keep any rational numeric values as fractions in the resultant graph."    # TODO
     puts "  dot            : Output the resultant graph in the dot format."
     puts "  graphML        : Output the resultant graph in the GraphML format."
     puts "  blossom        : Output the resultant graph in the blossom format (this is the default)."
-    puts "  debug          : Prints detailed logging information."
-    puts "  validate       : Parses the programme and graph, doesn't execute, but outputs any errors." # TODO
     puts
     puts "  (unimp) = NOT YET IMPLEMENTED"
     puts
@@ -56,7 +54,6 @@ if ARGV.include?("--help") || ARGV.include?("help")
 end
 
 if ARGV.include?("-h")
-    # TODO: Update this to just have 
     puts "Blossom Interpreter v#{VERSION}"
     puts
     puts USAGE
@@ -71,6 +68,7 @@ if ARGV.include?("--version")
 end
 
 require_relative 'main'
+require_relative 'tracer'
 require_relative 'graph_formatter'
 
 # Host Graph
@@ -86,6 +84,10 @@ host_graph_index = ARGV.index("-i") || ARGV.index("--input")
 if host_graph_index
     ARGV.delete_at(host_graph_index)
     host_graph_filename = ARGV.delete_at(host_graph_index)
+    if host_graph_filename.nil?
+        puts "A filepath must be supplied as an input file."
+        exit(ExitCode::USAGE)
+    end
     if !File.exists?(host_graph_filename)
         puts "Could not find graph file '#{host_graph_filename}'. Exiting."
         exit(ExitCode::NOINPUT)
@@ -119,6 +121,10 @@ output_index = ARGV.index("-o") || ARGV.index("--output")
 if output_index
     ARGV.delete_at(output_index)
     output_filename = ARGV.delete_at(output_index)
+    if output_filename.nil?
+        puts "A filepath must be supplied as an output file."
+        exit(ExitCode::USAGE)
+    end
     begin
         output_file = File.open(output_filename, 'w')
     rescue SystemCallError => e
@@ -141,18 +147,45 @@ if ARGV.count {|a| a == "--debug" } > 1
 end
 $verbose ||= ARGV.delete("--debug")
 
-if ARGV.count {|a| a == "--trace" } > 1
-    puts "Multiple debug arguments were included (--trace). Exiting."
-    exit(ExitCode::USAGE)
-end
-$tracing ||= ARGV.delete("--trace")
-
+# Only Validate Source Code
 if ARGV.count {|a| a == "--validate" } > 1
-    puts "Multiple debug arguments were included (--validate). Exiting."
+    puts "Multiple validate arguments were included (--validate). Exiting."
     exit(ExitCode::USAGE)
 end
-validate ||= ARGV.delete("--validate")
+validate = ARGV.delete("--validate")
 
+# Tracing
+if ARGV.count {|a| a == "--trace" } > 1
+    puts "Multiple trace arguments were included (--trace). Exiting."
+    exit(ExitCode::USAGE)
+end
+tracing = ARGV.delete("--trace")
+
+if ARGV.count {|a| a == "--trace-dir" } > 1
+    puts "Multiple trace arguments were included (--trace-dir). Exiting."
+    exit(ExitCode::USAGE)
+end
+trace_index = ARGV.index("--trace-dir")
+if trace_index
+    ARGV.delete_at(trace_index)
+    trace_directory = ARGV.delete_at(trace_index)
+    if trace_directory.nil?
+        puts "A path must be supplied as a trace directory."
+        exit(ExitCode::USAGE)
+    end
+    begin
+        Dir.mkdir(trace_directory)
+    rescue SystemCallError => e
+        p e
+        puts e.class
+
+        # TODO: handle system errors and return appropriate exit codes.
+        # http://blog.honeybadger.io/understanding-rubys-strange-errno-exceptions/
+        
+        puts "You don't have sufficient permissions to create the trace directory."
+        exit(ExitCode::CANTCREAT) # or ExitCode::NOPERM ?
+    end
+end
 
 # Output Format
 if ARGV.count {|a| a == "--dot" || a == "--graphML" || a == "--blossom" } > 1
@@ -174,12 +207,14 @@ else
     output_format = :blossom
 end
 
+# Any Other Arguments
 valid = true
 ARGV.select {|a| a[0] == "-" }.each do |a|
     puts "Unrecognised option '#{a}'."
     valid = false
 end
 exit(ExitCode::USAGE) if !valid
+
 
 # Programme Filename
 if ARGV.size > 0
@@ -202,8 +237,15 @@ else
     host_graph = gets.chomp
 end
 
-output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, validate)
+options = {
+    only_validate: !!validate,
+    tracing: !!tracing,
+    trace_dir: trace_directory,
+}
+output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, options)
 $stdout.flush
+
+# TODO: other output options (rationals, colours, ...)
 
 output_file.write(GraphFormatter.format(output_graph, output_format))
 output_file.write("\n")

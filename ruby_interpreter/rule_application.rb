@@ -6,21 +6,23 @@ require_relative 'evaluator'
 
 class RuleApplication
 
-    def initialize(rule, graph)
+    def initialize(rule, graph, tracer=nil)
         @log = Log.new("RuleApplication:#{rule.name}")
         @log.set_level(Log::ALL) if $verbose
         @rule = rule
         @graph = graph
+        @tracer = tracer
     end
 
     def attempt
+        @tracer&.append("[Rule::#{@rule.name}] Attempted.")
+        @tracer&.save_graph(@graph)
+
         mappings = find_mappings
 
         if mappings.empty?
             @log.trace("No possible applications.")
-            if $tracing
-                puts "Could not applying #{@rule.name}. No matches."
-            end
+            @tracer&.append("[Rule::#{@rule.name}] Failed. No matches.")
             return Graph::INVALID
         else
             @log.trace("Final possible mappings:")
@@ -29,26 +31,25 @@ class RuleApplication
                     "#{k.id} => #{v.id}" 
                 }.join(", ") 
             }.join("\n"))
+            @tracer&.append("[Rule::#{@rule.name}] Matched.")
+            @tracer&.append("[Rule::#{@rule.name}] Possible Mappings: ")
+            mappings.each do |m|
+                @tracer&.append "\t" + m.map { |k, v| 
+                    "#{k.id} => #{v.id}" 
+                }.join(", ")
+            end
         end
 
         # TODO: should all of the mappings return a valid graph?
 
         mapping = mappings.sample
-        if $tracing
-            puts "Applying #{@rule.name}."
-            puts mapping.map { |k, v| 
-                "#{k.id} => #{v.id}" 
-            }.join(", ")
-        end
-        if $tracing
-            puts "Before: "
-            puts @graph
-        end
+
+        @tracer&.append("[Rule::#{@rule.name}] Chosen Mapping: ")
+        @tracer&.append "\t" + mapping.map { |k, v| 
+            "#{k.id} => #{v.id}" 
+        }.join(", ")
+
         new_graph = apply(mapping)
-        if $tracing
-            puts "After: "
-            puts new_graph
-        end
 
         # TODO: tidy up new graph (have only literal label values - replace void with nil, and empty labels with Label.empty - (check the parser for examples))
 
@@ -59,6 +60,8 @@ class RuleApplication
         #     p n.label.value.class
         # end
 
+        @tracer&.append("[Rule::#{@rule.name}] Completed.")
+        @tracer&.save_graph(new_graph)
         return new_graph
     end
 

@@ -13,7 +13,7 @@ require_relative 'rule_application'
 
 class Interpreter < Visitor
 
-    def initialize(host_graph, statements)
+    def initialize(host_graph, statements, tracer=nil)
         @log = Log.new("Interpreter")
         @log.set_level(Log::ALL) if $verbose
         @host_graph = host_graph
@@ -22,6 +22,7 @@ class Interpreter < Visitor
         @rules = {}
         @procedures = {}
         @variables = nil
+        @tracer = tracer
     end
 
     def interpret
@@ -31,8 +32,10 @@ class Interpreter < Visitor
             @statements.each do |stmt| 
                 @log.trace("Executing statement:")
                 @log.trace(stmt.to_s)
-                @current_graph = execute(stmt) 
+                @current_graph = execute(stmt)
             end
+            @log.trace("Programme successful.")
+            @tracer&.save_graph(@current_graph)
         rescue BlossomRuntimeError => e
             Runner.runtime_error(e)
         end
@@ -142,7 +145,7 @@ class Interpreter < Visitor
 
     def visit_RuleApplicationStatement(stmt, current_graph)
         rule = @rules[stmt.name]
-        application = RuleApplication.new(rule, current_graph)
+        application = RuleApplication.new(rule, current_graph, @tracer)
         next_graph = application.attempt
         return next_graph
     end
