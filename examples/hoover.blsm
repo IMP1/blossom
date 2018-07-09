@@ -15,4 +15,4 @@ rule delete_node
  => []
 end
 
-delete_edge! delete_node!
+{delete_edge, delete_node}!

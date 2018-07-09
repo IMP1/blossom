@@ -83,42 +83,50 @@ class Interpreter < Visitor
     end
 
     def visit_LoopStatement(stmt, current_graph)
-        @tracer&.push("[Loop::#{stmt.statement.source}] Begun.")
+        @tracer&.push("[Loop::#{stmt.source}] Begun.")
         next_graph = execute(stmt.statement, current_graph)
         while valid?(next_graph)
             current_graph = next_graph
             next_graph = execute(stmt.statement, current_graph)
         end
-        @tracer&.pop("[Loop::#{stmt.statement.source}] Ended.")
+        @tracer&.pop("[Loop::#{stmt.source}] Ended.")
         return current_graph
     end
 
     def visit_TryStatement(stmt, current_graph)
+        @tracer&.push("[Try::#{stmt.source}] Begun.")
         next_graph = execute(stmt.statement, current_graph)
-        return next_graph if valid?(next_graph)
+        current_graph = next_graph if valid?(next_graph)
+        @tracer&.pop("[Try::#{stmt.source}] Ended.")
         return current_graph
     end
 
     def visit_IfStatement(stmt, current_graph)
-        next_graph = execute(stmt.condition, current_graph)
-        if valid?(next_graph)
-            return execute(stmt.then_stmt, current_graph)
+        @tracer&.push("[If::#{stmt.source}] Begun.")
+        check_graph = execute(stmt.condition, current_graph)
+        if valid?(check_graph)
+            next_graph = execute(stmt.then_stmt, current_graph)
         elsif !stmt.else_stmt.nil?
-            return execute(stmt.else_stmt, current_graph)
+            next_graph = execute(stmt.else_stmt, current_graph)
         else
-            return current_graph
+            next_graph = current_graph
         end
+        @tracer&.pop("[If::#{stmt.source}] Ended.")
+        return next_graph
     end
 
     def visit_WithStatement(stmt, current_graph)
-        next_graph = execute(stmt.condition, current_graph)
-        if valid?(next_graph)
-            return execute(stmt.then_stmt, next_graph)
+        @tracer&.push("[With::#{stmt.source}] Begun.")
+        check_graph = execute(stmt.condition, current_graph)
+        if valid?(check_graph)
+            next_graph = execute(stmt.then_stmt, check_graph)
         elsif !stmt.else_stmt.nil?
-            return execute(stmt.else_stmt, current_graph)
+            next_graph = execute(stmt.else_stmt, current_graph)
         else
-            return current_graph
+            next_graph = current_graph
         end
+        @tracer&.pop("[With::#{stmt.source}] Ended.")
+        return next_graph
     end
 
     def visit_SequenceStatement(stmt, current_graph)
@@ -130,18 +138,26 @@ class Interpreter < Visitor
     end
 
     def visit_ChoiceStatement(stmt, current_graph)
+        @tracer&.push("[Choice::#{stmt.source}] Begun.")
+        next_graph = Graph::INVALID
         stmt.statements.shuffle.each do |s|
-            next_graph = execute(s, current_graph)
-            return next_graph if valid?(next_graph)
+            check_graph = execute(s, current_graph)
+            if valid?(check_graph)
+                next_graph = check_graph
+                break
+            end
         end
-        return Graph::INVALID
+        @tracer&.pop("[Choice::#{stmt.source}] Ended.")
+        return next_graph
     end
 
     def visit_NoopStatement(stmt, current_graph)
+        @tracer&.append("[Noop::#{stmt.source}]")
         return current_graph
     end
 
     def visit_InvalidStatement(stmt, current_graph)
+        @tracer&.append("[Invalid::#{stmt.source}]")
         return Graph::INVALID
     end
 
@@ -153,11 +169,13 @@ class Interpreter < Visitor
     end
 
     def visit_ProcedureApplicationStatement(stmt, current_graph)
+        @tracer&.push("[Proc::#{stmt.source}] Begun.")
         procedure = @procedures[stmt.name]
         procedure[:statements].each do |s|
             next_graph = execute(s, current_graph)
             current_graph = next_graph
         end
+        @tracer&.pop("[Proc::#{stmt.source}] Ended.")
         return current_graph
     end
 

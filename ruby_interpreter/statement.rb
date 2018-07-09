@@ -60,7 +60,7 @@ class LoopStatement < Statement
     end
 
     def source
-        return statement.source + token.lexeme
+        return statement.source + "!"
     end
 
 end
@@ -115,6 +115,10 @@ class SequenceStatement < Statement
         @statements = statements
     end
 
+    def source
+        return @statements.map { |s| s.source }.join(" ")
+    end 
+
 end
 
 class ChoiceStatement < Statement
@@ -125,6 +129,11 @@ class ChoiceStatement < Statement
         super(token)
         @statements = statements
     end
+
+    def source
+        return "{" + @statements.map { |s| s.source }.join(", ") + "}"
+    end
+
 end
 
 class NoopStatement < Statement
@@ -132,6 +141,7 @@ class NoopStatement < Statement
     def initialize(token)
         super(token)
     end
+
 end
 
 class InvalidStatement < Statement
@@ -139,6 +149,7 @@ class InvalidStatement < Statement
     def initialize(token)
         super(token)
     end
+
 end
 
 class RuleApplicationStatement < Statement
@@ -150,10 +161,13 @@ class RuleApplicationStatement < Statement
         @name = name
     end
 
+    def source
+        return @name
+    end
+
 end
 
-
-class ProcedureStatement < Statement
+class ProcedureApplicationStatement < Statement
 
     attr_reader :name
 
@@ -162,10 +176,13 @@ class ProcedureStatement < Statement
         @name = name
     end
 
+    def source
+        return @name
+    end
+
 end
 
-
-class ProcedureApplicationStatement < Statement
+class ProcedureStatement < Statement
 
     attr_reader :name
 
