@@ -278,8 +278,9 @@ class Parser
         if !match_token(:SEMICOLON, :END)
             raise error(peek, "Expecting ';' or 'end' after a procedure's definition.")
         end
-        @procs[proc_name_token.lexeme] = proc_name_token
-        return ProcedureDefinitionStatement.new(proc_name_token, statements)
+        proc_name = proc_name_token.lexeme
+        @procs[proc_name] = proc_name_token
+        return ProcedureDefinitionStatement.new(proc_keyword_token, proc_name, statements)
     end
 
     def parameter_list

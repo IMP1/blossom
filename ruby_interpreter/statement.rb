@@ -42,9 +42,9 @@ class ProcedureDefinitionStatement < Statement
     attr_reader :name
     attr_reader :statements
 
-    def initialize(procedure_name_token, statements)
-        super(procedure_name_token)
-        @name = procedure_name_token.lexeme
+    def initialize(procedure_token, proc_name, statements)
+        super(procedure_token)
+        @name = proc_name
         @statements = statements
     end
 
