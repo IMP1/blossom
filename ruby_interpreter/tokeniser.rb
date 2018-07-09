@@ -93,6 +93,12 @@ class Tokeniser
         return @source[@current]
     end
 
+    def peek_next
+        return nil if @current >= @source.length
+        return nil if @current + 1 >= @source.length
+        return @source[@current + 1]
+    end
+
     def scan_token
         c = advance
         case c
