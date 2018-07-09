@@ -82,11 +82,7 @@ Running both of these rules for as long as they can be applied will find the min
 
 ## Documentation
 
-<!-- 
-    TODO: fix these links, and in the definitions case, add this page!
--->
+For the syntax of blossom, take a look at the [Blossom Syntax](https://github.com/IMP1/blossom/blob/master/syntax.md) pages.
 
-For the syntax of blossom, take a look at the [Blossom Syntax](https://github.com/IMP1/blossom/) pages.
-
-For a more formal definition of blossom and its workings, take a look at [Blossom Definition](https://github.com/IMP1/blossom/) pages.
+For a more formal definition of blossom and its workings, take a look at [Blossom Definition](https://github.com/IMP1/blossom/blob/master/definitions.md) pages.
 
