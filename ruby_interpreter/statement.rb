@@ -9,6 +9,10 @@ class Statement
         @token = token
     end
 
+    def source
+        return token.lexeme
+    end
+
 end
 
 
@@ -21,9 +25,9 @@ class RuleDefinitionStatement < Statement
     attr_reader :condition
     attr_reader :addendum
 
-    def initialize(rule_name_token, parameters, match_graph, result_graph, condition, addendum)
-        super(rule_name_token)
-        @name = rule_name_token.lexeme
+    def initialize(rule_token, rule_name, parameters, match_graph, result_graph, condition, addendum)
+        super(rule_token)
+        @name = rule_name
         @parameters = parameters
         @match_graph = match_graph
         @result_graph = result_graph
@@ -53,6 +57,10 @@ class LoopStatement < Statement
     def initialize(token, statement)
         super(token)
         @statement = statement
+    end
+
+    def source
+        return statement.source + token.lexeme
     end
 
 end

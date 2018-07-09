@@ -263,8 +263,9 @@ class Parser
         if !match_token(:SEMICOLON, :END)
             raise error(peek, "Expecting ';' or 'end' after a rule's definition.")
         end
-        @rules[rule_name_token.lexeme] = rule_name_token
-        return RuleDefinitionStatement.new(rule_name_token, parameters, match_graph, result_graph, condition, addendum)
+        rule_name = rule_name_token.lexeme
+        @rules[rule_name] = rule_name_token
+        return RuleDefinitionStatement.new(rule_keyword_token, rule_name, parameters, match_graph, result_graph, condition, addendum)
     end
 
     def procedure_definition
