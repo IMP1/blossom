@@ -15,16 +15,6 @@ class Function
         return @block.call(evaluator, args)
     end
 
-    # TODO: remove this method:
-    # def self.node
-    #     return Function.new("node", Node, [:int]) do |evaluator, args|
-    #         rule_node_id = args[0]
-    #         graph_node_id = evaluator.mapping[rule_node_id]
-    #         graph_node = evaluator.graph.nodes.find { |n| n.id == graph_node_id }
-    #         graph_node
-    #     end
-    # end
-
     def self.in
         # Takes an ID of a node and returns how many edges have that node as their target.
         # (the number of edges coming 'in' to the node).
