@@ -3,12 +3,26 @@ require_relative 'objects/graph'
 
 class GraphFormatter
 
+    Colour = Struct.new(:r, :g, :b) do
+        def to_hex
+            return "#%02x%02x%02x" % [r, g, b]
+        end
+    end
+
+    COLOURS = {
+        '#red'  => '#ff0000',
+        '#lime' => '#00ff00',
+        '#blue' => '#0000ff',
+        # TODO: add more?
+    }
+
     # options
     #     keep_rationals:  boolean
     #     colour_strategy: [:ignore, :merge, :first]
     def self.format(graph, format_type, options=nil)
         # TODO: use options
         options ||= {}
+        @@options = options
         case format_type
         when :blossom
             return blossom_graph(graph)
@@ -19,6 +33,27 @@ class GraphFormatter
         else
             raise "Unsupported graph format type #{format_type.to_s}."
         end
+    end
+
+    #-----------#
+    # Utilities #
+    #-----------#
+
+    def self.get_colours(object)
+        return object.label.markset.to_a
+                .select {|m| m =~ /^#(?:[0-9a-fA-F]{3}){1,2}$/ || COLOURS.has_key?(m) }
+                .map { |c| COLOURS.has_key?(c) ? COLOURS[c] : c }
+                .map { |c| c.length == 4 ? '#' + c[1]*2 + c[2]*2 + c[3]*2 : c }
+                .map { |c| c.match(/#(.{2})(.{2})(.{2})/)[1..-1].map {|h| h.to_i(16)} }
+                .map { |c| Colour.new(*c) }
+    end
+
+    def self.add_colours(colours)
+        return colours.reduce(Colour.new(255, 255, 255)) {|sum, c| Colour.new( sum.r * c.r / 255.0, sum.g * c.g / 255.0, sum.b * c.b / 255.0 ) }
+    end
+
+    def self.add_colours(colours)
+        return colours.reduce(Colour.new(0, 0, 0)) {|sum, c| Colour.new(sum.r + c.r, sum.g + c.g, sum.b + c.b) }
     end
 
     #---------#
@@ -69,7 +104,10 @@ class GraphFormatter
     def self.dot_node(node)
         str = node.id.to_s
         if !node.label.value.nil?
-            str += " [label=\"" + blossom_label(node.label) + "\"]"
+            label = []
+            label.push("label=\"#{dot_label(node.label)}\"")
+            label.push(dot_colour(node))
+            str += " [" + label.compact.join(" ") + "]"
         end
         return str + ";"
     end
@@ -77,13 +115,27 @@ class GraphFormatter
     def self.dot_edge(edge)
         str = edge.source_id.to_s + " -> " + edge.target_id.to_s
         if !edge.label.value.nil?
-            str += " [label=\"" + blossom_label(edge.label) + "\"]"
+            str += " [label=\"" + dot_label(edge.label) + "\"" + dot_colour(edge) + "]"
         end
+        dot_colour(edge)
         return str + ";"
     end
 
     def self.dot_label(label)
         return label.value.to_s
+    end
+
+    def self.dot_colour(obj)
+        return nil if @@options[:colour_strategy] == :ignore
+        c = get_colours(obj)
+        return nil if c.empty?
+        case @@options[:colour_strategy]
+        when :merge
+            c = add_colours(c)
+        when :first
+            c = c.first
+        end
+        return "color=\"#{c.to_hex}\""
     end
 
     #---------#
