@@ -11,7 +11,7 @@ class Tracer
     end
 
     def save_graph(graph)
-        append("[Graph]")
+        append("[Graph::#{@saved_graph_count}]")
         filename = File.join(@tracing_directory, "graph_#{@saved_graph_count}")
         File.open(filename, 'w') do |file|
             file.puts(graph.to_s)
