@@ -24,21 +24,16 @@ class Runner
     end
 
     def self.syntax_error(error)
-        setup if !self.class.class_variable_defined? :@@log
         @@compile_errors.push(error)
-        report(error)
     end
 
     def self.compile_error(error)
-        setup if !self.class.class_variable_defined? :@@log
         @@compile_errors.push(error)
-        report(error)
     end
 
     def self.runtime_error(error)
-        setup if !self.class.class_variable_defined? :@@log
         @@runtime_errors.push(error)
-        report(error, true)
+        report(error)
         exit(ExitCode::SOFTWARE)
     end
 
@@ -50,10 +45,22 @@ class Runner
         return @@runtime_errors
     end
 
-    def self.report(error, fatal=false)
-        message =  "#{error.type}: #{error.message}\n"
-        message += "      location: #{error.location}\n\n"
-        if File.exists?(error.token.filename)
+    def self.report(error, plain=false)
+        message = error_report(error, plain)
+        if plain
+            puts message
+        else
+            @@log.error(message)
+        end
+    end
+
+    def self.error_report(error, plain=false)
+        message = ""
+        message += ConsoleStyle::BOLD_ON unless plain
+        message += "#{error.type}: #{error.message}\n"
+        message += "\tlocation: #{error.location}\n\n"
+        message += ConsoleStyle::BOLD_OFF unless plain
+        if File.exists?(error.token.filename) && !plain
             message += ConsoleStyle::ITALICS_ON
             source = File.read(error.token.filename)
             lines = source.split(/\n/)
@@ -61,18 +68,18 @@ class Runner
             to_line   = [error.token.line+4, lines.size-1].min
             (from_line...to_line).each do |i|
                 if i == (error.token.line - 1)
-                    message += ConsoleStyle::BOLD_ON + lines[i] + ConsoleStyle::BOLD_OFF + "\n"
+                    message += ConsoleStyle::BOLD_ON
+                    message += lines[i] 
+                    message += ConsoleStyle::BOLD_OFF
+                    message += "\n"
                 else
                     message += lines[i] + "\n"
                 end
             end
-            message += ConsoleStyle::RESET + "\n"
+            message += ConsoleStyle::RESET
+            message += "\n"
         end
-        if fatal
-            @@log.fatal(message)
-        else
-            @@log.error(message)
-        end
+        return message
     end
 
     def self.setup(log=nil)
@@ -88,7 +95,6 @@ class Runner
     #     trace_dir:       string (path)
     def self.run(prog_source, graph_source, prog_filename, graph_filename, options=nil)
         options ||= {}
-        # TODO: if options[:only_validate], output errors more programme-friendly (eg. remove colours)
         setup
 
         tokeniser = Tokeniser.new(graph_source, graph_filename)
@@ -105,8 +111,10 @@ class Runner
         parser = Parser.new(graph_tokens)
         graph = parser.parse_graph
 
-        type_checker = TypeChecker.new(nil)
-        type_checker.check_graph(graph)
+        if !@@compile_errors.empty?
+            @@compile_errors.each { |e| report(e, options[:only_validate]) }
+            exit(ExitCode::DATAERR)
+        end
 
         parser = Parser.new(programme_tokens)
         programme = parser.parse_programme
@@ -118,11 +126,15 @@ class Runner
         printer = Printer.new(programme)
         @@log.trace(printer.print_programme)
 
+        type_checker = TypeChecker.new(nil)
+        type_checker.check_graph(graph)
+
         @@log.trace("Type Checking...")
         type_checker = TypeChecker.new(programme)
         type_checker.check_programme
 
         if !@@compile_errors.empty?
+            @@compile_errors.each { |e| report(e, options[:only_validate]) }
             exit(ExitCode::DATAERR)
         end
 

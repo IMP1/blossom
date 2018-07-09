@@ -20,8 +20,10 @@ class Parser
         @procs = {}
         @parameters = nil
 
-        @matching = false
-        @applying = false
+        @matching  = false
+        @applying  = false
+        @condition = false
+        @addendum  = false
     end
 
     #--------------------------------------------------------------------------#
@@ -62,13 +64,13 @@ class Parser
 
     def consume_token(type, error_message)
         return advance if check(type)
-        raise error(peek, error_message + " Got #{peek}.")
+        e = BlossomSyntaxError.new(peek, error_message + " Got #{peek}.")
+        Runner.syntax_error(e)
     end
 
     def error(token, message)
         e = BlossomParseError.new(token, message)
         Runner.compile_error(e)
-        return e
     end
 
     def escape_string(str)
@@ -252,12 +254,16 @@ class Parser
         condition = nil
         if match_token(:WHERE)
             where_keyword_token = previous
+            @condition = true
             condition = expression
+            @condition = false
         end
         addendum = nil
         if match_token(:ALSO)
             addendun_keyword_token = previous
+            @addendum = true
             addendum = statement
+            @addendum = false
         end
         @parameters = nil
         if !match_token(:SEMICOLON, :END)
@@ -523,17 +529,25 @@ class Parser
         end
 
         if match_token(:IDENTIFIER)
-            if Function.methods(false).include?(previous.lexeme.to_sym)
-                return FunctionExpression.new(previous, previous.lexeme)
+            if !@matching && !@applying && !@condition && !@addendum
+                error(previous, "Invalid expression: #{previous.lexeme}")
             end
+
             if Procedure.methods(false).include?(previous.lexeme.to_sym)
                 return ProcedureStatement.new(previous, previous.lexeme)
             end
-            if !@parameters.has_key?(previous.lexeme)
-                error(previous, "Unrecognised variable name #{previous.lexeme}.")
+            if Function.methods(false).include?(previous.lexeme.to_sym)
+                return FunctionExpression.new(previous, previous.lexeme)
             end
-            type = @parameters[previous.lexeme][:type_name]
-            return VariableExpression.new(previous, previous.lexeme, type)
+            
+            if @parameters.nil?
+                error(previous, "Cannot have variables in a normal graph.")
+            elsif !@parameters.has_key?(previous.lexeme)
+                error(previous, "Unrecognised variable name #{previous.lexeme}.")
+            else
+                type = @parameters[previous.lexeme][:type_name]
+                return VariableExpression.new(previous, previous.lexeme, type)
+            end
         end
 
         if match_token(:LEFT_PAREN)

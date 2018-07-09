@@ -34,22 +34,21 @@ class Log
     end
 
     def fatal(message)
-        print ConsoleStyle::BOLD_ON + ConsoleStyle::FG_RED
+        print ConsoleStyle::FG_RED
         log(message, @source, FATAL)
     end
 
     def error(message)
-        print ConsoleStyle::BOLD_ON + ConsoleStyle::FG_RED
+        print ConsoleStyle::FG_RED
         log(message, @source, ERROR)
     end
 
     def warn(message)
-        print ConsoleStyle::BOLD_ON + ConsoleStyle::FG_YELLOW
+        print ConsoleStyle::FG_YELLOW
         log(message, @source, WARNING)
     end
 
     def info(message)
-        print ConsoleStyle::BOLD_ON
         log(message, @source, INFO)
     end
 
