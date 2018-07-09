@@ -3,7 +3,12 @@ require_relative 'objects/graph'
 
 class GraphFormatter
 
-    def self.format(graph, format_type)
+    # options
+    #     keep_rationals:  boolean
+    #     colour_strategy: [:ignore, :merge, :first]
+    def self.format(graph, format_type, options=nil)
+        # TODO: use options
+        options ||= {}
         case format_type
         when :blossom
             return blossom_graph(graph)
@@ -45,6 +50,7 @@ class GraphFormatter
 
     def self.blossom_label(label)
         val = label.value.to_s
+        val = label.value.to_f.to_s if label.value.is_a?(Rational) &&
         val = '"' + val + '"' if label.value.type == :string
         return [val, *label.markset].join(", ")
     end

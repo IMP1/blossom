@@ -16,10 +16,10 @@ Usage:
           [--output <path/to/output/graph/file.bg>]
           [--trace]
           [--trace-dir <path/to/trace/directory>]
-  (unimp) [--ignore-colours | --merge-colours]
-  (unimp) [--keep-rationals]
+          [--ignore-colours | --merge-colours]
+          [--keep-rationals]
           [--dot | --graphML | --blossom]
-  (unimp) [--validate]
+          [--validate]
 END
 
 # Output file
@@ -34,17 +34,15 @@ if ARGV.include?("--help") || ARGV.include?("help")
     puts "  version        : Prints the current version."
     puts "  input          : Specify a file to use for a initial graph."
     puts "  output         : Specify a file to print the resultant graph to."
-    puts "  validate       : Parses the programme and graph, doesn't execute, but outputs any errors." # TODO
+    puts "  validate       : Parses the programme and graph, doesn't execute, but outputs any errors."
     puts "  trace          : Creates interim graph files throughout the execution of the programme."
     puts "  trace-dir      : Specify a directory for the trace graphs to be created in."
-    puts "  ignore-colours : Don't add any colour styling to nodes/edges with colour-valued marks."    # TODO
-    puts "  merge-colours  : Have a node/edge be the average of any colour-valued marks it has."       # TODO
-    puts "  keep-rationals : Keep any rational numeric values as fractions in the resultant graph."    # TODO
+    puts "  ignore-colours : Don't add any colour styling to nodes/edges with colour-valued marks."
+    puts "  merge-colours  : Have a node/edge be the average of any colour-valued marks it has."
+    puts "  keep-rationals : Keep any rational numeric values as fractions in the resultant graph."
     puts "  dot            : Output the resultant graph in the dot format."
     puts "  graphML        : Output the resultant graph in the GraphML format."
     puts "  blossom        : Output the resultant graph in the blossom format (this is the default)."
-    puts
-    puts "  (unimp) = NOT YET IMPLEMENTED"
     puts
     puts "Examples:"
     puts
@@ -214,6 +212,31 @@ else
     output_format = :blossom
 end
 
+# Output Colours
+if ARGV.count {|a| a == "--ignore-colours" || a == "--merge-colours"} > 1
+    puts "Multiple output arguments were included (--ignore-colours and/or --merge-colours). Exiting."
+    exit(ExitCode::USAGE)
+end
+colour_strategy = nil
+if ARGV.count {|a| a == "--ignore-colours" } == 1
+    colour_strategy = :ignore
+    ARGV.delete("--ignore-colours")
+elsif ARGV.count {|a| a == "--merge-colours" } == 1
+    colour_strategy = :merge
+    ARGV.delete("--merge-colours")
+else
+    colour_strategy = :first
+end
+
+
+# Output Rationals
+if ARGV.count {|a| a == "--keep-rationals" } > 1
+    puts "Multiple output arguments were included (--keep-rationals). Exiting."
+    exit(ExitCode::USAGE)
+end
+keep_rationals = ARGV.delete("--keep-rationals")
+
+
 # Any Other Arguments
 valid = true
 ARGV.select {|a| a[0] == "-" }.each do |a|
@@ -255,17 +278,20 @@ else
     host_graph = gets.chomp
 end
 
-options = {
+run_options = {
     only_validate: !!validate,
     tracing: !!tracing,
     trace_dir: trace_directory,
 }
-output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, options)
+output_graph = Runner.run(programme_source, host_graph, programme_filename, host_graph_filename, run_options)
 $stdout.flush
 
-# TODO: other output options (rationals, colours, ...)
+output_options = {
+    colour_strategy: colour_strategy,
+    keep_rationals: !!keep_rationals,
+}
 
-output_file.write(GraphFormatter.format(output_graph, output_format))
+output_file.write(GraphFormatter.format(output_graph, output_format, output_options))
 output_file.write("\n")
 output_file.flush
 output_file.close
