@@ -13,14 +13,13 @@ class GraphFormatter
         '#red'  => '#ff0000',
         '#lime' => '#00ff00',
         '#blue' => '#0000ff',
-        # TODO: add more?
+        # TODO: add more named colours
     }
 
     # options
     #     keep_rationals:  boolean
     #     colour_strategy: [:ignore, :merge, :first]
     def self.format(graph, format_type, options=nil)
-        # TODO: use options
         options ||= {}
         @@options = options
         case format_type
@@ -165,6 +164,9 @@ class GraphFormatter
             end
             "\t<key id=\"label_#{value_type.to_s}\" for=\"all\" attr.name=\"label_value\" attr.type=\"#{type}\"/>"
         end.join("\n")
+        if @@options[:colour_strategy] != :ignore
+            header += "\n\t<key id=\"label_colour\" for=\"all\" attr.name=\"color\" attr.type=\"string\"/>\n"
+        end
 
         nodes = graph.nodes.map { |n| "\t\t" + graph_ml_node(n) }.join("\n")
         edges = graph.edges.map.with_index { |e, i| "\t\t" + graph_ml_edge(e, i) }.join("\n")
@@ -176,11 +178,16 @@ class GraphFormatter
     def self.graph_ml_node(node)
         puts "GraphML node:"
         str = "<node id=\"n#{node.id}\""
-        if !node.label.value.nil?
-            str += ">\n\t\t\t" + graph_ml_label(node.label)
-            str += "\n\t\t</node>"
+        label = []
+        label.push(graph_ml_label(node.label))
+        label.push(graph_ml_colour(node))
+        label.compact!
+        if label.empty?
+            str += " />"
         else
-            str += "/>"
+            str += ">\n"
+            str += label.map { |x| "\t\t\t" + x }.join("\n")
+            str += "\n\t\t</node>"
         end
         return str
     end
@@ -188,19 +195,45 @@ class GraphFormatter
     def self.graph_ml_edge(edge, edge_index)
         puts "GraphML edge:"
         str = "<edge id=\"e#{edge_index}\" source=\"n#{edge.source_id}\" target=\"n#{edge.target_id}\""
-        if !edge.label.value.nil?
-            str += ">\n\t\t\t" + graph_ml_label(edge.label)
-            str += "\n\t\t</edge>"
+        label = []
+        label.push(graph_ml_label(edge.label))
+        label.push(graph_ml_colour(edge))
+        label.compact!
+        if label.empty?
+            str += " />"
         else
-            str += "/>"
+            str += ">\n"
+            str += label.map { |x| "\t\t\t" + x }.join("\n")
+            str += "\n\t\t</edge>"
         end
+
         return str
     end
 
     def self.graph_ml_label(label)
+        return nil if label.value.nil?
         value = label.value
-        value = value.to_f if value.is_a?(Rational)
+        type  = label.type
+        if value.is_a?(Rational)
+            value = value.to_f 
+            type  = "double"
+        end
+        type == "boolean" if type == :bool
         return "<data key=\"label_#{label.type.to_s}\">#{value.to_s}</data>"
+    end
+
+    def self.graph_ml_colour(obj)
+        return nil if @@options[:colour_strategy] == :ignore
+        c = get_colours(obj)
+        return nil if c.empty?
+        case @@options[:colour_strategy]
+        when :merge
+            c = add_colours(c)
+        when :first
+            c = c.first
+        end
+
+        return "<data key=\"label_colour\">#{c.to_hex}</data>"
     end
 
 end
