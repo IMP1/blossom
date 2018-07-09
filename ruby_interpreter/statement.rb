@@ -9,7 +9,7 @@ class Statement
         @token = token
     end
 
-    def source
+    def to_s
         return token.lexeme
     end
 
@@ -59,8 +59,8 @@ class LoopStatement < Statement
         @statement = statement
     end
 
-    def source
-        return statement.source + "!"
+    def to_s
+        return statement.to_s + "!"
     end
 
 end
@@ -72,6 +72,10 @@ class TryStatement < Statement
     def initialize(token, statement)
         super(token)
         @statement = statement
+    end
+
+    def to_s
+        return "try(#{@statement.to_s})"
     end
 
 end
@@ -89,6 +93,12 @@ class IfStatement < Statement
         @else_stmt = else_stmt
     end
 
+    def to_s
+        str = "if(#{@condition.to_s} : #{@then_stmt.to_s}"
+        str += " : " + @else_stmt.to_s if !@else_stmt.nil?
+        return str + ")"
+    end
+
 end
 
 class WithStatement < Statement
@@ -104,6 +114,12 @@ class WithStatement < Statement
         @else_stmt = else_stmt
     end
 
+    def to_s
+        str = "if(#{@condition.to_s} : #{@then_stmt.to_s}"
+        str += " : " + @else_stmt.to_s if !@else_stmt.nil?
+        return str + ")"
+    end
+
 end
 
 class SequenceStatement < Statement
@@ -115,8 +131,8 @@ class SequenceStatement < Statement
         @statements = statements
     end
 
-    def source
-        return @statements.map { |s| s.source }.join(" ")
+    def to_s
+        return @statements.map { |s| s.to_s }.join(" ")
     end 
 
 end
@@ -130,8 +146,8 @@ class ChoiceStatement < Statement
         @statements = statements
     end
 
-    def source
-        return "{" + @statements.map { |s| s.source }.join(", ") + "}"
+    def to_s
+        return "{" + @statements.map { |s| s.to_s }.join(", ") + "}"
     end
 
 end
@@ -161,7 +177,7 @@ class RuleApplicationStatement < Statement
         @name = name
     end
 
-    def source
+    def to_s
         return @name
     end
 
@@ -176,7 +192,7 @@ class ProcedureApplicationStatement < Statement
         @name = name
     end
 
-    def source
+    def to_s
         return @name
     end
 
