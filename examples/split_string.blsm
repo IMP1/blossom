@@ -18,17 +18,17 @@ rule start
 
 rule order
     <int x>
-    [ 1, 2, 3 | 1->2 (x), 2->3 ]
+    [ 1, 2, 3 | 1->2 (x), 2->3 (void) ]
  => [ 1, 2, 3 | 1->2 (x), 2->3 (x+2) ];
     
 rule get_n
     <int n, x>
-    [ 1 (n), 2, 3 (x) | 2->3 (n) ]
+    [ 1 (n, #head), 2, 3 (x) | 2->3 (n) ]
  => []
 where incident(1) = 0
 also print(x);
 
-init split! start order! get_n
+init split! start order//! get_n
 
 // Minimised:
 

@@ -141,6 +141,10 @@ class RuleApplication
 
         # Any node matches must have edges in the host graph, if they have edges in the rule graph.
 
+        # TODO: Does this work? It looks like rule r1 [1,2|1->2, 1->2] will match the graph [1,2|1->2]
+        #       and that both the rule edges will be mapped to the same graph edge. This seems wrong.
+        #       Maybe do a count again. Unless multiple edges can be mapped to the same edge?
+
         possible_matches = possible_matches.select do |mapping|
             id_mapping = {}
             mapping.each { |k, v| id_mapping[k.id] = v.id }
@@ -167,17 +171,19 @@ class RuleApplication
         # the possible matches it can have.
 
         @variable_types = {}
-        @rule.parameters.each do |name, type|
+        @rule.parameters.each do |name, param|
             var_rule_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
             var_rule_edge = @rule.match_graph.edges.find { |edge| edge.label.value.is_a?(VariableLabelExpression) && edge.label.value.name == name }
             if var_rule_node.nil? && var_rule_edge.nil?
                 @log.warn("Variable '#{name}' is never used.")
             else
-                @variable_types[name] = type
+                @variable_types[name] = param[:type_name]
             end
         end
 
         possible_matches = possible_matches.select do |mapping|
+            id_mapping = {}
+            mapping.each { |k, v| id_mapping[k.id] = v.id }
             variable_values = {}
             @variable_types.each do |name, type|
                 var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
@@ -186,20 +192,28 @@ class RuleApplication
                 else
                     var_edge = @rule.match_graph.edges.find { |edge| edge.label.value.is_a?(VariableLabelExpression) && edge.label.value.name == name }
                     if !var_edge.nil?
-                        # TODO: [0.5.0] get a possible value for the variable? What if there are lots?
-                        #           it seems like this should expand the options, before it cuts them down again.
-                        # variable_values[name] = mapping[var_edge].label.value.value
+                        rule_var_edge_count = @rule.match_graph.edges.count { |edge| edge.label.value.is_a?(VariableLabelExpression) && edge.label.value.name == name }
+                        graph_var_values = @graph.edges.select   { |edge| edge.label.value.is_a?(LiteralLabelExpression) && edge.label.type == @variable_types[name] }
+                                                       .group_by { |edge| edge.label.value.value }
+                                                       .select   { |value, edges| edges.size >= rule_var_edge_count }
+                        @log.trace("Variable #{name} only exists in edge labels in the matching graph.")
+                        if graph_var_values.size > 1
+                            @log.trace("There are #{graph_var_values.size} possible values for #{name} variable.")
+                        end
+                        variable_values[name] = graph_var_values.keys.sample
                     end
                 end
             end
-            @rule.match_graph.nodes.select { |node| node.label.value.is_a?(VariableLabelExpression) }.all? do |node| 
-                variable_values[node.label.value.name] == mapping[node].label.value.value
-            end && 
-            @rule.match_graph.edges.select { |edge| edge.label.value.is_a?(VariableLabelExpression) }.all? do |edge|
-                # TODO: [0.5.0] include edge variable values in working out what values a variable can be.
-                # variable_values[edge.label.value.name] == mapping[edge].label.value.value
-                true
-            end  
+            @rule.match_graph.nodes.select { |node| node.label.value.is_a?(VariableLabelExpression) }
+                                   .all?   { |node| variable_values[node.label.value.name] == mapping[node].label.value.value } &&
+            @rule.match_graph.edges.select   { |edge| edge.label.value.is_a?(VariableLabelExpression) }
+                                   .group_by { |edge| edge.label.value.name }
+                                   .all?     { |name, edges| edges.all? { |edge|
+                    source_id = id_mapping[edge.source_id]
+                    target_id = id_mapping[edge.target_id]
+                    @graph.edges.count { |e| e.source_id == source_id && e.target_id == target_id  } >= edges.size
+                }
+            }
         end
 
         @log.trace("Removed mappings with conflicting variable usage.")
@@ -251,16 +265,28 @@ class RuleApplication
         }.join(", "))
 
         variable_values = {}
-        @log.trace("Variables:")
         @variable_types.each do |name, type|
             var_node = @rule.match_graph.nodes.find { |node| node.label.value.is_a?(VariableLabelExpression) && node.label.value.name == name }
-            if var_node.nil?
-                @log.warn("Variable #{name} is never used.")
-            else
+            if !var_node.nil?
                 variable_values[name] = application[var_node].label.value.value
-                @log.trace("#{name} (#{type[:type_name]}) = #{application[var_node].label.value.value}")
+                @log.trace("#{name} (#{type}) = #{application[var_node].label.value.value}")
+            else
+                var_edge = @rule.match_graph.edges.find { |edge| edge.label.value.is_a?(VariableLabelExpression) && edge.label.value.name == name }
+                if !var_edge.nil?
+                    rule_var_edge_count = @rule.match_graph.edges.count { |edge| edge.label.value.is_a?(VariableLabelExpression) && edge.label.value.name == name }
+                    graph_var_values = @graph.edges.select   { |edge| edge.label.value.is_a?(LiteralLabelExpression) && edge.label.type == @variable_types[name] }
+                                                   .group_by { |edge| edge.label.value.value }
+                                                   .select   { |value, edges| edges.size >= rule_var_edge_count }
+                    @log.trace("Variable #{name} only exists in edge labels in the matching graph.")
+                    if graph_var_values.size > 1
+                        @log.trace("There are #{graph_var_values.size} possible values for #{name} variable.")
+                    end
+                    variable_values[name] = graph_var_values.keys.sample
+                    @log.trace("#{name} (#{type}) = #{variable_values[name]}")
+                else
+                    @log.warn("Variable #{name} is never used.")
+                end
             end
-            # TODO: [0.5.0] get variable values from edges if need be. 
         end
 
         new_graph = @graph.clone
@@ -370,26 +396,40 @@ class RuleApplication
     # Graph node labels have, as their value, either nil (for `void`) or a literal value. 
     # They may also have nil for their whole label if it is not given (for `empty`).
     def label_value_match?(rule_label, graph_label)
+
+        # TODO: the following code is wrong somehow...
+        if @rule.name == "start" || @rule.name == "order"
+            @log.set_level(Log::ALL)
+            @log.set_output(File.open("trace/debug.log", 'a'))
+        end
+
         @log.trace("Checking label equality")
-        @log.trace(rule_label.inspect)
-        @log.trace(graph_label.inspect)
-        return true if rule_label.value.nil?
+        if rule_label.value.nil?
+            @log.trace("Rule label is nil (matches anything).")
+            return true 
+        end
 
         if rule_label.value.is_a?(MatcherLabelExpression) && rule_label.value.keyword == :any
+            @log.trace("Rule label is any (matches anything).")
             return true
         end
         if rule_label.value.is_a?(MatcherLabelExpression) && rule_label.value.keyword == :empty
-            @log.trace("Checking for empty")
-            return graph_label == nil
+            @log.trace("Checking for empty: " + (graph_label.nil? ? "Found." : "Not found."))
+            return graph_label.nil?
         end
         if rule_label.value.is_a?(MatcherLabelExpression) && rule_label.value.keyword == :void
-            @log.trace("Checking for void")
-            return graph_label.value == nil
+            @log.trace("Checking for void: " + (graph_label.value.nil? ? "Found." : "Not found."))
+            return graph_label.value.nil?
         end
         if rule_label.value.variable?
-            @log.trace("Checking variable type")
-            return true if rule_label.type == :any
-            return rule_label.type == graph_label.type
+            @log.trace("Checking for variable")
+            if rule_label.type == :any
+                @log.trace("Checking for any value: " + (!graph_label.value.nil? ? "Found." : "Not found." ))
+                return graph_label.value != nil
+            else
+                @log.trace("Checking for #{rule_label.type} value: " + (rule_label.type == graph_label.type ? "Found." : "Not found." ))
+                return rule_label.type == graph_label.type
+            end
         end
         if rule_label.value.is_a?(LiteralLabelExpression)
             @log.trace("Checking values")

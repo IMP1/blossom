@@ -83,7 +83,7 @@ class GraphFormatter
     def self.blossom_label(label)
         return "" if label.value.nil?
         val = label.value.to_s
-        val = nil if label.value&.keyword == :void
+        val = nil if label.value.is_a?(MatcherLabelExpression) && label.value.keyword == :void
         val = label.value.to_f.to_s if label.value.is_a?(Rational) &&
         val = '"' + val + '"' if label.value.type == :string
         return [val, *label.markset].compact.join(", ")
