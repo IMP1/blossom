@@ -77,7 +77,7 @@ and the second rule reduces these nodes' labels values where possible.
 Running both of these rules for as long as they can be applied will find the minimum distance from the original node to each other node.
 
 <!-- 
-    TODO: add a graphical representation of the rules (and the programme in general) to show off.
+    TODO: [1.0.0] add a graphical representation of the rules (and the programme in general) to show off.
 -->
 
 ## Documentation

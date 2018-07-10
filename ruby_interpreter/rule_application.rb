@@ -53,17 +53,6 @@ class RuleApplication
 
         new_graph = apply(mapping)
 
-        # TODO: tidy up new graph (have only literal label values - replace void with nil, and empty labels with Label.empty - (check the parser for examples))
-
-        puts "Node Labels: "
-        new_graph.nodes.each do |n| 
-            p n.label.value
-        end
-        puts "Edge Labels: "
-        new_graph.edges.each do |n| 
-            p n.label.value
-        end
-
         @tracer&.pop("[Rule::#{@rule.name}] Completed.")
         @tracer&.save_graph(new_graph)
         return new_graph
@@ -197,8 +186,8 @@ class RuleApplication
                 else
                     var_edge = @rule.match_graph.edges.find { |edge| edge.label.value.is_a?(VariableLabelExpression) && edge.label.value.name == name }
                     if !var_edge.nil?
-                        # TODO: get a possible value for the variable? What if there are lots?
-                        #       it seems like this should expand the options, before it cuts them down again.
+                        # TODO: [0.5.0] get a possible value for the variable? What if there are lots?
+                        #           it seems like this should expand the options, before it cuts them down again.
                         # variable_values[name] = mapping[var_edge].label.value.value
                     end
                 end
@@ -207,7 +196,7 @@ class RuleApplication
                 variable_values[node.label.value.name] == mapping[node].label.value.value
             end && 
             @rule.match_graph.edges.select { |edge| edge.label.value.is_a?(VariableLabelExpression) }.all? do |edge|
-                # TODO: include edge variable values in working out what values a variable can be.
+                # TODO: [0.5.0] include edge variable values in working out what values a variable can be.
                 # variable_values[edge.label.value.name] == mapping[edge].label.value.value
                 true
             end  
@@ -271,7 +260,7 @@ class RuleApplication
                 variable_values[name] = application[var_node].label.value.value
                 @log.trace("#{name} (#{type[:type_name]}) = #{application[var_node].label.value.value}")
             end
-            # TODO: get value from edges if need be.
+            # TODO: [0.5.0] get variable values from edges if need be. 
         end
 
         new_graph = @graph.clone
@@ -289,7 +278,6 @@ class RuleApplication
                 node_label_type = node_label_value.type
             end
 
-            # TODO: get markset.
             new_label = Label.new(node_label_value, node_label_type, rule_node.label&.markset.to_a)
 
             added_node = new_graph.add_node(new_label)

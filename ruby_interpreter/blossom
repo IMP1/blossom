@@ -98,7 +98,7 @@ if host_graph_index
             p e
             puts e.class
             
-            # TODO: handle system errors and return appropriate exit codes.
+            # TODO: [0.6.0] handle system errors and return appropriate exit codes.
             # http://blog.honeybadger.io/understanding-rubys-strange-errno-exceptions/
 
             puts "You don't have sufficient permissions to access the input graph file."
@@ -131,7 +131,7 @@ if output_index
         p e
         puts e.class
 
-        # TODO: handle system errors and return appropriate exit codes.
+        # TODO: [0.6.0] handle system errors and return appropriate exit codes.
         # http://blog.honeybadger.io/understanding-rubys-strange-errno-exceptions/
         
         puts "You don't have sufficient permissions to create the output file."
@@ -184,7 +184,7 @@ if tracing
         p e
         puts e.class
 
-        # TODO: handle system errors and return appropriate exit codes.
+        # TODO: [0.6.0] handle system errors and return appropriate exit codes.
         # http://blog.honeybadger.io/understanding-rubys-strange-errno-exceptions/
         
         puts "You don't have sufficient permissions to create the trace directory."
@@ -263,7 +263,7 @@ rescue SystemCallError => e
     p e
     puts e.class
     
-    # TODO: handle system errors and return appropriate exit codes.
+    # TODO: [0.6.0] handle system errors and return appropriate exit codes.
     # http://blog.honeybadger.io/understanding-rubys-strange-errno-exceptions/
 
     puts "You don't have sufficient permissions to access the programme file."

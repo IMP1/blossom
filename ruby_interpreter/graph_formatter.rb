@@ -13,7 +13,7 @@ class GraphFormatter
         '#red'  => '#ff0000',
         '#lime' => '#00ff00',
         '#blue' => '#0000ff',
-        # TODO: add more named colours
+        # TODO: [1.0.0] add more named colours
     }
 
     # options
