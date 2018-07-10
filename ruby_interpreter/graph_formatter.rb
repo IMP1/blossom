@@ -84,7 +84,7 @@ class GraphFormatter
         return "" if label.value.nil?
         val = label.value.to_s
         val = nil if label.value.is_a?(MatcherLabelExpression) && label.value.keyword == :void
-        val = label.value.to_f.to_s if label.value.is_a?(Rational) &&
+        val = label.value.to_f.to_s if label.value.is_a?(Rational) && !@@options[:keep_rationals]
         val = '"' + val + '"' if label.value.type == :string
         return [val, *label.markset].compact.join(", ")
     end
@@ -102,26 +102,24 @@ class GraphFormatter
 
     def self.dot_node(node)
         str = node.id.to_s
-        if !node.label.value.nil?
-            label = []
-            label.push("label=\"#{dot_label(node.label)}\"")
-            label.push(dot_colour(node))
-            str += " [" + label.compact.join(" ") + "]"
-        end
+        label = dot_label(node)
+        str += " [#{label}]" if !label.empty?
         return str + ";"
     end
 
     def self.dot_edge(edge)
         str = edge.source_id.to_s + " -> " + edge.target_id.to_s
-        if !edge.label.value.nil?
-            str += " [label=\"" + dot_label(edge.label) + "\"" + dot_colour(edge) + "]"
-        end
-        dot_colour(edge)
+        label = dot_label(edge)
+        str += " [#{label}]" if !label.empty?
         return str + ";"
     end
 
-    def self.dot_label(label)
-        return label.value.to_s
+    def self.dot_label(obj)
+        val = obj.label.value.to_s
+        val = nil if obj.label.value.is_a?(MatcherLabelExpression) && obj.label.value.keyword == :void
+        val = obj.label.value.to_f.to_s if obj.label.value.is_a?(Rational) && !@@options[:keep_rationals]
+        val = "label=\"#{val}\"" if !val.nil?
+        return [val, dot_colour(obj)].compact.join(" ")
     end
 
     def self.dot_colour(obj)
