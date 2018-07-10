@@ -68,25 +68,25 @@ class GraphFormatter
 
     def self.blossom_node(node)
         str = node.id.to_s
-        if !node.label.value.nil?
-            str += " (" + blossom_label(node.label) + ")"
-        end
+        label = blossom_label(node.label)
+        str += " (#{label})" if !label.empty?
         return str
     end
 
     def self.blossom_edge(edge)
         str = edge.source_id.to_s + " -> " + edge.target_id.to_s
-        if !edge.label.value.nil?
-            str += " (" + blossom_label(edge.label) + ")"
-        end
+        label = blossom_label(edge.label)
+        str += " (#{label})" if !label.empty?
         return str
     end
 
     def self.blossom_label(label)
+        return "" if label.value.nil?
         val = label.value.to_s
+        val = nil if label.value&.keyword == :void
         val = label.value.to_f.to_s if label.value.is_a?(Rational) &&
         val = '"' + val + '"' if label.value.type == :string
-        return [val, *label.markset].join(", ")
+        return [val, *label.markset].compact.join(", ")
     end
 
     #----------------#

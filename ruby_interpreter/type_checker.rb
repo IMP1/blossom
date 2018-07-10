@@ -46,6 +46,12 @@ class TypeChecker < Visitor
         graph.nodes.group_by { |n| n.id }.select { |id, nodes| nodes.size > 1 }.each do |id, nodes|
             error(graph, "There were #{nodes.size} nodes with the ID #{id}. IDs must be unique within a graph.")
         end
+        graph.edges.select { |e| !graph.nodes.any? {|n| e.source_id == n.id }}.each do |edge|
+            error(edge, "The edge's source (#{edge.source_id}) is not an ID of a node in the graph.")
+        end
+        graph.edges.select { |e| !graph.nodes.any? {|n| e.target_id == n.id }}.each do |edge|
+            error(edge, "The edge's target (#{edge.target_id}) is not an ID of a node in the graph.")
+        end
         graph.nodes.each { |n| check_expression(n) }
         graph.edges.each { |n| check_expression(n) }
     end
@@ -99,9 +105,9 @@ class TypeChecker < Visitor
     end
 
     def visit_EdgeExpression(expr)
-        label = nil # is AnyLabel in match_graphs and EmptyLabel in result_graphs
+
         if !expr.label.nil?
-            label = check_expression(expr.label)
+            check_expression(expr.label)
         end
     end
 

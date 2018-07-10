@@ -41,7 +41,7 @@ class RuleApplication
             @tracer&.pop
         end
 
-        # TODO: should all of the mappings return a valid graph?
+        # All mappings at this point should be applied successfuly.
 
         mapping = mappings.sample
 
@@ -55,12 +55,14 @@ class RuleApplication
 
         # TODO: tidy up new graph (have only literal label values - replace void with nil, and empty labels with Label.empty - (check the parser for examples))
 
-        # new_graph.nodes.each do |n| 
-        #     p n.label.value.class
-        # end
-        # new_graph.edges.each do |n| 
-        #     p n.label.value.class
-        # end
+        puts "Node Labels: "
+        new_graph.nodes.each do |n| 
+            p n.label.value
+        end
+        puts "Edge Labels: "
+        new_graph.edges.each do |n| 
+            p n.label.value
+        end
 
         @tracer&.pop("[Rule::#{@rule.name}] Completed.")
         @tracer&.save_graph(new_graph)
@@ -288,13 +290,12 @@ class RuleApplication
             end
 
             # TODO: get markset.
-            new_label = Label.new(node_label_value, node_label_type, rule_node.label&.markset)
+            new_label = Label.new(node_label_value, node_label_type, rule_node.label&.markset.to_a)
 
             added_node = new_graph.add_node(new_label)
             added_node_mappings[rule_node.id] = added_node.id
         end
         @log.trace("Added new nodes.")
-        # TODO: make sure edges to new nodes are correctly mapped.
 
         removed_rule_nodes.each do |rule_node|
             new_graph.remove_node(application[rule_node].id)
@@ -408,9 +409,9 @@ class RuleApplication
             @log.trace(graph_label.value.inspect)
             return rule_label.value.value == graph_label.value.value
         end
-        puts "Unaccounted-for label value pairing: "
-        p rule_label
-        p graph_label
+        @log.fatal("Unaccounted-for label value pairing: ")
+        @log.fatal(rule_label)
+        @log.fatal(graph_label)
         raise "Unaccounted-for label value pairing."
     end
 
