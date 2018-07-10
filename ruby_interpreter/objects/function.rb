@@ -101,6 +101,13 @@ class Function
         end
     end
 
+    def self.int
+        # Takes any value and converts it to an integer.
+        return Function.new("int", :int, [:any]) do |evaluator, args|
+            args[0].to_i
+        end
+    end
+
     def self.head
         # Returns the first character of a string
         return Function.new("head", :string, [:string]) do |evaluator, args|
