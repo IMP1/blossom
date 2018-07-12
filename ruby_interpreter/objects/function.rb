@@ -94,6 +94,13 @@ class Function
         end
     end
 
+    def self.distinct?
+        return Function.new("distinct?", :bool, [:int, :int]) do |evaluator, args|
+            mappings = evaluator.mapping.select {|k, v| args.include?(k) }
+            mappings[args[0]] != mappings[args[1]]
+        end
+    end
+
     def self.str
         # Takes any value and converts it to a string.
         return Function.new("str", :string, [:any]) do |evaluator, args|

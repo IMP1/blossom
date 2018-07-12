@@ -10,7 +10,7 @@ prog_text = <<~HEREDOC
         <int x, y; bool z>
         [ 1 (x), 2 (y) | 1->2 (void) ]
      => [ 1 (x), 2 (-y) | 1->2 (0) ]
-        where node(1) != node(2);
+        where distinct?(1, 2);
 
     foo
 HEREDOC
@@ -25,7 +25,7 @@ Test.require do
 
 end
 
-graph_text = '[1 (2), 2 (1), 3 | 1->2, 2->3, 1->3 ]'
+graph_text = '[1 (2), 2 (1), 3 | 1->2, 2->3, 1->1 ]'
 
 $verbose = true
 
